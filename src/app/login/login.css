@@ -1,0 +1,26 @@
+/* ===== LOGIN PAGE — additional styles ===== */
+
+/* Password row: label + forgot link on same line */
+.login-password-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login-forgot-link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4F46E5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-forgot-link:hover {
+  color: #4338CA;
+  text-decoration: underline;
+}
+
+/* Slightly tighter card for the login (fewer fields = less vertical space) */
+.login-card .register-form {
+  gap: 1.35rem;
+}
