@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Frontend (React + Vite)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5173"],
+      "port": 5173,
+      "cwd": "frontend"
+    },
+    {
+      "name": "Backend (.NET 8 API)",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run"],
+      "port": 44395,
+      "cwd": "backend"
+    }
+  ]
+}
