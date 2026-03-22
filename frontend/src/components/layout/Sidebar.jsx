@@ -18,7 +18,7 @@ const Sidebar = () => {
             to={item.to}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               location.pathname === item.to
-                ? 'bg-primary-50 text-primary-700'
+                ? 'bg-blue-50 text-blue-700'
                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >

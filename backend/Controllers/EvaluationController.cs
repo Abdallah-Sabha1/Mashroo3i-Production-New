@@ -36,12 +36,29 @@ namespace backend.Controllers
             if (idea.Evaluation != null)
                 return Conflict(new { message = "Evaluation already exists for this idea." });
 
-            var evaluation = await _aiService.EvaluateBusinessIdea(idea);
-
-            _context.Evaluations.Add(evaluation);
+            // Set status to analyzing
+            idea.Status = Models.BusinessIdea.StatusAnalyzing;
             await _context.SaveChangesAsync();
 
-            return Ok(MapToResponse(evaluation));
+            try
+            {
+                var evaluation = await _aiService.EvaluateBusinessIdeaAsync(idea);
+
+                _context.Evaluations.Add(evaluation);
+
+                // Set status to completed
+                idea.Status = Models.BusinessIdea.StatusCompleted;
+                await _context.SaveChangesAsync();
+
+                return Ok(MapToResponse(evaluation));
+            }
+            catch (Exception)
+            {
+                // Revert status on failure
+                idea.Status = Models.BusinessIdea.StatusSubmitted;
+                await _context.SaveChangesAsync();
+                throw;
+            }
         }
 
         [HttpGet("{ideaId}")]

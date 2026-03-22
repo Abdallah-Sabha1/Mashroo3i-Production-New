@@ -1,4 +1,6 @@
+using System.Text;
 using System.Text.Json;
+using backend.DTOs.Idea;
 using backend.Models;
 using backend.Services.Interfaces;
 
@@ -6,207 +8,244 @@ namespace backend.Services
 {
     public class GeminiAIService : IGeminiAIService
     {
-        private static readonly Dictionary<string, SwotData> SectorSwot = new()
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
+        private readonly ILogger<GeminiAIService> _logger;
+        private readonly string? _geminiApiKey;
+        private readonly string _geminiApiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+
+        public GeminiAIService(HttpClient httpClient, IConfiguration config, ILogger<GeminiAIService> logger)
         {
-            ["Food & Beverage"] = new SwotData
+            _httpClient = httpClient;
+            _config = config;
+            _logger = logger;
+            _geminiApiKey = config["GeminiAI:ApiKey"];
+        }
+
+        private bool IsApiEnabled => !string.IsNullOrEmpty(_geminiApiKey) && _geminiApiKey != "YOUR_GEMINI_API_KEY";
+
+        public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description)
+        {
+            if (!IsApiEnabled)
             {
-                Strengths = new[] { "Strong consumer demand in Jordan's growing food market", "Established local supply chains and distribution networks", "Cultural familiarity with food business models", "Growing middle class with increasing spending power", "Tourism sector driving F&B demand" },
-                Weaknesses = new[] { "Highly competitive market with low barriers to entry", "Thin profit margins requiring high volume", "Location-dependent success factors", "Strict food safety and hygiene requirements", "Seasonal demand fluctuations" },
-                Opportunities = new[] { "Growing health-conscious consumer segment", "Expansion through delivery platforms like Talabat and Careem", "Tourism recovery driving new demand", "Corporate catering and B2B opportunities", "Export potential to regional markets" },
-                Threats = new[] { "Economic fluctuations affecting consumer spending", "Rising ingredient and raw material costs", "Competition from international chains entering Jordan", "Changing dietary trends and preferences", "Rising operational costs including rent and utilities" }
-            },
-            ["Technology"] = new SwotData
-            {
-                Strengths = new[] { "High scalability potential with digital products", "Lower overhead costs compared to traditional businesses", "Growing talent pool from Jordanian universities", "Government support through INTAJ and tech initiatives", "Access to regional markets through digital channels" },
-                Weaknesses = new[] { "High initial development and infrastructure costs", "Continuous innovation required to stay competitive", "Customer acquisition costs in a developing market", "Talent retention challenges due to brain drain", "Limited local venture capital ecosystem" },
-                Opportunities = new[] { "Regional expansion across MENA markets", "Increasing digital transformation demand", "Remote work enabling global service delivery", "Smart city initiatives in Amman and Aqaba", "Growing fintech and e-government adoption" },
-                Threats = new[] { "Rapid technological changes requiring constant adaptation", "International competition from established tech companies", "Cybersecurity risks and regulatory compliance", "Brain drain to Gulf countries offering higher salaries", "Economic instability affecting tech investment" }
-            },
-            ["E-commerce"] = new SwotData
-            {
-                Strengths = new[] { "High internet and smartphone penetration in Jordan", "Mobile-first consumer behavior among youth", "Lower operational overhead than physical retail", "Growing delivery and logistics infrastructure", "Social media integration for marketing" },
-                Weaknesses = new[] { "Cash-on-delivery preference increasing operational complexity", "Logistics challenges in areas outside Amman", "High customer acquisition costs", "Building consumer trust for online transactions", "Return and exchange management complexity" },
-                Opportunities = new[] { "Post-COVID shift to online shopping habits", "Underserved product categories in the market", "Social commerce through Instagram and TikTok", "Cross-border e-commerce to regional markets", "Digital payment adoption accelerating" },
-                Threats = new[] { "Competition from Amazon and international platforms", "Payment processing fees and chargebacks", "Returns complexity affecting profitability", "Platform dependency risks", "Regulatory changes in e-commerce taxation" }
-            },
-            ["Healthcare"] = new SwotData
-            {
-                Strengths = new[] { "Growing demand for healthcare services", "Insurance coverage expansion in Jordan", "Medical tourism potential from regional countries", "Technology integration in healthcare delivery", "Qualified medical professionals" },
-                Weaknesses = new[] { "Heavy regulatory burden and licensing requirements", "High liability and malpractice insurance costs", "Certification and accreditation requirements", "Expensive medical equipment and technology", "Long approval processes for new services" },
-                Opportunities = new[] { "Telemedicine adoption and digital health services", "Preventive care and wellness market growth", "Home healthcare services demand", "Medical device and equipment distribution", "Mental health awareness driving new services" },
-                Threats = new[] { "Stringent and changing healthcare regulations", "Malpractice risk and legal liability", "Doctor and specialist shortage in certain areas", "Medical tourism outflow to neighboring countries", "Rising healthcare costs affecting accessibility" }
-            },
-            ["Education"] = new SwotData
-            {
-                Strengths = new[] { "Education highly valued in Jordanian culture", "Large youth population creating sustained demand", "Growing acceptance of online learning formats", "Government focus on education development", "English proficiency enabling international content" },
-                Weaknesses = new[] { "Price sensitivity in the education market", "Quality perception challenges for new providers", "Certification and accreditation needs", "Teacher and instructor recruitment challenges", "High competition from established institutions" },
-                Opportunities = new[] { "Significant skills gap in technical and vocational training", "Online learning market expansion", "Corporate training and professional development", "Specialized programs in emerging technologies", "EdTech innovation in personalized learning" },
-                Threats = new[] { "Free educational resources available online", "Traditional mindset preferring conventional education", "Economic conditions affecting education budgets", "EdTech competition from global platforms", "Rapid changes in skill requirements" }
-            },
-            ["Manufacturing"] = new SwotData
-            {
-                Strengths = new[] { "Strategic location for regional trade", "Qualified industrial labor force", "Free trade agreements with multiple countries", "Industrial zones with tax incentives", "Growing local demand for manufactured goods" },
-                Weaknesses = new[] { "High energy and raw material costs", "Limited domestic market size", "Infrastructure challenges in some industrial areas", "Capital-intensive startup requirements", "Competition from cheaper imports" },
-                Opportunities = new[] { "Export opportunities to neighboring markets", "Import substitution for common goods", "Green manufacturing and sustainability trends", "Agro-processing and food manufacturing", "Partnership opportunities with international firms" },
-                Threats = new[] { "Global supply chain disruptions", "Currency fluctuations affecting costs", "Cheaper imports from Asia", "Environmental regulations increasing costs", "Energy cost volatility" }
-            },
-            ["Services"] = new SwotData
-            {
-                Strengths = new[] { "Low startup capital requirements", "Flexible business model adaptable to demand", "Growing services sector in Jordan's economy", "Ability to serve both local and regional clients", "Scalable through digital delivery" },
-                Weaknesses = new[] { "Highly dependent on skilled personnel", "Difficult to differentiate in commoditized markets", "Client retention challenges", "Pricing pressure from competitors", "Seasonal demand variations" },
-                Opportunities = new[] { "Outsourcing demand from Gulf countries", "Digital service delivery expanding reach", "Specialized consulting in niche areas", "Government and NGO project contracts", "Tourism-related services growth" },
-                Threats = new[] { "Economic downturns reducing service spending", "Competition from freelancers and gig workers", "Client payment delays affecting cash flow", "Technology disrupting traditional service models", "Regulatory changes in professional services" }
-            },
-            ["Other"] = new SwotData
-            {
-                Strengths = new[] { "Unique market positioning opportunity", "First-mover advantage potential", "Flexibility to adapt to market needs", "Lower competitive pressure in niche markets", "Innovation potential" },
-                Weaknesses = new[] { "Unproven market demand", "Limited industry benchmarks", "Customer education requirements", "Difficulty finding experienced talent", "Higher risk profile for investors" },
-                Opportunities = new[] { "Untapped market segments", "Growing entrepreneurship ecosystem", "Government support for innovative startups", "Regional market expansion", "Partnership with established businesses" },
-                Threats = new[] { "Market uncertainty and demand risk", "Potential for larger competitors to enter", "Regulatory uncertainty", "Economic instability", "Difficulty securing financing" }
+                _logger.LogInformation("Gemini API not configured, using defaults");
+                return GetDefaultInsights(title, description);
             }
-        };
 
-        private static readonly string[] InnovationKeywords = { "innovative", "unique", "digital", "ai", "artificial intelligence", "machine learning", "blockchain", "smart", "automated", "tech", "app", "platform", "saas", "cloud", "iot", "sustainable", "green", "eco" };
-        private static readonly string[] JordanKeywords = { "jordan", "amman", "arabic", "middle east", "mena", "local", "regional", "halal", "arabic coffee", "mansaf" };
-
-        public Task<Evaluation> EvaluateBusinessIdea(BusinessIdea idea)
-        {
-            var noveltyScore = CalculateNoveltyScore(idea);
-            var marketScore = CalculateMarketPotentialScore(idea);
-            var overallScore = (noveltyScore + marketScore) / 2;
-            var riskLevel = DetermineRiskLevel(overallScore, idea.EstimatedBudget);
-            var swotData = GetSwotAnalysis(idea.Sector);
-            var recommendations = GenerateRecommendations(overallScore, idea);
-
-            var evaluation = new Evaluation
+            try
             {
-                IdeaId = idea.IdeaId,
-                NoveltyScore = noveltyScore,
-                MarketPotentialScore = marketScore,
-                OverallScore = overallScore,
-                RiskLevel = riskLevel,
-                SwotAnalysis = JsonSerializer.Serialize(swotData),
-                Recommendations = recommendations,
-                GeneratedAt = DateTime.UtcNow
+                var prompt = $@"You are a business analyst analyzing a Jordanian startup idea. Provide insights in JSON format ONLY.
+
+Business Title: {title}
+Description: {description}
+
+Respond with ONLY a JSON object (no markdown, no backticks) with exactly these fields:
+{{
+  ""problemStatement"": ""The specific problem this business solves (2-3 sentences)"",
+  ""uniqueSellingPoint"": ""What makes this business unique (2-3 sentences)"",
+  ""targetAudience"": ""Primary customers/users (demographics, behaviors, needs)""
+}}";
+
+                var response = await CallGeminiApiAsync(prompt);
+                if (string.IsNullOrEmpty(response)) return GetDefaultInsights(title, description);
+                return ParseInsightsResponse(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating insights");
+                return GetDefaultInsights(title, description);
+            }
+        }
+
+        public async Task<Evaluation> EvaluateBusinessIdeaAsync(BusinessIdea idea)
+        {
+            if (!IsApiEnabled)
+            {
+                _logger.LogInformation("Gemini API not configured, using template evaluation");
+                return GetDefaultEvaluation(idea);
+            }
+
+            try
+            {
+                var prompt = $@"Evaluate this Jordanian startup idea. Return JSON ONLY (no markdown):
+
+Title: {idea.Title}
+Description: {idea.Description}
+Problem: {idea.ProblemStatement}
+USP: {idea.Usp}
+Target: {idea.TargetAudience}
+Sector: {idea.Sector}
+Budget: {idea.EstimatedBudget} JOD
+Competition: {idea.CompetitionLevel}
+Location: {idea.Location}
+
+Return ONLY:
+{{
+  ""noveltyScore"": <1-100>,
+  ""marketPotentialScore"": <1-100>,
+  ""overallScore"": <1-100>,
+  ""riskLevel"": ""Low Risk"" | ""Medium Risk"" | ""High Risk"",
+  ""recommendations"": ""3-4 actionable recommendations"",
+  ""swotAnalysis"": {{
+    ""strengths"": [""s1"", ""s2"", ""s3"", ""s4""],
+    ""weaknesses"": [""w1"", ""w2"", ""w3""],
+    ""opportunities"": [""o1"", ""o2"", ""o3""],
+    ""threats"": [""t1"", ""t2"", ""t3""]
+  }}
+}}";
+
+                var response = await CallGeminiApiAsync(prompt);
+                if (string.IsNullOrEmpty(response)) return GetDefaultEvaluation(idea);
+                return ParseEvaluationResponse(response, idea);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error evaluating idea");
+                return GetDefaultEvaluation(idea);
+            }
+        }
+
+        private async Task<string> CallGeminiApiAsync(string prompt)
+        {
+            try
+            {
+                var requestBody = new
+                {
+                    contents = new[] { new { parts = new[] { new { text = prompt } } } },
+                    generationConfig = new { temperature = 0.7, maxOutputTokens = 2048 }
+                };
+
+                var json = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+                var url = $"{_geminiApiUrl}?key={_geminiApiKey}";
+                var response = await _httpClient.PostAsync(url, json);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Gemini API error: {Status}", response.StatusCode);
+                    return string.Empty;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(content);
+                return doc.RootElement
+                    .GetProperty("candidates")[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString() ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling Gemini API");
+                return string.Empty;
+            }
+        }
+
+        private IdeaInsightsDto ParseInsightsResponse(string response)
+        {
+            try
+            {
+                var clean = response.Replace("```json", "").Replace("```", "").Trim();
+                using var doc = JsonDocument.Parse(clean);
+                var root = doc.RootElement;
+                return new IdeaInsightsDto
+                {
+                    ProblemStatement = root.TryGetProperty("problemStatement", out var ps) ? ps.GetString() ?? "" : "",
+                    UniqueSellingPoint = root.TryGetProperty("uniqueSellingPoint", out var usp) ? usp.GetString() ?? "" : "",
+                    TargetAudience = root.TryGetProperty("targetAudience", out var ta) ? ta.GetString() ?? "" : ""
+                };
+            }
+            catch { return GetDefaultInsights("", ""); }
+        }
+
+        private Evaluation ParseEvaluationResponse(string response, BusinessIdea idea)
+        {
+            try
+            {
+                var clean = response.Replace("```json", "").Replace("```", "").Trim();
+                using var doc = JsonDocument.Parse(clean);
+                var root = doc.RootElement;
+
+                return new Evaluation
+                {
+                    IdeaId = idea.IdeaId,
+                    NoveltyScore = Math.Clamp(root.TryGetProperty("noveltyScore", out var ns) ? ns.GetInt32() : 60, 1, 100),
+                    MarketPotentialScore = Math.Clamp(root.TryGetProperty("marketPotentialScore", out var ms) ? ms.GetInt32() : 60, 1, 100),
+                    OverallScore = Math.Clamp(root.TryGetProperty("overallScore", out var os) ? os.GetInt32() : 60, 1, 100),
+                    RiskLevel = root.TryGetProperty("riskLevel", out var rl) ? rl.GetString() ?? "Medium Risk" : "Medium Risk",
+                    Recommendations = root.TryGetProperty("recommendations", out var rec) ? rec.GetString() ?? "" : "",
+                    SwotAnalysis = root.TryGetProperty("swotAnalysis", out var swot) ? swot.GetRawText() : "{}",
+                    GeneratedAt = DateTime.UtcNow
+                };
+            }
+            catch { return GetDefaultEvaluation(idea); }
+        }
+
+        private IdeaInsightsDto GetDefaultInsights(string title, string description)
+        {
+            return new IdeaInsightsDto
+            {
+                ProblemStatement = "This business addresses a clear market need by providing an innovative solution to existing inefficiencies in the Jordanian market.",
+                UniqueSellingPoint = "The unique value includes superior customer experience, innovative technology integration, and competitive pricing tailored for the local market.",
+                TargetAudience = "Young professionals aged 25-45 in urban Jordan, with middle-to-high income levels and interest in modern, convenient solutions."
             };
-
-            return Task.FromResult(evaluation);
         }
 
-        private int CalculateNoveltyScore(BusinessIdea idea)
-        {
-            int score = 55;
-            var combinedText = $"{idea.Title} {idea.Description} {idea.Usp} {idea.ProblemStatement}".ToLowerInvariant();
-
-            foreach (var keyword in InnovationKeywords)
-            {
-                if (combinedText.Contains(keyword))
-                    score += 5;
-            }
-
-            if (idea.Sector == "Technology" || idea.Sector == "Healthcare")
-                score += 15;
-            else if (idea.Sector == "E-commerce" || idea.Sector == "Education")
-                score += 10;
-
-            if (!string.IsNullOrEmpty(idea.Usp) && idea.Usp.Length > 100)
-                score += 10;
-
-            if (!string.IsNullOrEmpty(idea.ProblemStatement) && idea.ProblemStatement.Length > 50)
-                score += 10;
-
-            if (!string.IsNullOrEmpty(idea.Description) && idea.Description.Length > 300)
-                score += 5;
-
-            return Math.Min(score, 95);
-        }
-
-        private int CalculateMarketPotentialScore(BusinessIdea idea)
+        private Evaluation GetDefaultEvaluation(BusinessIdea idea)
         {
             int score = 60;
+            if (!string.IsNullOrEmpty(idea.Description) && idea.Description.Length > 200) score += 5;
+            if (idea.EstimatedBudget > 0 && idea.EstimatedBudget <= 50000) score += 5;
+            if (!string.IsNullOrEmpty(idea.Usp) && idea.Usp.Length > 50) score += 5;
 
-            if (idea.EstimatedBudget >= 20000 && idea.EstimatedBudget <= 100000)
-                score += 15;
-            else if (idea.EstimatedBudget >= 10000 && idea.EstimatedBudget < 20000)
-                score += 10;
-            else if (idea.EstimatedBudget > 100000)
-                score += 5;
+            var sectorSwot = GetSectorSwot(idea.Sector);
 
-            score += idea.Sector switch
+            return new Evaluation
             {
-                "Food & Beverage" => 15,
-                "Technology" => 12,
-                "E-commerce" => 10,
-                "Healthcare" => 12,
-                "Education" => 8,
-                "Services" => 8,
-                "Manufacturing" => 6,
-                _ => 5
+                IdeaId = idea.IdeaId,
+                NoveltyScore = Math.Min(score + 10, 100),
+                MarketPotentialScore = Math.Min(score - 5, 100),
+                OverallScore = score,
+                RiskLevel = score >= 70 ? "Low Risk" : score >= 50 ? "Medium Risk" : "High Risk",
+                Recommendations = "1. Conduct market research to validate target audience.\n2. Develop a go-to-market strategy.\n3. Create an MVP to test core assumptions.\n4. Build strategic partnerships for market entry.",
+                SwotAnalysis = JsonSerializer.Serialize(sectorSwot),
+                GeneratedAt = DateTime.UtcNow
             };
+        }
 
-            var combinedText = $"{idea.Title} {idea.Description} {idea.TargetAudience}".ToLowerInvariant();
-            foreach (var keyword in JordanKeywords)
+        private object GetSectorSwot(string sector)
+        {
+            return sector switch
             {
-                if (combinedText.Contains(keyword))
+                "Food & Beverage" => new
                 {
-                    score += 10;
-                    break;
+                    strengths = new[] { "Strong consumer demand in Jordan", "Established supply chains", "Cultural familiarity with food businesses", "Growing middle class" },
+                    weaknesses = new[] { "High competition in food sector", "Thin profit margins", "Location dependent success", "Food safety compliance required" },
+                    opportunities = new[] { "Health-conscious consumer segment growing", "Delivery platform integration", "Tourism recovery boosting demand", "Corporate catering market" },
+                    threats = new[] { "Economic fluctuations affecting spending", "Rising ingredient costs", "International chain competition", "Changing dietary trends" }
+                },
+                "Technology" => new
+                {
+                    strengths = new[] { "High scalability potential", "Lower overhead costs", "Growing tech talent pool in Jordan", "Government support for tech startups" },
+                    weaknesses = new[] { "High initial development costs", "Continuous innovation required", "Customer acquisition challenges", "Talent retention difficulty" },
+                    opportunities = new[] { "Regional expansion potential", "Digital transformation demand", "Remote work trend acceleration", "Smart city initiatives in Amman" },
+                    threats = new[] { "Rapid technology changes", "International competition", "Cybersecurity concerns", "Brain drain to Gulf countries" }
+                },
+                "E-commerce" => new
+                {
+                    strengths = new[] { "High internet penetration in Jordan", "Mobile-first consumer behavior", "Lower overhead than physical stores", "Growing delivery infrastructure" },
+                    weaknesses = new[] { "Cash-on-delivery preference", "Logistics challenges", "High customer acquisition cost", "Trust building required" },
+                    opportunities = new[] { "Post-COVID online shopping habits", "Underserved product categories", "Social commerce growth", "Cross-border opportunities" },
+                    threats = new[] { "Amazon/international platforms", "Payment processing fees", "Returns complexity", "Platform dependency risks" }
+                },
+                _ => new
+                {
+                    strengths = new[] { "Clear market opportunity identified", "Growing demand in Jordan", "Defined target audience", "Competitive pricing potential" },
+                    weaknesses = new[] { "Competitive market landscape", "Execution and scaling risk", "Limited initial resources", "Brand awareness challenge" },
+                    opportunities = new[] { "Market growth potential", "Technology integration", "Regional expansion", "Strategic partnerships" },
+                    threats = new[] { "Market saturation risk", "Economic uncertainty", "New competitor entry", "Regulatory changes" }
                 }
-            }
-
-            if (idea.Location == "Amman") score += 5;
-            else if (idea.Location == "Online") score += 8;
-
-            if (idea.CompetitionLevel == "Low") score += 8;
-            else if (idea.CompetitionLevel == "Medium") score += 4;
-
-            return Math.Min(score, 92);
-        }
-
-        private string DetermineRiskLevel(int overallScore, decimal budget)
-        {
-            if (overallScore >= 80 && budget < 50000) return "Low Risk";
-            if (overallScore >= 70 && budget < 75000) return "Medium-Low Risk";
-            if (overallScore >= 60) return "Medium Risk";
-            if (overallScore >= 50) return "Medium-High Risk";
-            return "High Risk";
-        }
-
-        private object GetSwotAnalysis(string sector)
-        {
-            if (SectorSwot.TryGetValue(sector, out var swot))
-                return swot;
-            return SectorSwot["Other"];
-        }
-
-        private string GenerateRecommendations(int overallScore, BusinessIdea idea)
-        {
-            var recs = new List<string>();
-
-            if (overallScore >= 75)
-                recs.Add($"Your business concept shows strong potential. We recommend proceeding with detailed planning and consider launching a pilot program in {idea.Location ?? "Amman"} to validate your assumptions with real customers.");
-            else if (overallScore >= 60)
-                recs.Add("Your idea has a solid foundation with room for improvement. Focus on strengthening your unique selling proposition and conduct direct customer validation through surveys and interviews before full launch.");
-            else
-                recs.Add("While your idea has merit, several challenges have been identified. Consider pivoting certain aspects of your business model, seek mentorship from experienced entrepreneurs in your sector, and explore partnership opportunities to reduce risk.");
-
-            if (idea.EstimatedBudget > 75000)
-                recs.Add("Given the significant investment required, consider a phased investment approach. Start with an MVP (Minimum Viable Product) to validate core assumptions before scaling.");
-
-            if (idea.CompetitionLevel == "High")
-                recs.Add("The competitive landscape is challenging. Focus on clear differentiation and consider targeting an underserved niche within your market.");
-
-            recs.Add("Recommended next steps: Complete your financial planning, conduct detailed competitor analysis, and generate your comprehensive business plan through our platform.");
-
-            return string.Join(" ", recs);
-        }
-
-        private class SwotData
-        {
-            public string[] Strengths { get; set; } = Array.Empty<string>();
-            public string[] Weaknesses { get; set; } = Array.Empty<string>();
-            public string[] Opportunities { get; set; } = Array.Empty<string>();
-            public string[] Threats { get; set; } = Array.Empty<string>();
+            };
         }
     }
 }

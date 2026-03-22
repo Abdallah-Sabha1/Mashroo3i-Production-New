@@ -14,6 +14,7 @@ namespace backend.DTOs.Idea
         public string? Location { get; set; }
         public string? MarketSize { get; set; }
         public string? CompetitionLevel { get; set; }
+        public string Status { get; set; } = "submitted";
         public DateTime CreatedAt { get; set; }
         public EvaluationBriefDto? Evaluation { get; set; }
         public bool HasFinancialPlan { get; set; }

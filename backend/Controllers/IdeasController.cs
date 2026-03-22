@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.DTOs.Idea;
 using backend.Models;
+using backend.Services.Interfaces;
 
 namespace backend.Controllers
 {
@@ -14,10 +15,31 @@ namespace backend.Controllers
     public class IdeasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IIdeaAnalysisService _analysisService;
+        private readonly ILogger<IdeasController> _logger;
 
-        public IdeasController(ApplicationDbContext context)
+        public IdeasController(ApplicationDbContext context, IIdeaAnalysisService analysisService, ILogger<IdeasController> logger)
         {
             _context = context;
+            _analysisService = analysisService;
+            _logger = logger;
+        }
+
+        [HttpPost("analyze")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IdeaInsightsDto>> AnalyzeIdea(AnalyzeIdeaDto dto)
+        {
+            try
+            {
+                _logger.LogInformation("Analyzing idea: {Title}", dto.Title);
+                var insights = await _analysisService.AnalyzeIdeaAsync(dto.Title, dto.Description);
+                return Ok(insights);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error analyzing idea");
+                return StatusCode(500, new { message = "Failed to analyze idea. Please try again." });
+            }
         }
 
         [HttpPost]
@@ -142,6 +164,7 @@ namespace backend.Controllers
             Location = idea.Location,
             MarketSize = idea.MarketSize,
             CompetitionLevel = idea.CompetitionLevel,
+            Status = idea.Status,
             CreatedAt = idea.CreatedAt,
             Evaluation = idea.Evaluation != null ? new EvaluationBriefDto
             {

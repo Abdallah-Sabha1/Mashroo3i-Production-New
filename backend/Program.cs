@@ -77,8 +77,10 @@ builder.Services.AddCors(options =>
 
 // Register services
 builder.Services.AddScoped<IGeminiAIService, GeminiAIService>();
+builder.Services.AddScoped<IIdeaAnalysisService, IdeaAnalysisService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddHttpClient<GeminiAIService>();
 
 var app = builder.Build();
 

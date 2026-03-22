@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
-import { auth } from '../services/api'
 import useAuthStore from '../store/authStore'
 import Navbar from '../components/layout/Navbar'
 import Input from '../components/ui/Input'
@@ -29,7 +28,6 @@ const Profile = () => {
     setLoading(true)
     setSuccess('')
     try {
-      // For now, update local state
       setUser({ ...user, ...data })
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(''), 3000)
@@ -46,18 +44,18 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Profile Settings</h1>
-          <p className="text-slate-500 mb-8">Manage your account information.</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Profile Settings</h1>
+          <p className="text-slate-600 mb-8">Manage your account information</p>
 
           {/* Avatar */}
           <Card className="mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
+                <span className="text-white text-xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">{user?.fullName}</h2>
@@ -66,35 +64,29 @@ const Profile = () => {
             </div>
           </Card>
 
-          {/* Profile Form */}
+          {/* Form */}
           <Card className="mb-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-6">Personal Information</h3>
 
             {success && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-600">{success}</div>
+              <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700">{success}</div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <Input label="Full Name" required error={errors.fullName?.message}
                 {...register('fullName', { required: 'Name is required' })} />
-              <Input label="Email" type="email" disabled
-                {...register('email')} className="opacity-60" />
-              <Input label="Education" placeholder="e.g., BS Computer Science"
-                {...register('education')} />
-              <Input label="Experience" placeholder="e.g., 3 years in marketing"
-                {...register('experience')} />
-              <Input label="Business Interest" placeholder="e.g., Technology, Healthcare"
-                {...register('businessInterest')} />
+              <Input label="Email" type="email" disabled {...register('email')} className="opacity-60" />
+              <Input label="Education" placeholder="e.g., BS Computer Science" {...register('education')} />
+              <Input label="Experience" placeholder="e.g., 3 years in marketing" {...register('experience')} />
+              <Input label="Business Interest" placeholder="e.g., Technology, Healthcare" {...register('businessInterest')} />
               <Button type="submit" loading={loading}>Update Profile</Button>
             </form>
           </Card>
 
-          {/* Danger Zone */}
+          {/* Sign Out */}
           <Card className="!border-red-200">
-            <h3 className="text-lg font-semibold text-red-600 mb-4">Account Actions</h3>
-            <Button variant="danger" onClick={handleLogout}>
-              Sign Out
-            </Button>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Account</h3>
+            <Button variant="danger" onClick={handleLogout}>Sign Out</Button>
           </Card>
         </motion.div>
       </div>

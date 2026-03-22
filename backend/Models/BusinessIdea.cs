@@ -14,10 +14,15 @@ namespace backend.Models
         public string? Location { get; set; }
         public string? MarketSize { get; set; }
         public string? CompetitionLevel { get; set; }
+        public string Status { get; set; } = "submitted";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public User User { get; set; } = null!;
         public Evaluation? Evaluation { get; set; }
         public FinancialPlan? FinancialPlan { get; set; }
+
+        public const string StatusSubmitted = "submitted";
+        public const string StatusAnalyzing = "analyzing";
+        public const string StatusCompleted = "completed";
     }
 }

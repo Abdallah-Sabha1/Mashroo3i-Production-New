@@ -1,12 +1,11 @@
-const Card = ({ children, className = '', hover = false, glass = false, padding = true }) => {
+const Card = ({ children, className = '', hover = false, padding = true }) => {
   return (
     <div
       className={`
-        rounded-2xl
-        ${glass ? 'bg-white/70 backdrop-blur-xl border border-white/20' : 'bg-white border border-slate-200/60'}
+        rounded-2xl border border-slate-200 bg-white shadow-sm
         ${padding ? 'p-6' : ''}
-        ${hover ? 'hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 cursor-pointer' : 'shadow-sm'}
-        transition-all duration-300
+        ${hover ? 'hover:shadow-md hover:shadow-blue-500/5 hover:border-slate-300 cursor-pointer' : ''}
+        transition-all duration-200
         ${className}
       `}
     >
