@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
-import { ideas as ideasApi } from '../services/api'
+import api, { ideas as ideasApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import Input from '../components/ui/Input'
 import TextArea from '../components/ui/TextArea'
@@ -21,9 +21,9 @@ const SubmitIdea = () => {
   const [aiLoading, setAiLoading] = useState(false)
   const navigate = useNavigate()
 
-  const { register, handleSubmit, watch, trigger, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, trigger, getValues, formState: { errors } } = useForm({
     defaultValues: {
-      title: '', 
+      title: '',
       description: '',
       problemStatement: '',
       usp: '',
@@ -36,8 +36,6 @@ const SubmitIdea = () => {
     }
   })
 
-  const formData = watch()
-
   // Step 1: Collect title + description only
   const handleStep1Next = async () => {
     const valid = await trigger(['title', 'description'])
@@ -46,15 +44,12 @@ const SubmitIdea = () => {
     // Call AI to generate insights
     setAiLoading(true)
     try {
-      const response = await fetch('/api/ideas/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description
-        })
+      const values = getValues()
+      const response = await api.post('/ideas/analyze', {
+          title: values.title,
+          description: values.description
       })
-      const data = await response.json()
+      const data = response.data
       setAiInsights(data)
       setStep(1)
     } catch (err) {
@@ -330,13 +325,15 @@ const SubmitIdea = () => {
   )
 
   // Step 4: Final Review
-  const Step4Content = () => (
+  const Step4Content = () => {
+    const reviewData = getValues()
+    return (
     <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
       <h3 className="text-lg font-semibold text-slate-900">Review Your Submission</h3>
 
       <ReviewSection title="Your Idea" items={[
-        ['Title', formData.title],
-        ['Description', formData.description?.substring(0, 100) + '...']
+        ['Title', reviewData.title],
+        ['Description', reviewData.description?.substring(0, 100) + '...']
       ]} />
 
       <ReviewSection title="AI-Generated Insights" items={[
@@ -346,11 +343,11 @@ const SubmitIdea = () => {
       ]} />
 
       <ReviewSection title="Business Details" items={[
-        ['Sector', formData.sector],
-        ['Budget', formData.estimatedBudget ? `${Number(formData.estimatedBudget).toLocaleString()} JOD` : ''],
-        ['Location', formData.location],
-        ['Market Size', formData.marketSize],
-        ['Competition', formData.competitionLevel]
+        ['Sector', reviewData.sector],
+        ['Budget', reviewData.estimatedBudget ? `${Number(reviewData.estimatedBudget).toLocaleString()} JOD` : ''],
+        ['Location', reviewData.location],
+        ['Market Size', reviewData.marketSize],
+        ['Competition', reviewData.competitionLevel]
       ]} />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -374,7 +371,7 @@ const SubmitIdea = () => {
         </Button>
       </div>
     </motion.div>
-  )
+  )}
 
   return (
     <div className="min-h-screen bg-white">
