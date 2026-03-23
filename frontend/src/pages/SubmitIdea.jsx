@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import api, { ideas as ideasApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import Input from '../components/ui/Input'
+import Select from '../components/ui/Select'
 import TextArea from '../components/ui/TextArea'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -253,59 +254,53 @@ const SubmitIdea = () => {
   // Step 3: Business Details
   const Step3Content = () => (
     <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-      <Input 
-        label="Sector" 
-        as="select"
-        required 
+      <Select
+        label="Sector"
+        placeholder="Select a sector"
+        options={SECTORS}
+        required
         error={errors.sector?.message}
         {...register('sector', { required: 'Sector is required' })}
-      >
-        <option value="">Select a sector</option>
-        {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
-      </Input>
+      />
 
-      <Input 
-        label="Estimated Budget (JOD)" 
-        type="number" 
-        placeholder="e.g., 25000" 
-        required 
+      <Input
+        label="Estimated Budget (JOD)"
+        type="number"
+        placeholder="e.g., 25000"
+        required
         error={errors.estimatedBudget?.message}
-        {...register('estimatedBudget', { 
-          required: 'Budget is required', 
+        {...register('estimatedBudget', {
+          required: 'Budget is required',
           min: { value: 1, message: 'Must be positive' },
           max: { value: 999999, message: 'Max 999,999 JOD' }
-        })} 
+        })}
       />
 
-      <Input 
-        label="Location" 
-        as="select"
-        required 
+      <Select
+        label="Location"
+        placeholder="Select location"
+        options={LOCATIONS}
+        required
         error={errors.location?.message}
         {...register('location', { required: 'Location is required' })}
-      >
-        <option value="">Select location</option>
-        {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-      </Input>
-
-      <Input 
-        label="Market Size Estimation" 
-        placeholder="e.g., ~500,000 potential customers in Amman" 
-        required 
-        error={errors.marketSize?.message}
-        {...register('marketSize', { required: 'Market size is required' })} 
       />
 
-      <Input 
-        label="Competition Level" 
-        as="select"
-        required 
+      <Input
+        label="Market Size Estimation"
+        placeholder="e.g., ~500,000 potential customers in Amman"
+        required
+        error={errors.marketSize?.message}
+        {...register('marketSize', { required: 'Market size is required' })}
+      />
+
+      <Select
+        label="Competition Level"
+        placeholder="Select level"
+        options={COMPETITION_LEVELS}
+        required
         error={errors.competitionLevel?.message}
         {...register('competitionLevel', { required: 'Competition level is required' })}
-      >
-        <option value="">Select level</option>
-        {COMPETITION_LEVELS.map(c => <option key={c} value={c}>{c}</option>)}
-      </Input>
+      />
 
       <div className="flex gap-3">
         <Button variant="ghost" onClick={prevStep} type="button" className="flex-1">
