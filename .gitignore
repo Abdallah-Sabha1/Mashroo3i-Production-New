@@ -30,3 +30,11 @@ npm-debug.log*
 Mashroo3i-Production/
 .next/
 out/
+
+# Claude Code local settings (may contain secrets)
+.claude/settings.local.json
+.claude/launch.json
+
+# Local secrets - never commit these
+backend/appsettings.Development.json
+backend/appsettings.Local.json
