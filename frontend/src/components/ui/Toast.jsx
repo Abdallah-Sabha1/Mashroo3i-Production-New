@@ -52,11 +52,11 @@ export function ToastProvider({ children }) {
               initial={{ opacity: 0, x: 50, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 50, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-lg border border-slate-200/60 p-4 flex items-start gap-3 pointer-events-auto"
+              className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-slate-200/60 dark:border-gray-700 p-4 flex items-start gap-3 pointer-events-auto"
             >
               {icons[toast.type]}
-              <p className="text-sm text-slate-700 flex-1">{toast.message}</p>
-              <button onClick={() => removeToast(toast.id)} className="text-slate-400 hover:text-slate-600 flex-shrink-0">
+              <p className="text-sm text-slate-700 dark:text-gray-300 flex-1">{toast.message}</p>
+              <button onClick={() => removeToast(toast.id)} className="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-gray-300 flex-shrink-0">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

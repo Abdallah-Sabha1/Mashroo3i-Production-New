@@ -52,15 +52,15 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Welcome back, {user?.fullName?.split(' ')[0] || 'Entrepreneur'}
           </h1>
-          <p className="text-slate-600">Here's an overview of your business ideas</p>
+          <p className="text-slate-600 dark:text-gray-400">Here's an overview of your business ideas</p>
         </motion.div>
 
         {/* Stats */}
@@ -93,14 +93,14 @@ const Dashboard = () => {
 
         {/* Ideas List */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="text-xl font-semibold text-slate-900 mb-6">Your Ideas</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Your Ideas</h2>
 
           {loading ? (
             <div className="flex justify-center py-12"><Spinner size="lg" /></div>
           ) : ideas.length === 0 ? (
             <Card className="text-center py-16">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">No ideas yet</h3>
-              <p className="text-slate-500 mb-6 text-sm">Submit your first business idea to get started.</p>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No ideas yet</h3>
+              <p className="text-slate-500 dark:text-gray-500 mb-6 text-sm">Submit your first business idea to get started.</p>
               <Link to="/submit-idea"><Button>Submit Your First Idea</Button></Link>
             </Card>
           ) : (
@@ -111,10 +111,10 @@ const Dashboard = () => {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-semibold text-slate-900 truncate">{idea.title}</h3>
+                          <h3 className="font-semibold text-slate-900 dark:text-white truncate">{idea.title}</h3>
                           <Badge color="purple" size="sm">{idea.sector}</Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-500">
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-gray-500">
                           <span>{formatDate(idea.createdAt)}</span>
                           <span>{formatCurrency(idea.estimatedBudget)}</span>
                           {idea.evaluation && (

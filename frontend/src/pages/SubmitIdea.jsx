@@ -105,7 +105,7 @@ const SubmitIdea = () => {
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
               i < step ? 'bg-indigo-600 text-white' :
               i === step ? 'bg-indigo-600 text-white ring-4 ring-indigo-50' :
-              'bg-slate-100 text-slate-500'
+              'bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-gray-500'
             }`}>
               {i < step ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,12 +113,12 @@ const SubmitIdea = () => {
                 </svg>
               ) : i + 1}
             </div>
-            <span className={`text-xs mt-2 font-medium hidden sm:block text-center max-w-20 ${i <= step ? 'text-indigo-600' : 'text-slate-400'}`}>
+            <span className={`text-xs mt-2 font-medium hidden sm:block text-center max-w-20 ${i <= step ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-gray-600'}`}>
               {s}
             </span>
           </div>
           {i < steps.length - 1 && (
-            <div className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${i < step ? 'bg-indigo-600' : 'bg-slate-200'}`} />
+            <div className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${i < step ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-gray-700'}`} />
           )}
         </div>
       ))}
@@ -128,12 +128,12 @@ const SubmitIdea = () => {
   // Step 1: Title & Description
   const Step1Content = () => (
     <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-        <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           How This Works
         </h3>
-        <p className="text-sm text-blue-800 leading-relaxed">
+        <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">
           Tell us your business idea in your own words. Our AI will analyze it and generate insights like the problem you're solving, your unique value, and your target audience. You can review and edit everything before submitting.
         </p>
       </div>
@@ -193,12 +193,12 @@ const SubmitIdea = () => {
   // Step 2: Review AI Insights
   const Step2Content = () => (
     <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
+      <div className="bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-6">
+        <h3 className="font-semibold text-slate-800 dark:text-gray-200 mb-2 flex items-center gap-2">
           <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           AI Generated Insights
         </h3>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-600 dark:text-gray-400">
           Our AI analyzed your idea and created these insights. Review them and edit if needed before continuing.
         </p>
       </div>
@@ -324,7 +324,7 @@ const SubmitIdea = () => {
     const reviewData = getValues()
     return (
     <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-      <h3 className="text-lg font-semibold text-slate-900">Review Your Submission</h3>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Review Your Submission</h3>
 
       <ReviewSection title="Your Idea" items={[
         ['Title', reviewData.title],
@@ -345,8 +345,8 @@ const SubmitIdea = () => {
         ['Competition', reviewData.competitionLevel]
       ]} />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <p className="text-sm text-blue-800 dark:text-blue-300">
           ✓ Your idea will be evaluated by our AI for novelty, market potential, SWOT analysis, and risk assessment.
         </p>
       </div>
@@ -369,19 +369,19 @@ const SubmitIdea = () => {
   )}
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Submit Your Business Idea
           </h1>
-          <p className="text-slate-500 mb-8">Get AI-powered evaluation and actionable insights for your startup.</p>
+          <p className="text-slate-500 dark:text-gray-500 mb-8">Get AI-powered evaluation and actionable insights for your startup.</p>
 
           <StepIndicator />
 
           {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-start gap-3">
+            <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400 flex items-start gap-3">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -410,9 +410,9 @@ function InsightCard({ iconPath, title, content, fieldName, register, errors }) 
   const [isEditing, setIsEditing] = useState(false)
 
   return (
-    <Card className="bg-white border-slate-200">
+    <Card className="bg-white dark:bg-gray-900 border-slate-200 dark:border-gray-800">
       <div className="flex items-start justify-between mb-3">
-        <h4 className="font-semibold text-slate-900 flex items-center gap-2">
+        <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           {iconPath && (
             <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={iconPath} />
@@ -423,7 +423,7 @@ function InsightCard({ iconPath, title, content, fieldName, register, errors }) 
         <button
           type="button"
           onClick={() => setIsEditing(!isEditing)}
-          className="text-xs px-2 py-1 rounded text-indigo-600 hover:bg-slate-50 border border-slate-200 transition"
+          className="text-xs px-2 py-1 rounded text-indigo-600 dark:text-indigo-400 hover:bg-slate-50 dark:hover:bg-gray-800 border border-slate-200 dark:border-gray-700 transition"
         >
           {isEditing ? 'Done' : 'Edit'}
         </button>
@@ -436,7 +436,7 @@ function InsightCard({ iconPath, title, content, fieldName, register, errors }) 
           defaultValue={content}
         />
       ) : (
-        <p className="text-sm text-slate-700 leading-relaxed">{content}</p>
+        <p className="text-sm text-slate-700 dark:text-gray-300 leading-relaxed">{content}</p>
       )}
     </Card>
   )
@@ -445,13 +445,13 @@ function InsightCard({ iconPath, title, content, fieldName, register, errors }) 
 // Helper component for review
 function ReviewSection({ title, items }) {
   return (
-    <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-      <h4 className="font-semibold text-slate-900 mb-3">{title}</h4>
+    <div className="bg-slate-50 dark:bg-gray-900 rounded-lg p-4 border border-slate-200 dark:border-gray-800">
+      <h4 className="font-semibold text-slate-900 dark:text-white mb-3">{title}</h4>
       <div className="space-y-2">
         {items.map(([label, value]) => (
           <div key={label} className="flex gap-3">
-            <span className="text-sm font-medium text-slate-600 min-w-32">{label}:</span>
-            <span className="text-sm text-slate-900">{value || '—'}</span>
+            <span className="text-sm font-medium text-slate-600 dark:text-gray-400 min-w-32">{label}:</span>
+            <span className="text-sm text-slate-900 dark:text-white">{value || '—'}</span>
           </div>
         ))}
       </div>

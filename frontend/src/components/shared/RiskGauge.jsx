@@ -46,8 +46,9 @@ export default function RiskGauge({ riskLevel, overallScore }) {
             cy="50"
             r="40"
             fill="none"
-            stroke="#f1f5f9"
+            stroke="var(--gauge-track, #f1f5f9)"
             strokeWidth="8"
+            className="dark:[--gauge-track:#1f2937]"
           />
           <motion.circle
             cx="50"
@@ -72,7 +73,7 @@ export default function RiskGauge({ riskLevel, overallScore }) {
             transition={{ delay: 0.3, type: 'spring' }}
             className="text-center"
           >
-            <p className="text-sm font-medium text-slate-500 mb-1">Risk Level</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-gray-400 mb-1">Risk Level</p>
             <p className={`text-xl font-bold ${config.textColor}`}>
               {riskLevel}
             </p>
@@ -81,11 +82,11 @@ export default function RiskGauge({ riskLevel, overallScore }) {
       </div>
 
       <div className="text-center">
-        <p className="text-3xl font-bold text-slate-900">
+        <p className="text-3xl font-bold text-slate-900 dark:text-white">
           {overallScore}
-          <span className="text-sm font-medium text-slate-500 ml-1">/100</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-gray-400 ml-1">/100</span>
         </p>
-        <p className="text-sm text-slate-500 mt-1">Overall Score</p>
+        <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">Overall Score</p>
       </div>
 
       <div className={`mt-4 p-4 rounded-xl border flex items-start gap-3 ${config.bgColor}`}>

@@ -80,25 +80,25 @@ const stats = [
 
 const Landing = () => {
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-gray-950">
       <Navbar />
 
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
         <motion.div className="text-center" initial="initial" animate="animate" variants={stagger}>
-          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 mb-8">
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-            <span className="text-xs font-medium text-blue-700">Now available for Jordanian entrepreneurs</span>
+            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Now available for Jordanian entrepreneurs</span>
           </motion.div>
 
-          <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 leading-tight">
+          <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-tight">
             Validate your ideas{' '}
             <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
               with AI
             </span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <motion.p variants={fadeUp} className="mt-6 text-xl text-slate-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Mashroo3i evaluates your business ideas, creates financial plans, and generates professional business plans tailored for the Jordanian market.
           </motion.p>
 
@@ -117,8 +117,8 @@ const Landing = () => {
           </motion.div>
 
           <motion.div variants={fadeUp} className="mt-16">
-            <p className="text-sm text-slate-500 mb-4">Trusted by entrepreneurs across Jordan</p>
-            <div className="flex gap-8 justify-center text-sm text-slate-400">
+            <p className="text-sm text-slate-500 dark:text-gray-500 mb-4">Trusted by entrepreneurs across Jordan</p>
+            <div className="flex gap-8 justify-center text-sm text-slate-400 dark:text-gray-600">
               <span>Amman</span><span>Irbid</span><span>Zarqa</span><span>Aqaba</span>
             </div>
           </motion.div>
@@ -126,13 +126,13 @@ const Landing = () => {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-slate-200 bg-slate-50">
+      <section className="border-y border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
             {stats.map((stat) => (
               <motion.div key={stat.label} variants={fadeUp} className="text-center">
-                <p className="text-4xl font-bold text-slate-900">{stat.value}</p>
-                <p className="mt-2 text-sm text-slate-500">{stat.label}</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-gray-500">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -143,19 +143,19 @@ const Landing = () => {
       <section id="features" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div className="text-center max-w-2xl mx-auto mb-16" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-xs font-semibold text-indigo-600 uppercase tracking-widest mb-3">Features</motion.p>
-            <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-bold text-slate-900">Everything you need to launch</motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-lg text-slate-600">From idea validation to investor-ready business plans.</motion.p>
+            <motion.p variants={fadeUp} className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3">Features</motion.p>
+            <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">Everything you need to launch</motion.h2>
+            <motion.p variants={fadeUp} className="mt-4 text-lg text-slate-600 dark:text-gray-400">From idea validation to investor-ready business plans.</motion.p>
           </motion.div>
 
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
             {features.map((f) => (
-              <motion.div key={f.title} variants={fadeUp} className="rounded-2xl border border-slate-200 bg-white p-8 hover:shadow-md hover:shadow-blue-500/5 transition-all duration-200">
+              <motion.div key={f.title} variants={fadeUp} className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 hover:shadow-md hover:shadow-blue-500/5 transition-all duration-200">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center mb-4">
                   {f.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{f.desc}</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{f.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </motion.div>

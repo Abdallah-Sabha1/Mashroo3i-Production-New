@@ -38,7 +38,7 @@ const ScoreCircle = ({ score = 0, label = '', size = 140 }) => {
           </motion.span>
         </div>
       </div>
-      <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">{label}</span>
+      <span className="text-xs font-medium text-slate-600 dark:text-gray-400 uppercase tracking-wide">{label}</span>
     </div>
   )
 }

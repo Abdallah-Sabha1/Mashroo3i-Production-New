@@ -9,14 +9,14 @@ export const Spinner = ({ size = 'md', className = '' }) => {
 }
 
 export const Skeleton = ({ className = '' }) => (
-  <div className={`animate-pulse bg-slate-200 rounded-lg ${className}`} />
+  <div className={`animate-pulse bg-slate-200 dark:bg-gray-700 rounded-lg ${className}`} />
 )
 
 export const PageLoading = () => (
-  <div className="min-h-screen flex items-center justify-center bg-white">
+  <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
     <div className="text-center space-y-4">
       <Spinner size="lg" />
-      <p className="text-sm text-slate-500 font-medium">Loading...</p>
+      <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Loading...</p>
     </div>
   </div>
 )

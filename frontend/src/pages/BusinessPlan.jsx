@@ -65,7 +65,7 @@ const BusinessPlan = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
         <Navbar />
         <div className="flex justify-center py-32"><Spinner size="lg" /></div>
       </div>
@@ -76,17 +76,17 @@ const BusinessPlan = () => {
   const finSummary = finData?.financialSummary ? (typeof finData.financialSummary === 'string' ? JSON.parse(finData.financialSummary) : finData.financialSummary) : null
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between mb-8">
             <div>
-              <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-2">
+              <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 mb-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 Back to Dashboard
               </Link>
-              <h1 className="text-2xl font-bold text-slate-900">Business Plan</h1>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Business Plan</h1>
             </div>
             <div className="flex gap-2">
               <Button onClick={handlePrint} variant="outline" size="sm">Print</Button>
@@ -103,9 +103,9 @@ const BusinessPlan = () => {
               <span className="text-white font-bold text-2xl">M</span>
             </div>
             <p className="text-sm font-medium text-primary-600 uppercase tracking-widest mb-4">Business Plan</p>
-            <h2 className="text-3xl font-bold text-slate-900 mb-3">{idea?.title}</h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">{idea?.title}</h2>
             <Badge color="purple" size="lg">{idea?.sector}</Badge>
-            <div className="mt-8 text-sm text-slate-500 space-y-1">
+            <div className="mt-8 text-sm text-slate-500 dark:text-gray-500 space-y-1">
               <p>Prepared by: {user?.fullName}</p>
               <p>Date: {formatDate(new Date().toISOString())}</p>
               <p>Location: {idea?.location}</p>
@@ -114,12 +114,12 @@ const BusinessPlan = () => {
 
           {/* Table of Contents */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Table of Contents</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Table of Contents</h2>
             <ol className="space-y-2 text-sm">
               {['Executive Summary', 'Business Description', 'AI Evaluation Results', 'SWOT Analysis', 'Market Analysis', 'Financial Projections', 'Recommendations'].map((s, i) => (
-                <li key={s} className="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
+                <li key={s} className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-gray-800 last:border-0">
                   <span className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center text-primary-600 font-semibold text-sm">{i + 1}</span>
-                  <span className="text-slate-700">{s}</span>
+                  <span className="text-slate-700 dark:text-gray-300">{s}</span>
                 </li>
               ))}
             </ol>
@@ -127,22 +127,22 @@ const BusinessPlan = () => {
 
           {/* 1. Executive Summary */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">1</span>
               Executive Summary
             </h2>
-            <div className="prose prose-sm prose-slate max-w-none space-y-3">
-              <p className="text-slate-700 leading-relaxed">{idea?.description}</p>
+            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none space-y-3">
+              <p className="text-slate-700 dark:text-gray-300 leading-relaxed">{idea?.description}</p>
               {idea?.problemStatement && (
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Problem Statement</h4>
-                  <p className="text-slate-700">{idea.problemStatement}</p>
+                  <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Problem Statement</h4>
+                  <p className="text-slate-700 dark:text-gray-300">{idea.problemStatement}</p>
                 </div>
               )}
               {idea?.usp && (
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Unique Selling Point</h4>
-                  <p className="text-slate-700">{idea.usp}</p>
+                  <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Unique Selling Point</h4>
+                  <p className="text-slate-700 dark:text-gray-300">{idea.usp}</p>
                 </div>
               )}
             </div>
@@ -150,7 +150,7 @@ const BusinessPlan = () => {
 
           {/* 2. Business Description */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">2</span>
               Business Description
             </h2>
@@ -163,9 +163,9 @@ const BusinessPlan = () => {
                 ['Target Audience', idea?.targetAudience],
                 ['Market Size', idea?.marketSize],
               ].map(([label, val]) => (
-                <div key={label} className="bg-slate-50 rounded-xl p-4">
-                  <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-                  <p className="text-sm font-medium text-slate-900">{val || 'N/A'}</p>
+                <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4">
+                  <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{val || 'N/A'}</p>
                 </div>
               ))}
             </div>
@@ -174,7 +174,7 @@ const BusinessPlan = () => {
           {/* 3. AI Evaluation */}
           {evalData && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">3</span>
                 AI Evaluation Results
               </h2>
@@ -185,9 +185,9 @@ const BusinessPlan = () => {
                   ['Overall', evalData.overallScore],
                   ['Risk', evalData.riskLevel],
                 ].map(([label, val]) => (
-                  <div key={label} className="bg-slate-50 rounded-xl p-4 text-center">
-                    <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-                    <p className="text-lg font-bold text-slate-900">{val}</p>
+                  <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 text-center">
+                    <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white">{val}</p>
                   </div>
                 ))}
               </div>
@@ -197,7 +197,7 @@ const BusinessPlan = () => {
           {/* 4. SWOT */}
           {evalData && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">4</span>
                 SWOT Analysis
               </h2>
@@ -212,7 +212,7 @@ const BusinessPlan = () => {
                     <h4 className={`font-semibold ${q.text} mb-2`}>{q.title}</h4>
                     <ul className="space-y-1">
                       {(swot[q.key] || []).map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-gray-300">
                           <span className={`w-1.5 h-1.5 rounded-full ${q.dot} mt-1.5 flex-shrink-0`} />
                           {item}
                         </li>
@@ -226,21 +226,21 @@ const BusinessPlan = () => {
 
           {/* 5. Market Analysis */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">5</span>
               Market Analysis
             </h2>
-            <div className="space-y-4 text-sm text-slate-700">
+            <div className="space-y-4 text-sm text-slate-700 dark:text-gray-300">
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1">Target Market</h4>
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Target Market</h4>
                 <p>{idea?.targetAudience || 'Not specified'}</p>
               </div>
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1">Market Size</h4>
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Market Size</h4>
                 <p>{idea?.marketSize || 'Not specified'}</p>
               </div>
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1">Competition Level</h4>
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">Competition Level</h4>
                 <p>{idea?.competitionLevel || 'Not assessed'}</p>
               </div>
             </div>
@@ -249,7 +249,7 @@ const BusinessPlan = () => {
           {/* 6. Financial Projections */}
           {finData && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">6</span>
                 Financial Projections
               </h2>
@@ -261,9 +261,9 @@ const BusinessPlan = () => {
                   ['Break-Even', finData.breakEvenMonths > 0 ? `${finData.breakEvenMonths} months` : 'N/A'],
                   ['2-Year ROI', `${finData.roiPercentage?.toFixed(1)}%`],
                 ].map(([label, val]) => (
-                  <div key={label} className="bg-slate-50 rounded-xl p-4">
-                    <p className="text-xs font-medium text-slate-500 mb-1">{label}</p>
-                    <p className="text-sm font-bold text-slate-900">{val}</p>
+                  <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4">
+                    <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{val}</p>
                   </div>
                 ))}
               </div>
@@ -272,12 +272,12 @@ const BusinessPlan = () => {
 
           {/* 7. Recommendations */}
           {evalData?.recommendations && (
-            <Card className="!bg-blue-50 !border-blue-200">
-              <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <Card className="!bg-blue-50 dark:!bg-blue-950 !border-blue-200 dark:!border-blue-800">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">7</span>
                 Recommendations
               </h2>
-              <p className="text-sm text-blue-800 leading-relaxed">{evalData.recommendations}</p>
+              <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{evalData.recommendations}</p>
             </Card>
           )}
         </div>

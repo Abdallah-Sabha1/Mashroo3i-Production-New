@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Sun, Moon } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
+import { useDarkMode } from '../../utils/darkMode'
 import Button from '../ui/Button'
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuthStore()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [isDark, toggleDark] = useDarkMode()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -18,7 +21,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-slate-200">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-slate-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2">
@@ -39,8 +42,8 @@ const Navbar = () => {
                   to={link.to}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     location.pathname === link.to
-                      ? 'text-indigo-600 bg-indigo-50'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-950'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
                   }`}
                 >
                   {link.label}
@@ -50,7 +53,7 @@ const Navbar = () => {
           ) : (
             <div className="hidden md:flex items-center gap-1">
               {['Features', 'About'].map(item => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <a key={item} href={`#${item.toLowerCase()}`} className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors">
                   {item}
                 </a>
               ))}
@@ -58,17 +61,25 @@ const Navbar = () => {
           )}
 
           <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={toggleDark}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             {isAuthenticated ? (
               <div className="relative">
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
                     <span className="text-white text-sm font-semibold">{user?.fullName?.charAt(0) || 'U'}</span>
                   </div>
-                  <span className="text-sm font-medium text-slate-700">{user?.fullName?.split(' ')[0]}</span>
-                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-sm font-medium text-slate-700 dark:text-gray-300">{user?.fullName?.split(' ')[0]}</span>
+                  <svg className="w-4 h-4 text-slate-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -79,20 +90,20 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 5, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50"
+                      className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
                     >
-                      <div className="px-4 py-2 border-b border-slate-100">
-                        <p className="text-sm font-semibold text-slate-900">{user?.fullName}</p>
-                        <p className="text-xs text-slate-500">{user?.email}</p>
+                      <div className="px-4 py-2 border-b border-slate-100 dark:border-gray-800">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.fullName}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">{user?.email}</p>
                       </div>
-                      <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
                         Profile
                       </Link>
-                      <Link to="/dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                      <Link to="/dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
                         Dashboard
                       </Link>
-                      <div className="border-t border-slate-100 mt-1 pt-1">
-                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full transition-colors">
+                      <div className="border-t border-slate-100 dark:border-gray-800 mt-1 pt-1">
+                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 w-full transition-colors">
                           Sign out
                         </button>
                       </div>
@@ -112,15 +123,24 @@ const Navbar = () => {
             )}
           </div>
 
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={toggleDark}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -130,19 +150,19 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden border-t border-slate-200 bg-white overflow-hidden"
+            className="md:hidden border-t border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated ? (
                 <>
-                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Dashboard</Link>
-                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">New Idea</Link>
-                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Profile</Link>
-                  <button onClick={() => { handleLogout(); setMobileOpen(false) }} className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50">Sign out</button>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Dashboard</Link>
+                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">New Idea</Link>
+                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Profile</Link>
+                  <button onClick={() => { handleLogout(); setMobileOpen(false) }} className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">Sign out</button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">Sign in</Link>
+                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Sign in</Link>
                   <Link to="/register" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full" size="sm">Get Started</Button>
                   </Link>

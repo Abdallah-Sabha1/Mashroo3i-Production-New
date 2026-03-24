@@ -44,12 +44,12 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Profile Settings</h1>
-          <p className="text-slate-600 mb-8">Manage your account information</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Profile Settings</h1>
+          <p className="text-slate-600 dark:text-gray-400 mb-8">Manage your account information</p>
 
           {/* Avatar */}
           <Card className="mb-6">
@@ -58,18 +58,18 @@ const Profile = () => {
                 <span className="text-white text-xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">{user?.fullName}</h2>
-                <p className="text-sm text-slate-500">{user?.email}</p>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{user?.fullName}</h2>
+                <p className="text-sm text-slate-500 dark:text-gray-500">{user?.email}</p>
               </div>
             </div>
           </Card>
 
           {/* Form */}
           <Card className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Personal Information</h3>
 
             {success && (
-              <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700">{success}</div>
+              <div className="mb-4 p-3 rounded-xl bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-400">{success}</div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -84,8 +84,8 @@ const Profile = () => {
           </Card>
 
           {/* Sign Out */}
-          <Card className="!border-red-200">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Account</h3>
+          <Card className="!border-red-200 dark:!border-red-800">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account</h3>
             <Button variant="danger" onClick={handleLogout}>Sign Out</Button>
           </Card>
         </motion.div>

@@ -45,12 +45,12 @@ const Evaluation = () => {
 
   if (loading || generating) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-950">
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <div className="text-center space-y-4">
             <Spinner size="lg" />
-            <p className="text-slate-500 font-medium text-sm">
+            <p className="text-slate-500 dark:text-gray-500 font-medium text-sm">
               {generating ? 'AI is analyzing your business idea...' : 'Loading evaluation...'}
             </p>
           </div>
@@ -63,12 +63,12 @@ const Evaluation = () => {
   const riskStyle = RISK_COLORS[evalData?.riskLevel] || RISK_COLORS['Medium Risk']
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-4 transition-colors">
+          <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 mb-4 transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -76,8 +76,8 @@ const Evaluation = () => {
           </Link>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{idea?.title}</h1>
-              <p className="text-sm text-slate-500 mt-1">{idea?.sector} &middot; Evaluation Results</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{idea?.title}</h1>
+              <p className="text-sm text-slate-500 dark:text-gray-500 mt-1">{idea?.sector} &middot; Evaluation Results</p>
             </div>
           </div>
         </motion.div>
@@ -85,7 +85,7 @@ const Evaluation = () => {
         <div className="space-y-8">
           {/* Scores */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <h2 className="text-lg font-semibold text-slate-900 mb-6">Evaluation Scores</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Evaluation Scores</h2>
             <Card>
               <div className="flex flex-col md:flex-row items-center justify-around gap-8 py-4">
                 <ScoreCircle score={evalData?.noveltyScore || 0} label="Novelty Score" />
@@ -100,8 +100,8 @@ const Evaluation = () => {
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Risk Assessment</p>
-                  <p className="text-xl font-bold text-slate-900">{evalData?.riskLevel}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-gray-500 uppercase tracking-wide mb-1">Risk Assessment</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">{evalData?.riskLevel}</p>
                 </div>
                 <Badge color={riskStyle.badge} size="lg">{evalData?.riskLevel}</Badge>
               </div>
@@ -110,16 +110,16 @@ const Evaluation = () => {
 
           {/* SWOT */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <h2 className="text-lg font-semibold text-slate-900 mb-6">SWOT Analysis</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">SWOT Analysis</h2>
             <SwotGrid swotData={swotData} />
           </motion.div>
 
           {/* Recommendations */}
           {evalData?.recommendations && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <Card className="!bg-blue-50 !border-blue-200">
-                <h3 className="font-semibold text-blue-900 mb-3">AI Recommendations</h3>
-                <p className="text-sm text-blue-800 leading-relaxed">{evalData.recommendations}</p>
+              <Card className="!bg-blue-50 dark:!bg-blue-950 !border-blue-200 dark:!border-blue-800">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-3">AI Recommendations</h3>
+                <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{evalData.recommendations}</p>
               </Card>
             </motion.div>
           )}

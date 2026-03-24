@@ -10,7 +10,7 @@ export const LinearProgress = ({ value = 0, max = 100, className = '', color = '
   }
 
   return (
-    <div className={`w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ${className}`}>
+    <div className={`w-full bg-slate-100 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden ${className}`}>
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${percentage}%` }}
