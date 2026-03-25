@@ -33,7 +33,7 @@ namespace backend.Data
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).IsRequired();
                 entity.Property(e => e.Sector).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.EstimatedBudget).HasColumnType("decimal(12,2)");
+                entity.Property(e => e.EstimatedBudget).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.BusinessIdeas)
@@ -59,10 +59,10 @@ namespace backend.Data
             {
                 entity.HasKey(e => e.PlanId);
                 entity.HasIndex(e => e.IdeaId).IsUnique();
-                entity.Property(e => e.InitialInvestment).HasColumnType("decimal(12,2)");
-                entity.Property(e => e.MonthlyRevenue).HasColumnType("decimal(12,2)");
-                entity.Property(e => e.MonthlyCosts).HasColumnType("decimal(12,2)");
-                entity.Property(e => e.RoiPercentage).HasColumnType("decimal(8,2)");
+                entity.Property(e => e.InitialInvestment).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyRevenue).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyCosts).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.RoiPercentage).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(e => e.BusinessIdea)
                     .WithOne(i => i.FinancialPlan)

@@ -73,12 +73,16 @@ namespace backend.Services
                 }
             };
 
+            // Clamp to safe DB range (decimal 18,2 = max 16 digits before decimal)
+            var clampedRoi = Math.Max(-9_999_999m, Math.Min(9_999_999m, Math.Round(roi, 2)));
+            var clampedBreakEven = breakEvenMonths > 9999 ? 9999 : breakEvenMonths;
+
             return new FinancialCalculationResult
             {
                 MonthlyCosts = Math.Round(totalMonthlyCosts, 2),
                 MonthlyProfit = Math.Round(monthlyProfit, 2),
-                BreakEvenMonths = breakEvenMonths,
-                RoiPercentage = Math.Round(roi, 2),
+                BreakEvenMonths = clampedBreakEven,
+                RoiPercentage = clampedRoi,
                 FinancialSummaryJson = JsonSerializer.Serialize(summary)
             };
         }
