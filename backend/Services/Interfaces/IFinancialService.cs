@@ -16,5 +16,13 @@ namespace backend.Services.Interfaces
         public int BreakEvenMonths { get; set; }
         public decimal RoiPercentage { get; set; }
         public string FinancialSummaryJson { get; set; } = string.Empty;
+        public decimal GrossMarginPct { get; set; }
+        public decimal LTV { get; set; }
+        public decimal CAC { get; set; }
+        public decimal LtvCacRatio { get; set; }
+        public decimal BreakEvenUnits { get; set; }
+        public decimal ARR { get; set; }
+        public List<string> RedFlags { get; set; } = new();
+        public List<string> AssumptionsLog { get; set; } = new();
     }
 }

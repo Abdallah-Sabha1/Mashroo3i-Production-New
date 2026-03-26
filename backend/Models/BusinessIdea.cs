@@ -14,8 +14,6 @@ namespace backend.Models
         public string AmmanRegion { get; set; } = "central";
         public string? BusinessTypeReason { get; set; }
         public decimal EstimatedBudget { get; set; }
-        public string? MarketSize { get; set; }
-        public string? CompetitionLevel { get; set; }
         public string Status { get; set; } = "submitted";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

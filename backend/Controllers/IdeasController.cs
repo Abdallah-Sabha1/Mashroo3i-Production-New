@@ -63,8 +63,6 @@ namespace backend.Controllers
                 AmmanRegion      = dto.AmmanRegion,
                 BusinessTypeReason = dto.BusinessTypeReason,
                 EstimatedBudget  = dto.EstimatedBudget,
-                MarketSize       = dto.MarketSize,
-                CompetitionLevel = dto.CompetitionLevel,
                 CreatedAt        = DateTime.UtcNow
             };
 
@@ -166,8 +164,6 @@ namespace backend.Controllers
             AmmanRegion        = idea.AmmanRegion,
             BusinessTypeReason = idea.BusinessTypeReason,
             EstimatedBudget    = idea.EstimatedBudget,
-            MarketSize         = idea.MarketSize,
-            CompetitionLevel   = idea.CompetitionLevel,
             Status             = idea.Status,
             CreatedAt          = idea.CreatedAt,
             Evaluation = idea.Evaluation != null ? new EvaluationBriefDto

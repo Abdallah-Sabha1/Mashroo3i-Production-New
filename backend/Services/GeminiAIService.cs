@@ -174,7 +174,7 @@ Return ONLY a valid JSON object. No markdown, no explanation, just JSON:
   ""suggestedBusinessType"": ""B2C"" or ""B2B"",
   ""businessTypeConfidence"": ""HIGH"" or ""MEDIUM"" or ""LOW"",
   ""businessTypeReason"": ""One sentence explaining clearly why this is B2C or B2B in plain language"",
-  ""suggestedMonthlySalesRange"": ""1_10"" or ""10_50"" or ""50_200"" or ""200_plus"" (for B2C) OR ""1_3"" or ""4_10"" or ""11_30"" or ""30_plus"" (for B2B)
+  ""suggestedMonthlySalesRange"": ""<pick EXACTLY ONE value with no extra text. If B2C: choose from 1_10, 10_50, 50_200, 200_plus. If B2B: choose from 1_3, 4_10, 11_30, 30_plus. Base your choice on how many customers/clients a brand-new business in this sector in Amman could realistically reach in month 1.>""
 }}";
         }
 
@@ -262,6 +262,14 @@ Return ONLY valid JSON, no markdown:
                 using var doc = JsonDocument.Parse(cleanJson);
                 var root = doc.RootElement;
 
+                var rawRange = ExtractString(root, "suggestedMonthlySalesRange", "1_10");
+                var validRanges = new HashSet<string>
+                {
+                    "1_10","10_50","50_200","200_plus",
+                    "1_3","4_10","11_30","30_plus"
+                };
+                var safeRange = validRanges.Contains(rawRange) ? rawRange : "1_10";
+
                 return new IdeaInsightsDto
                 {
                     ProblemStatement       = ExtractString(root, "problemStatement"),
@@ -270,7 +278,7 @@ Return ONLY valid JSON, no markdown:
                     SuggestedBusinessType  = ExtractString(root, "suggestedBusinessType", "B2C"),
                     BusinessTypeConfidence = ExtractString(root, "businessTypeConfidence", "LOW"),
                     BusinessTypeReason     = ExtractString(root, "businessTypeReason"),
-                    SuggestedMonthlySalesRange = ExtractString(root, "suggestedMonthlySalesRange", "1_10")
+                    SuggestedMonthlySalesRange = safeRange
                 };
             }
             catch (Exception ex)

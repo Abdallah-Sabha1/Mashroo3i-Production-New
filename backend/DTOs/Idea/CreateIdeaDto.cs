@@ -28,7 +28,5 @@ namespace backend.DTOs.Idea
         public string BusinessType { get; set; } = "B2C";
         public string AmmanRegion { get; set; } = "central";
         public string? BusinessTypeReason { get; set; }
-        public string? MarketSize { get; set; }
-        public string? CompetitionLevel { get; set; }
     }
 }

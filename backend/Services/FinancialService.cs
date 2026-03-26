@@ -27,8 +27,11 @@ namespace backend.Services
         {
             var assumptions = new List<string>();
             var benchmark = _benchmarkService.GetBenchmark(idea.Sector, "B2C");
-            var regionCostMult = _benchmarkService.GetRegionCostMultiplier(idea.AmmanRegion);
-            var regionAovMult = _benchmarkService.GetRegionAovMultiplier(idea.AmmanRegion);
+            var region = !string.IsNullOrWhiteSpace(input.AmmanRegion)
+                ? input.AmmanRegion
+                : idea.AmmanRegion;
+            var regionCostMult = _benchmarkService.GetRegionCostMultiplier(region);
+            var regionAovMult = _benchmarkService.GetRegionAovMultiplier(region);
             var channelMult = _benchmarkService.GetChannelCacMultiplier(input.AcquisitionChannel);
 
             // Sales volume
@@ -46,10 +49,18 @@ namespace backend.Services
             var grossMarginPct = monthlyRevenue > 0 ? grossProfit / monthlyRevenue * 100m : 0m;
             assumptions.Add($"Gross margin: {grossMarginPct:F1}% (price {input.PlannedPrice} − cost {input.CostToDeliver} JOD per unit)");
 
-            // Fixed costs from sector benchmark
-            var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 500m;
-            var fixedCosts = benchmarkFixed * (decimal)regionCostMult;
-            assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month ({idea.Sector} benchmark × {regionCostMult:F2} region multiplier)");
+            decimal fixedCosts;
+            if (input.MonthlyFixedCosts > 0)
+            {
+                fixedCosts = input.MonthlyFixedCosts;
+                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (entered by you in Step 5)");
+            }
+            else
+            {
+                var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 500m;
+                fixedCosts = benchmarkFixed * (decimal)regionCostMult;
+                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} sector benchmark — you can improve accuracy by entering your actual costs)");
+            }
 
             var monthlyCosts = cogs + fixedCosts;
             var monthlyProfit = monthlyRevenue - monthlyCosts;
@@ -60,9 +71,10 @@ namespace backend.Services
             assumptions.Add($"CAC: {cac:N0} JOD via '{input.AcquisitionChannel}' channel (base {baseCac:N0} × {channelMult:F2})");
 
             // LTV (using monthly churn)
-            var churnRate = benchmark?.MonthlyChurnRate?.Typical ?? 0.05m;
+            var churnRateRaw = benchmark?.MonthlyChurnRate?.Typical ?? 18m;
+            var churnRate = churnRateRaw / 100m;
             var ltv = churnRate > 0 ? (input.PlannedPrice * grossMarginPct / 100m) / churnRate : 0m;
-            assumptions.Add($"Monthly churn: {churnRate * 100:F1}% → LTV: {ltv:N0} JOD");
+            assumptions.Add($"Monthly churn: {churnRateRaw:F1}% (Amman {idea.Sector} benchmark) → LTV: {ltv:N0} JOD");
 
             var ltvCacRatio = cac > 0 ? ltv / cac : 0m;
 
@@ -86,7 +98,10 @@ namespace backend.Services
         {
             var assumptions = new List<string>();
             var benchmark = _benchmarkService.GetBenchmark(idea.Sector, "B2B");
-            var regionCostMult = _benchmarkService.GetRegionCostMultiplier(idea.AmmanRegion);
+            var region = !string.IsNullOrWhiteSpace(input.AmmanRegion)
+                ? input.AmmanRegion
+                : idea.AmmanRegion;
+            var regionCostMult = _benchmarkService.GetRegionCostMultiplier(region);
             var channelMult = _benchmarkService.GetChannelCacMultiplier(input.AcquisitionChannel);
 
             // Clients
@@ -107,10 +122,18 @@ namespace backend.Services
             var grossMarginPct = monthlyRevenue > 0 ? grossProfit / monthlyRevenue * 100m : 0m;
             assumptions.Add($"Gross margin: {grossMarginPct:F1}%");
 
-            // Fixed costs
-            var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 800m;
-            var fixedCosts = benchmarkFixed * (decimal)regionCostMult;
-            assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month ({idea.Sector} B2B benchmark × {regionCostMult:F2})");
+            decimal fixedCosts;
+            if (input.MonthlyFixedCosts > 0)
+            {
+                fixedCosts = input.MonthlyFixedCosts;
+                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (entered by you in Step 5)");
+            }
+            else
+            {
+                var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 800m;
+                fixedCosts = benchmarkFixed * (decimal)regionCostMult;
+                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} B2B benchmark — you can improve accuracy by entering your actual costs)");
+            }
 
             var monthlyCosts = cogs + fixedCosts;
             var monthlyProfit = monthlyRevenue - monthlyCosts;
@@ -121,10 +144,11 @@ namespace backend.Services
             assumptions.Add($"CAC: {cac:N0} JOD via '{input.AcquisitionChannel}'");
 
             // LTV (B2B uses annual retention → monthly churn)
-            var annualRetention = benchmark?.ClientRetentionRate?.Typical ?? 0.80m;
+            var annualRetentionRaw = benchmark?.ClientRetentionRate?.Typical ?? 80m;
+            var annualRetention = annualRetentionRaw / 100m;
             var monthlyChurn = (1m - annualRetention) / 12m;
             var ltv = monthlyChurn > 0 ? (input.PlannedPrice * grossMarginPct / 100m) / monthlyChurn : 0m;
-            assumptions.Add($"Annual retention: {annualRetention * 100:F0}% → monthly churn {monthlyChurn * 100:F1}% → LTV: {ltv:N0} JOD");
+            assumptions.Add($"Annual client retention: {annualRetentionRaw:F0}% (Amman {idea.Sector} B2B benchmark) → monthly churn: {monthlyChurn * 100:F1}% → LTV: {ltv:N0} JOD");
 
             var ltvCacRatio = cac > 0 ? ltv / cac : 0m;
 
@@ -196,7 +220,15 @@ namespace backend.Services
                 MonthlyProfit         = Math.Round(monthlyProfit, 2),
                 BreakEvenMonths       = clampedBep,
                 RoiPercentage         = clampedRoi,
-                FinancialSummaryJson  = JsonSerializer.Serialize(richSummary)
+                FinancialSummaryJson  = JsonSerializer.Serialize(richSummary),
+                GrossMarginPct        = Math.Round(grossMarginPct, 2),
+                LTV                   = Math.Round(ltv, 2),
+                CAC                   = Math.Round(cac, 2),
+                LtvCacRatio           = Math.Round(ltvCacRatio, 2),
+                BreakEvenUnits        = Math.Round(breakEvenUnits, 1),
+                ARR                   = Math.Round(arr, 2),
+                RedFlags              = redFlags,
+                AssumptionsLog        = assumptions,
             };
         }
 
@@ -205,14 +237,18 @@ namespace backend.Services
         private static decimal GetRangeMidpoint(string? range, decimal defaultValue)
         {
             if (string.IsNullOrWhiteSpace(range)) return defaultValue;
-            var parts = range.Split('-');
-            if (parts.Length == 2
-                && decimal.TryParse(parts[0].Trim(), out var lo)
-                && decimal.TryParse(parts[1].Trim(), out var hi))
-                return (lo + hi) / 2m;
-            if (decimal.TryParse(range.Trim(), out var single))
-                return single;
-            return defaultValue;
+            return range.ToLower().Trim() switch
+            {
+                "1_10"     => 5m,
+                "10_50"    => 25m,
+                "50_200"   => 100m,
+                "200_plus" => 250m,
+                "1_3"      => 2m,
+                "4_10"     => 6m,
+                "11_30"    => 18m,
+                "30_plus"  => 35m,
+                _          => defaultValue
+            };
         }
 
         private static object BuildScenario(decimal revenue, decimal costs, decimal initialInvestment, ScenarioEntry mult)

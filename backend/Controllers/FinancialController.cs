@@ -34,6 +34,10 @@ namespace backend.Controllers
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
 
+            // Save AmmanRegion from financial form to the idea record
+            if (!string.IsNullOrWhiteSpace(dto.AmmanRegion))
+                idea.AmmanRegion = dto.AmmanRegion;
+
             var result = _financialService.CalculateFinancialPlan(dto, idea);
 
             if (idea.FinancialPlan != null)
@@ -41,8 +45,15 @@ namespace backend.Controllers
                 idea.FinancialPlan.InitialInvestment = dto.InitialInvestment;
                 idea.FinancialPlan.MonthlyRevenue    = result.MonthlyRevenue;
                 idea.FinancialPlan.MonthlyCosts      = result.MonthlyCosts;
+                idea.FinancialPlan.MonthlyProfit     = result.MonthlyProfit;
                 idea.FinancialPlan.BreakEvenMonths   = result.BreakEvenMonths;
                 idea.FinancialPlan.RoiPercentage     = result.RoiPercentage;
+                idea.FinancialPlan.GrossMarginPct    = result.GrossMarginPct;
+                idea.FinancialPlan.LTV               = result.LTV;
+                idea.FinancialPlan.CAC               = result.CAC;
+                idea.FinancialPlan.LtvCacRatio       = result.LtvCacRatio;
+                idea.FinancialPlan.BreakEvenUnits    = result.BreakEvenUnits;
+                idea.FinancialPlan.ARR               = result.ARR;
                 idea.FinancialPlan.FinancialSummary  = result.FinancialSummaryJson;
                 idea.FinancialPlan.CreatedAt         = DateTime.UtcNow;
             }
@@ -54,8 +65,15 @@ namespace backend.Controllers
                     InitialInvestment = dto.InitialInvestment,
                     MonthlyRevenue    = result.MonthlyRevenue,
                     MonthlyCosts      = result.MonthlyCosts,
+                    MonthlyProfit     = result.MonthlyProfit,
                     BreakEvenMonths   = result.BreakEvenMonths,
                     RoiPercentage     = result.RoiPercentage,
+                    GrossMarginPct    = result.GrossMarginPct,
+                    LTV               = result.LTV,
+                    CAC               = result.CAC,
+                    LtvCacRatio       = result.LtvCacRatio,
+                    BreakEvenUnits    = result.BreakEvenUnits,
+                    ARR               = result.ARR,
                     FinancialSummary  = result.FinancialSummaryJson,
                     CreatedAt         = DateTime.UtcNow
                 };
@@ -95,8 +113,15 @@ namespace backend.Controllers
                 InitialInvestment = plan.InitialInvestment,
                 MonthlyRevenue    = plan.MonthlyRevenue,
                 MonthlyCosts      = plan.MonthlyCosts,
+                MonthlyProfit     = plan.MonthlyProfit,
                 BreakEvenMonths   = plan.BreakEvenMonths,
                 RoiPercentage     = plan.RoiPercentage,
+                GrossMarginPct    = plan.GrossMarginPct,
+                LTV               = plan.LTV,
+                CAC               = plan.CAC,
+                LtvCacRatio       = plan.LtvCacRatio,
+                BreakEvenUnits    = plan.BreakEvenUnits,
+                ARR               = plan.ARR,
                 CreatedAt         = plan.CreatedAt
             };
 
@@ -144,7 +169,14 @@ namespace backend.Controllers
                         CumulativeCash = GetDecimal(e, "cumulativeCash")
                     }).ToList();
             }
-            catch { /* return partial dto on parse failure */ }
+            catch (Exception ex)
+            {
+                // Log but don't throw — return partial DTO so the frontend
+                // still receives the core financial numbers even if rich data fails
+                Console.Error.WriteLine(
+                    $"[FinancialController] Failed to parse FinancialSummary JSON " +
+                    $"for PlanId={plan.PlanId}: {ex.Message}");
+            }
 
             return dto;
         }

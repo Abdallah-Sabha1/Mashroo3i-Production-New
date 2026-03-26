@@ -9,8 +9,5 @@ namespace backend.DTOs.Idea
         public string? Usp { get; set; }
         public string? Sector { get; set; }
         public decimal? EstimatedBudget { get; set; }
-        public string? Location { get; set; }
-        public string? MarketSize { get; set; }
-        public string? CompetitionLevel { get; set; }
     }
 }
