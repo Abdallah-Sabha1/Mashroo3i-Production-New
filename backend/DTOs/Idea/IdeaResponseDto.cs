@@ -9,9 +9,11 @@ namespace backend.DTOs.Idea
         public string? ProblemStatement { get; set; }
         public string? TargetAudience { get; set; }
         public string? Usp { get; set; }
-        public string Sector { get; set; } = string.Empty;
+        public string BusinessType { get; set; } = "B2C";
+        public string Sector { get; set; } = "other";
+        public string AmmanRegion { get; set; } = "central";
+        public string? BusinessTypeReason { get; set; }
         public decimal EstimatedBudget { get; set; }
-        public string? Location { get; set; }
         public string? MarketSize { get; set; }
         public string? CompetitionLevel { get; set; }
         public string Status { get; set; } = "submitted";

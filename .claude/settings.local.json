@@ -41,7 +41,9 @@
       "Bash(ping -n 2 127.0.0.1)",
       "Bash(curl -sk \"https://generativelanguage.googleapis.com/v1beta/models?key=REDACTED_API_KEY\")",
       "Bash(node -e \"const d=JSON.parse\\(require\\(''''fs''''\\).readFileSync\\(0,''''utf8''''\\)\\); d.models?.forEach\\(m=>console.log\\(m.name, m.supportedGenerationMethods?.join\\('''',''''\\)\\)\\)\")",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(taskkill //PID 5512 //F)",
+      "Bash(exit 0)"
     ]
   }
 }

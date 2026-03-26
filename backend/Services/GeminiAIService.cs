@@ -3,7 +3,6 @@ using System.Text.Json;
 using backend.DTOs.Idea;
 using backend.Models;
 using backend.Services.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace backend.Services
 {
@@ -22,43 +21,34 @@ namespace backend.Services
             _geminiApiKey = config["GeminiAI:ApiKey"] ?? throw new InvalidOperationException("Gemini API Key not configured");
         }
 
-        /// <summary>
-        /// Generate personalized insights for a business idea using Gemini AI
-        /// </summary>
-        public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description)
+        public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description, string sector)
         {
             try
             {
                 _logger.LogInformation("Generating insights for idea: {Title}", title);
-
-                var prompt = BuildInsightGenerationPrompt(title, description);
+                var prompt = BuildInsightGenerationPrompt(title, description, sector);
                 var response = await CallGeminiApiAsync(prompt);
 
                 if (string.IsNullOrEmpty(response))
                 {
                     _logger.LogWarning("Empty response from Gemini API for insights");
-                    return GetDefaultInsights(title, description);
+                    return GetDefaultInsights();
                 }
 
-                var insights = ParseInsightsResponse(response);
-                return insights;
+                return ParseInsightsResponse(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating insights from Gemini API");
-                return GetDefaultInsights(title, description);
+                return GetDefaultInsights();
             }
         }
 
-        /// <summary>
-        /// Evaluate a business idea comprehensively using Gemini AI
-        /// </summary>
         public async Task<Evaluation> EvaluateBusinessIdeaAsync(BusinessIdea idea)
         {
             try
             {
                 _logger.LogInformation("Evaluating business idea: {Title} (ID: {IdeaId})", idea.Title, idea.IdeaId);
-
                 var prompt = BuildEvaluationPrompt(idea);
                 var response = await CallGeminiApiAsync(prompt);
 
@@ -68,8 +58,7 @@ namespace backend.Services
                     return GetDefaultEvaluation(idea);
                 }
 
-                var evaluation = ParseEvaluationResponse(response, idea);
-                return evaluation;
+                return ParseEvaluationResponse(response, idea);
             }
             catch (Exception ex)
             {
@@ -78,9 +67,6 @@ namespace backend.Services
             }
         }
 
-        /// <summary>
-        /// Call the Gemini API with a prompt and return the response text
-        /// </summary>
         private async Task<string> CallGeminiApiAsync(string prompt)
         {
             try
@@ -91,13 +77,7 @@ namespace backend.Services
                 {
                     contents = new[]
                     {
-                        new
-                        {
-                            parts = new[]
-                            {
-                                new { text = prompt }
-                            }
-                        }
+                        new { parts = new[] { new { text = prompt } } }
                     },
                     generationConfig = new
                     {
@@ -120,8 +100,7 @@ namespace backend.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Gemini API error: Status={StatusCode}, Response={Response}",
-                        response.StatusCode, errorContent);
+                    _logger.LogError("Gemini API error: Status={StatusCode}, Response={Response}", response.StatusCode, errorContent);
                     return string.Empty;
                 }
 
@@ -155,89 +134,126 @@ namespace backend.Services
             }
         }
 
-        /// <summary>
-        /// Build a prompt for generating initial insights from a business idea
-        /// </summary>
-        private string BuildInsightGenerationPrompt(string title, string description)
+        private string BuildInsightGenerationPrompt(string title, string description, string sector)
         {
-            return $@"You are a business consultant analyzing a new business idea from a Jordanian entrepreneur.
+            var sectorLabel = sector switch
+            {
+                "food_and_beverage"      => "Food & Beverage",
+                "retail_ecommerce"       => "Retail & E-commerce",
+                "tech_and_software"      => "Tech & Software",
+                "education_and_training" => "Education & Training",
+                "health_and_wellness"    => "Health & Wellness",
+                "professional_services"  => "Professional Services",
+                _                        => "General Business"
+            };
 
-BUSINESS IDEA:
+            return $@"You are a senior business consultant who specializes in the Amman, Jordan startup market.
+
+BUSINESS IDEA SUBMITTED:
 Title: {title}
 Description: {description}
+Sector: {sectorLabel}
+Market: Amman, Jordan
 
-Analyze this idea and provide insights in JSON format. Return ONLY a valid JSON object with NO markdown formatting, NO backticks, NO explanation text - just the JSON.
+YOUR TASK:
+Analyze this business idea for an entrepreneur in Amman who has NOT started yet.
+They want to know if their idea is viable and how to think about it.
 
+IMPORTANT RULES:
+1. All analysis must be specific to Amman's market — not generic global advice
+2. Be honest — if the idea has weaknesses, mention them clearly but constructively
+3. Use simple language — the user may not have a business education
+4. For businessType classification: B2C = sells to individual people, B2B = sells to other businesses
+5. For suggestedMonthlySalesRange: be realistic for Amman — most new businesses start very small
+
+Return ONLY a valid JSON object. No markdown, no explanation, just JSON:
 {{
-  ""problemStatement"": ""What specific problem does this business solve? Be concise but specific (2-3 sentences)"",
-  ""uniqueSellingPoint"": ""What makes this business unique and different from competitors? (2-3 sentences)"",
-  ""targetAudience"": ""Who are the primary customers/users? Describe their demographics, behaviors, and specific needs.""
-}}
-
-Make the insights:
-- Specific to Jordan's market conditions when relevant
-- Practical and actionable
-- Based on the idea description provided
-- Professional and helpful
-
-Return ONLY the JSON object, nothing else.";
+  ""problemStatement"": ""What specific problem does this solve for people or businesses in Amman? (2-3 sentences, specific to Jordan context)"",
+  ""uniqueSellingPoint"": ""What would make this business stand out from existing alternatives in Amman? (2-3 sentences)"",
+  ""targetAudience"": ""Who exactly would buy this in Amman? Describe their age, lifestyle, location in Amman, and specific need."",
+  ""suggestedBusinessType"": ""B2C"" or ""B2B"",
+  ""businessTypeConfidence"": ""HIGH"" or ""MEDIUM"" or ""LOW"",
+  ""businessTypeReason"": ""One sentence explaining clearly why this is B2C or B2B in plain language"",
+  ""suggestedMonthlySalesRange"": ""1_10"" or ""10_50"" or ""50_200"" or ""200_plus"" (for B2C) OR ""1_3"" or ""4_10"" or ""11_30"" or ""30_plus"" (for B2B)
+}}";
         }
 
-        /// <summary>
-        /// Build a prompt for comprehensive business evaluation
-        /// </summary>
         private string BuildEvaluationPrompt(BusinessIdea idea)
         {
-            return $@"You are an expert business evaluator assessing a startup idea from a Jordanian entrepreneur.
+            var scoringCriteria = idea.BusinessType == "B2B"
+                ? @"SCORING WEIGHTS FOR B2B IDEAS:
+- Problem severity (is it a must-have for businesses?): 25 points
+- Buyer clarity (is the decision maker clear?): 20 points
+- Measurable ROI for the buying company: 20 points
+- Competitive moat or switching cost: 20 points
+- Sales cycle feasibility for a new founder: 10 points
+- Scalability in Amman market: 5 points"
+                : @"SCORING WEIGHTS FOR B2C IDEAS:
+- Market size in Amman (is there enough demand?): 25 points
+- Consumer pain clarity (is the problem real and urgent?): 20 points
+- Acquisition ease (can they get customers at low cost?): 20 points
+- Competitive differentiation in Amman: 15 points
+- Repeat purchase potential: 15 points
+- Novelty and timing: 5 points";
 
-BUSINESS IDEA DETAILS:
-- Title: {idea.Title}
-- Description: {idea.Description}
-- Problem Being Solved: {idea.ProblemStatement}
-- Unique Selling Point: {idea.Usp}
-- Target Audience: {idea.TargetAudience}
-- Industry Sector: {idea.Sector}
-- Estimated Budget: JOD {idea.EstimatedBudget}
-- Target Market Size: {idea.MarketSize}
-- Competition Level: {idea.CompetitionLevel}
-- Location: {idea.Location}
+            var sectorContext = idea.Sector switch
+            {
+                "food_and_beverage"      => "Amman has a strong café and food culture. Competition is high in West Amman. Cloud kitchens and delivery-first models are growing. Margins: 25-50%.",
+                "retail_ecommerce"       => "E-commerce in Jordan growing at 9.4% CAGR. Instagram is the dominant sales channel. Delivery costs 2-5 JOD per order. Margins: 30-55%.",
+                "tech_and_software"      => "Jordan raised $300M in startup funding in 2024. Tech talent available. B2B software pricing is lower than GCC. Margins: 55-80%.",
+                "education_and_training" => "Strong demand for STEM, English, Tawjihi prep in Amman. Word of mouth dominates acquisition. University areas have strong demand. Margins: 50-80%.",
+                "health_and_wellness"    => "Post-COVID wellness awareness increased in Jordan. Gender-segregated facilities often required. Growing middle class investing in fitness. Margins: 40-70%.",
+                "professional_services"  => "Fastest sector to break even in Amman. Relationship-driven sales. Payment terms 30-60 days common in B2B. Margins: 50-75%.",
+                _                        => "General Amman market context applies. Validate idea with local market research."
+            };
 
-Provide a comprehensive evaluation in JSON format. Return ONLY a valid JSON object with NO markdown, NO backticks, NO explanation text.
+            return $@"You are an expert startup evaluator with deep knowledge of the Amman, Jordan market.
 
+BUSINESS IDEA:
+Title: {idea.Title}
+Description: {idea.Description}
+Business Type: {idea.BusinessType}
+Sector: {idea.Sector}
+Problem Being Solved: {idea.ProblemStatement}
+Unique Selling Point: {idea.Usp}
+Target Audience: {idea.TargetAudience}
+Estimated Starting Budget: JOD {idea.EstimatedBudget}
+
+AMMAN MARKET CONTEXT FOR THIS SECTOR:
+{sectorContext}
+
+{scoringCriteria}
+
+EVALUATION RULES:
+1. Score based on Amman market reality — not global or theoretical
+2. SWOT must be specific to THIS idea in Amman — never write generic SWOT points
+3. Verdict must be one honest sentence — do not sugarcoat
+4. If budget seems insufficient for the sector, say so clearly
+5. Recommendations must be actionable next steps, not generic advice
+6. RedFlags: list any serious problems found. Empty array if none.
+
+Return ONLY valid JSON, no markdown:
 {{
-  ""noveltyScore"": <integer 1-100, how novel/innovative is the idea>,
-  ""marketPotentialScore"": <integer 1-100, market size and growth potential>,
-  ""overallScore"": <integer 1-100, overall viability>,
-  ""riskLevel"": ""Low Risk"" OR ""Medium Risk"" OR ""High Risk"",
-  ""recommendations"": ""Provide 3-4 specific, actionable recommendations separated by newlines. Make them specific to this idea, not generic."",
+  ""noveltyScore"": <integer 1-100>,
+  ""marketPotentialScore"": <integer 1-100>,
+  ""overallScore"": <integer 1-100>,
+  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
+  ""verdict"": ""One honest sentence: is this idea Promising / Needs Refinement / High Risk — and the single most important reason why"",
+  ""redFlags"": [""Specific warning 1 if any"", ""Specific warning 2 if any""],
+  ""recommendations"": ""3-4 specific next steps for THIS idea in Amman. Not generic advice."",
   ""swotAnalysis"": {{
-    ""strengths"": [""Specific strength 1 about THIS idea"", ""Specific strength 2"", ""Specific strength 3""],
-    ""weaknesses"": [""Specific weakness 1 about THIS idea"", ""Specific weakness 2""],
-    ""opportunities"": [""Market opportunity 1 relevant to Jordan"", ""Market opportunity 2""],
-    ""threats"": [""Potential threat 1"", ""Potential threat 2""]
+    ""strengths"": [""Specific to this idea"", ""Specific to Amman market""],
+    ""weaknesses"": [""Specific to this idea"", ""Honest weakness""],
+    ""opportunities"": [""Specific Amman market opportunity"", ""Specific growth path""],
+    ""threats"": [""Specific threat in Amman"", ""Specific competitive threat""]
   }}
-}}
-
-Evaluation guidelines:
-- Novelty: How original/innovative is this idea? (Consider market saturation)
-- Market Potential: Is there a big enough market? Can it scale?
-- Risk: What could go wrong? How hard is execution?
-- SWOT: Make it SPECIFIC to their idea, not generic
-- Recommendations: Give them actual next steps they can take
-- Consider: Jordan's market, economic conditions, local competition
-- Be realistic but encouraging
-
-Return ONLY the JSON object, nothing else.";
+}}";
         }
 
-        /// <summary>
-        /// Parse the Gemini response for idea insights
-        /// </summary>
         private IdeaInsightsDto ParseInsightsResponse(string response)
         {
             try
             {
-                // Clean the response (remove markdown if present)
                 var cleanJson = response
                     .Replace("```json", "")
                     .Replace("```", "")
@@ -248,26 +264,26 @@ Return ONLY the JSON object, nothing else.";
 
                 return new IdeaInsightsDto
                 {
-                    ProblemStatement = ExtractJsonProperty(root, "problemStatement"),
-                    UniqueSellingPoint = ExtractJsonProperty(root, "uniqueSellingPoint"),
-                    TargetAudience = ExtractJsonProperty(root, "targetAudience")
+                    ProblemStatement       = ExtractString(root, "problemStatement"),
+                    UniqueSellingPoint     = ExtractString(root, "uniqueSellingPoint"),
+                    TargetAudience         = ExtractString(root, "targetAudience"),
+                    SuggestedBusinessType  = ExtractString(root, "suggestedBusinessType", "B2C"),
+                    BusinessTypeConfidence = ExtractString(root, "businessTypeConfidence", "LOW"),
+                    BusinessTypeReason     = ExtractString(root, "businessTypeReason"),
+                    SuggestedMonthlySalesRange = ExtractString(root, "suggestedMonthlySalesRange", "1_10")
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error parsing insights response from Gemini");
-                return GetDefaultInsights("", "");
+                return GetDefaultInsights();
             }
         }
 
-        /// <summary>
-        /// Parse the Gemini response for business evaluation
-        /// </summary>
         private Evaluation ParseEvaluationResponse(string response, BusinessIdea idea)
         {
             try
             {
-                // Clean the response (remove markdown if present)
                 var cleanJson = response
                     .Replace("```json", "")
                     .Replace("```", "")
@@ -276,26 +292,33 @@ Return ONLY the JSON object, nothing else.";
                 using var doc = JsonDocument.Parse(cleanJson);
                 var root = doc.RootElement;
 
-                var noveltyScore = ExtractJsonInt(root, "noveltyScore", 50);
-                var marketScore = ExtractJsonInt(root, "marketPotentialScore", 50);
-                var overallScore = ExtractJsonInt(root, "overallScore", (noveltyScore + marketScore) / 2);
-                var riskLevel = ExtractJsonProperty(root, "riskLevel") ?? "Medium Risk";
-                var recommendations = ExtractJsonProperty(root, "recommendations") ?? "";
+                var noveltyScore  = ExtractInt(root, "noveltyScore", 50);
+                var marketScore   = ExtractInt(root, "marketPotentialScore", 50);
+                var overallScore  = ExtractInt(root, "overallScore", (noveltyScore + marketScore) / 2);
+                var riskLevel     = ExtractString(root, "riskLevel", "Medium Risk");
+                var recommendations = ExtractString(root, "recommendations");
+                var verdict       = ExtractString(root, "verdict");
 
                 var swotJson = root.TryGetProperty("swotAnalysis", out var swot)
                     ? swot.GetRawText()
                     : "{}";
 
+                var redFlagsJson = "[]";
+                if (root.TryGetProperty("redFlags", out var redFlagsEl) && redFlagsEl.ValueKind == JsonValueKind.Array)
+                    redFlagsJson = redFlagsEl.GetRawText();
+
                 return new Evaluation
                 {
-                    IdeaId = idea.IdeaId,
-                    NoveltyScore = Math.Clamp(noveltyScore, 1, 100),
+                    IdeaId               = idea.IdeaId,
+                    NoveltyScore         = Math.Clamp(noveltyScore, 1, 100),
                     MarketPotentialScore = Math.Clamp(marketScore, 1, 100),
-                    OverallScore = Math.Clamp(overallScore, 1, 100),
-                    RiskLevel = riskLevel,
-                    Recommendations = recommendations,
-                    SwotAnalysis = swotJson,
-                    GeneratedAt = DateTime.UtcNow
+                    OverallScore         = Math.Clamp(overallScore, 1, 100),
+                    RiskLevel            = riskLevel,
+                    Recommendations      = recommendations,
+                    Verdict              = verdict,
+                    RedFlags             = redFlagsJson,
+                    SwotAnalysis         = swotJson,
+                    GeneratedAt          = DateTime.UtcNow
                 };
             }
             catch (Exception ex)
@@ -305,99 +328,44 @@ Return ONLY the JSON object, nothing else.";
             }
         }
 
-        /// <summary>
-        /// Helper: Extract string property from JSON
-        /// </summary>
-        private string ExtractJsonProperty(JsonElement root, string propertyName)
+        private static string ExtractString(JsonElement root, string key, string defaultValue = "")
         {
-            if (root.TryGetProperty(propertyName, out var property))
-            {
-                return property.GetString() ?? "";
-            }
-            return "";
+            return root.TryGetProperty(key, out var prop) ? (prop.GetString() ?? defaultValue) : defaultValue;
         }
 
-        /// <summary>
-        /// Helper: Extract integer property from JSON
-        /// </summary>
-        private int ExtractJsonInt(JsonElement root, string propertyName, int defaultValue)
+        private static int ExtractInt(JsonElement root, string key, int defaultValue)
         {
-            if (root.TryGetProperty(propertyName, out var property) && property.TryGetInt32(out var value))
-            {
-                return value;
-            }
-            return defaultValue;
+            return root.TryGetProperty(key, out var prop) && prop.TryGetInt32(out var val) ? val : defaultValue;
         }
 
-        /// <summary>
-        /// Fallback insights if API fails
-        /// </summary>
-        private IdeaInsightsDto GetDefaultInsights(string title, string description)
+        private static IdeaInsightsDto GetDefaultInsights() => new()
         {
-            return new IdeaInsightsDto
-            {
-                ProblemStatement = "This business solves a real market need by addressing inefficiencies in the current market. Further refinement through customer interviews will help define the exact problem statement.",
-                UniqueSellingPoint = "The unique value proposition includes differentiation through customer service, innovative approach to the market, and competitive positioning. Consider what specifically sets this idea apart from existing solutions.",
-                TargetAudience = "The primary target audience includes individuals or organizations seeking solutions in this market segment. Define more specifically: demographics, purchasing power, pain points, and decision-making process."
-            };
-        }
+            ProblemStatement           = "Unable to analyze — please retry.",
+            UniqueSellingPoint         = "Unable to analyze — please retry.",
+            TargetAudience             = "Unable to analyze — please retry.",
+            SuggestedBusinessType      = "B2C",
+            BusinessTypeConfidence     = "LOW",
+            BusinessTypeReason         = "Could not analyze idea — default suggestion only.",
+            SuggestedMonthlySalesRange = "1_10"
+        };
 
-        /// <summary>
-        /// Fallback evaluation if API fails
-        /// </summary>
-        private Evaluation GetDefaultEvaluation(BusinessIdea idea)
+        private static Evaluation GetDefaultEvaluation(BusinessIdea idea) => new()
         {
-            var baseScore = CalculateBaseScore(idea);
-
-            return new Evaluation
-            {
-                IdeaId = idea.IdeaId,
-                NoveltyScore = Math.Min(baseScore + 10, 100),
-                MarketPotentialScore = Math.Max(baseScore - 5, 20),
-                OverallScore = baseScore,
-                RiskLevel = DetermineRiskLevel(baseScore),
-                Recommendations = "1. Validate the problem with potential customers through interviews\n2. Develop a minimum viable product (MVP) to test core assumptions\n3. Create a detailed go-to-market strategy\n4. Research your competitive landscape thoroughly",
-                SwotAnalysis = JsonSerializer.Serialize(new
-                {
-                    strengths = new[] { "Clear market opportunity", "Defined target audience", "Viable business model" },
-                    weaknesses = new[] { "Competitive market", "Execution risk", "Resource constraints" },
-                    opportunities = new[] { "Market growth potential", "Technology integration", "Partnership opportunities" },
-                    threats = new[] { "Market saturation", "Economic uncertainty", "Competitive response" }
-                }),
-                GeneratedAt = DateTime.UtcNow
-            };
-        }
-
-        /// <summary>
-        /// Calculate base score from idea details
-        /// </summary>
-        private int CalculateBaseScore(BusinessIdea idea)
-        {
-            int score = 60;
-
-            // Well-detailed description
-            if (!string.IsNullOrEmpty(idea.Description) && idea.Description.Length > 200)
-                score += 5;
-
-            // Reasonable budget
-            if (idea.EstimatedBudget > 0 && idea.EstimatedBudget <= 100000)
-                score += 5;
-
-            // Clear USP
-            if (!string.IsNullOrEmpty(idea.Usp) && idea.Usp.Length > 50)
-                score += 5;
-
-            return Math.Min(score, 100);
-        }
-
-        /// <summary>
-        /// Determine risk level based on overall score
-        /// </summary>
-        private string DetermineRiskLevel(int score)
-        {
-            if (score >= 75) return "Low Risk";
-            if (score >= 50) return "Medium Risk";
-            return "High Risk";
-        }
+            IdeaId               = idea.IdeaId,
+            NoveltyScore         = 0,
+            MarketPotentialScore = 0,
+            OverallScore         = 0,
+            RiskLevel            = "Unavailable",
+            Verdict              = "Our AI evaluation service is temporarily unavailable. Please try again in a few minutes.",
+            RedFlags             = "[]",
+            Recommendations      = "Our AI evaluation service is temporarily unavailable. Please try again in a few minutes.",
+            SwotAnalysis         = JsonSerializer.Serialize(new {
+                strengths     = new[] { "Evaluation unavailable — please retry" },
+                weaknesses    = Array.Empty<string>(),
+                opportunities = Array.Empty<string>(),
+                threats       = Array.Empty<string>()
+            }),
+            GeneratedAt = DateTime.UtcNow
+        };
     }
 }

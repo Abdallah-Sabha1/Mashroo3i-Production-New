@@ -29,10 +29,13 @@ namespace backend.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IdeaInsightsDto>> AnalyzeIdea(AnalyzeIdeaDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid input", errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)) });
+
             try
             {
                 _logger.LogInformation("Analyzing idea: {Title}", dto.Title);
-                var insights = await _analysisService.AnalyzeIdeaAsync(dto.Title, dto.Description);
+                var insights = await _analysisService.AnalyzeIdeaAsync(dto.Title, dto.Description, dto.Sector);
                 return Ok(insights);
             }
             catch (Exception ex)
@@ -49,18 +52,20 @@ namespace backend.Controllers
 
             var idea = new BusinessIdea
             {
-                UserId = userId,
-                Title = dto.Title,
-                Description = dto.Description,
+                UserId           = userId,
+                Title            = dto.Title,
+                Description      = dto.Description,
                 ProblemStatement = dto.ProblemStatement,
-                TargetAudience = dto.TargetAudience,
-                Usp = dto.Usp,
-                Sector = dto.Sector,
-                EstimatedBudget = dto.EstimatedBudget,
-                Location = dto.Location,
-                MarketSize = dto.MarketSize,
+                TargetAudience   = dto.TargetAudience,
+                Usp              = dto.Usp,
+                BusinessType     = dto.BusinessType,
+                Sector           = dto.Sector,
+                AmmanRegion      = dto.AmmanRegion,
+                BusinessTypeReason = dto.BusinessTypeReason,
+                EstimatedBudget  = dto.EstimatedBudget,
+                MarketSize       = dto.MarketSize,
                 CompetitionLevel = dto.CompetitionLevel,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt        = DateTime.UtcNow
             };
 
             _context.BusinessIdeas.Add(idea);
@@ -127,9 +132,6 @@ namespace backend.Controllers
             if (dto.Usp != null) idea.Usp = dto.Usp;
             if (dto.Sector != null) idea.Sector = dto.Sector;
             if (dto.EstimatedBudget.HasValue) idea.EstimatedBudget = dto.EstimatedBudget.Value;
-            if (dto.Location != null) idea.Location = dto.Location;
-            if (dto.MarketSize != null) idea.MarketSize = dto.MarketSize;
-            if (dto.CompetitionLevel != null) idea.CompetitionLevel = dto.CompetitionLevel;
 
             await _context.SaveChangesAsync();
             return Ok(MapToResponse(idea));
@@ -152,24 +154,26 @@ namespace backend.Controllers
 
         private static IdeaResponseDto MapToResponse(BusinessIdea idea) => new()
         {
-            IdeaId = idea.IdeaId,
-            UserId = idea.UserId,
-            Title = idea.Title,
-            Description = idea.Description,
-            ProblemStatement = idea.ProblemStatement,
-            TargetAudience = idea.TargetAudience,
-            Usp = idea.Usp,
-            Sector = idea.Sector,
-            EstimatedBudget = idea.EstimatedBudget,
-            Location = idea.Location,
-            MarketSize = idea.MarketSize,
-            CompetitionLevel = idea.CompetitionLevel,
-            Status = idea.Status,
-            CreatedAt = idea.CreatedAt,
+            IdeaId             = idea.IdeaId,
+            UserId             = idea.UserId,
+            Title              = idea.Title,
+            Description        = idea.Description,
+            ProblemStatement   = idea.ProblemStatement,
+            TargetAudience     = idea.TargetAudience,
+            Usp                = idea.Usp,
+            BusinessType       = idea.BusinessType,
+            Sector             = idea.Sector,
+            AmmanRegion        = idea.AmmanRegion,
+            BusinessTypeReason = idea.BusinessTypeReason,
+            EstimatedBudget    = idea.EstimatedBudget,
+            MarketSize         = idea.MarketSize,
+            CompetitionLevel   = idea.CompetitionLevel,
+            Status             = idea.Status,
+            CreatedAt          = idea.CreatedAt,
             Evaluation = idea.Evaluation != null ? new EvaluationBriefDto
             {
                 OverallScore = idea.Evaluation.OverallScore,
-                RiskLevel = idea.Evaluation.RiskLevel
+                RiskLevel    = idea.Evaluation.RiskLevel
             } : null,
             HasFinancialPlan = idea.FinancialPlan != null
         };

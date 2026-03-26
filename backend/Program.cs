@@ -10,7 +10,6 @@ using backend.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -46,7 +45,6 @@ var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 string connectionString;
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Railway provides postgres://user:pass@host:port/db
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
     connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
@@ -77,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// CORS — allow localhost + any Vercel deployment
+// CORS
 var allowedOrigins = new List<string>
 {
     "http://localhost:5173",
@@ -102,11 +100,11 @@ builder.Services.AddScoped<IGeminiAIService, GeminiAIService>();
 builder.Services.AddScoped<IIdeaAnalysisService, IdeaAnalysisService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddSingleton<IBenchmarkService, BenchmarkService>();
 builder.Services.AddHttpClient<GeminiAIService>();
 
 var app = builder.Build();
 
-// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -114,15 +112,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
-// Auto-migrate on startup (dev + production)
+// Auto-migrate on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

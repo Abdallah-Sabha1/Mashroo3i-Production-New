@@ -1,0 +1,158 @@
+{
+  "_metadata": {
+    "version": "2.0.0",
+    "geography": "Amman, Jordan only",
+    "currency": "JOD",
+    "disclaimer": "Estimates based on Amman market research. Not guarantees."
+  },
+  "sectors": {
+    "food_and_beverage": {
+      "b2c": {
+        "startupCost": { "low": 8000, "high": 40000, "typical": 15000 },
+        "monthlyFixedCosts": { "low": 1000, "high": 3500, "typical": 1800 },
+        "grossMargin": { "low": 25, "high": 50, "typical": 33 },
+        "cac": { "low": 8, "high": 40, "typical": 20 },
+        "monthlyChurnRate": { "low": 10, "high": 30, "typical": 18 },
+        "breakEvenMonths": { "low": 4, "high": 12, "typical": 7 },
+        "winRate": null,
+        "clientRetentionRate": null
+      }
+    },
+    "retail_ecommerce": {
+      "b2c": {
+        "startupCost": { "low": 2000, "high": 30000, "typical": 8000 },
+        "monthlyFixedCosts": { "low": 200, "high": 2500, "typical": 800 },
+        "grossMargin": { "low": 30, "high": 55, "typical": 40 },
+        "cac": { "low": 5, "high": 60, "typical": 22 },
+        "monthlyChurnRate": { "low": 15, "high": 40, "typical": 25 },
+        "breakEvenMonths": { "low": 2, "high": 8, "typical": 4 },
+        "winRate": null,
+        "clientRetentionRate": null
+      }
+    },
+    "tech_and_software": {
+      "b2c": {
+        "startupCost": { "low": 3000, "high": 25000, "typical": 10000 },
+        "monthlyFixedCosts": { "low": 300, "high": 3000, "typical": 1000 },
+        "grossMargin": { "low": 55, "high": 85, "typical": 70 },
+        "cac": { "low": 10, "high": 120, "typical": 40 },
+        "monthlyChurnRate": { "low": 5, "high": 20, "typical": 10 },
+        "breakEvenMonths": { "low": 6, "high": 24, "typical": 12 },
+        "winRate": null,
+        "clientRetentionRate": null
+      },
+      "b2b": {
+        "startupCost": { "low": 5000, "high": 30000, "typical": 15000 },
+        "monthlyFixedCosts": { "low": 1000, "high": 5000, "typical": 2500 },
+        "grossMargin": { "low": 55, "high": 80, "typical": 68 },
+        "cac": { "low": 300, "high": 1500, "typical": 700 },
+        "monthlyChurnRate": null,
+        "breakEvenMonths": { "low": 8, "high": 24, "typical": 14 },
+        "winRate": { "low": 15, "high": 40, "typical": 25 },
+        "clientRetentionRate": { "low": 80, "high": 95, "typical": 88 }
+      }
+    },
+    "education_and_training": {
+      "b2c": {
+        "startupCost": { "low": 1500, "high": 20000, "typical": 6000 },
+        "monthlyFixedCosts": { "low": 300, "high": 2500, "typical": 900 },
+        "grossMargin": { "low": 50, "high": 80, "typical": 65 },
+        "cac": { "low": 5, "high": 50, "typical": 18 },
+        "monthlyChurnRate": { "low": 5, "high": 20, "typical": 10 },
+        "breakEvenMonths": { "low": 2, "high": 8, "typical": 4 },
+        "winRate": null,
+        "clientRetentionRate": null
+      },
+      "b2b": {
+        "startupCost": { "low": 3000, "high": 15000, "typical": 7000 },
+        "monthlyFixedCosts": { "low": 500, "high": 2000, "typical": 1000 },
+        "grossMargin": { "low": 45, "high": 70, "typical": 58 },
+        "cac": { "low": 200, "high": 800, "typical": 400 },
+        "monthlyChurnRate": null,
+        "breakEvenMonths": { "low": 3, "high": 10, "typical": 5 },
+        "winRate": { "low": 20, "high": 45, "typical": 30 },
+        "clientRetentionRate": { "low": 70, "high": 90, "typical": 80 }
+      }
+    },
+    "health_and_wellness": {
+      "b2c": {
+        "startupCost": { "low": 5000, "high": 60000, "typical": 18000 },
+        "monthlyFixedCosts": { "low": 600, "high": 4000, "typical": 1500 },
+        "grossMargin": { "low": 40, "high": 70, "typical": 55 },
+        "cac": { "low": 10, "high": 60, "typical": 25 },
+        "monthlyChurnRate": { "low": 5, "high": 20, "typical": 10 },
+        "breakEvenMonths": { "low": 4, "high": 15, "typical": 8 },
+        "winRate": null,
+        "clientRetentionRate": null
+      }
+    },
+    "professional_services": {
+      "b2c": {
+        "startupCost": { "low": 500, "high": 8000, "typical": 2000 },
+        "monthlyFixedCosts": { "low": 100, "high": 1500, "typical": 400 },
+        "grossMargin": { "low": 50, "high": 80, "typical": 65 },
+        "cac": { "low": 0, "high": 40, "typical": 10 },
+        "monthlyChurnRate": { "low": 5, "high": 20, "typical": 10 },
+        "breakEvenMonths": { "low": 1, "high": 4, "typical": 2 },
+        "winRate": null,
+        "clientRetentionRate": null
+      },
+      "b2b": {
+        "startupCost": { "low": 1000, "high": 10000, "typical": 3000 },
+        "monthlyFixedCosts": { "low": 500, "high": 3000, "typical": 1200 },
+        "grossMargin": { "low": 50, "high": 75, "typical": 62 },
+        "cac": { "low": 50, "high": 400, "typical": 150 },
+        "monthlyChurnRate": null,
+        "breakEvenMonths": { "low": 2, "high": 6, "typical": 3 },
+        "winRate": { "low": 25, "high": 50, "typical": 35 },
+        "clientRetentionRate": { "low": 70, "high": 90, "typical": 80 }
+      }
+    },
+    "other": {
+      "b2c": {
+        "startupCost": { "low": 2000, "high": 20000, "typical": 7000 },
+        "monthlyFixedCosts": { "low": 300, "high": 2000, "typical": 900 },
+        "grossMargin": { "low": 25, "high": 60, "typical": 40 },
+        "cac": { "low": 10, "high": 60, "typical": 25 },
+        "monthlyChurnRate": { "low": 10, "high": 30, "typical": 18 },
+        "breakEvenMonths": { "low": 3, "high": 12, "typical": 6 },
+        "winRate": null,
+        "clientRetentionRate": null
+      },
+      "b2b": {
+        "startupCost": { "low": 3000, "high": 20000, "typical": 8000 },
+        "monthlyFixedCosts": { "low": 600, "high": 3000, "typical": 1400 },
+        "grossMargin": { "low": 30, "high": 65, "typical": 50 },
+        "cac": { "low": 100, "high": 600, "typical": 250 },
+        "monthlyChurnRate": null,
+        "breakEvenMonths": { "low": 4, "high": 12, "typical": 8 },
+        "winRate": { "low": 20, "high": 40, "typical": 28 },
+        "clientRetentionRate": { "low": 65, "high": 85, "typical": 75 }
+      }
+    }
+  },
+  "regionMultipliers": {
+    "west":    { "startupCost": 1.25, "monthlyRent": 1.40, "aov": 1.30, "cac": 1.20 },
+    "central": { "startupCost": 1.00, "monthlyRent": 1.00, "aov": 1.00, "cac": 1.00 },
+    "east":    { "startupCost": 0.70, "monthlyRent": 0.55, "aov": 0.75, "cac": 0.80 }
+  },
+  "acquisitionChannels": {
+    "word_of_mouth":        { "label": "Word of mouth / personal network",        "cacMultiplier": 0.25 },
+    "social_media_organic": { "label": "Social media (organic content)",           "cacMultiplier": 0.50 },
+    "paid_ads":             { "label": "Paid ads (Instagram, Google, TikTok)",     "cacMultiplier": 1.80 },
+    "direct_sales":         { "label": "Direct sales / cold outreach (B2B only)",  "cacMultiplier": 4.00 },
+    "partnerships":         { "label": "Partnerships or referrals",                "cacMultiplier": 0.40 },
+    "seo":                  { "label": "SEO / organic search",                     "cacMultiplier": 0.80 }
+  },
+  "redFlagRules": {
+    "ltvCacRatio":     { "danger": 1.0, "warning": 3.0 },
+    "grossMarginPct":  { "danger": 15,  "warning": 25  },
+    "breakEvenMonths": { "danger": 36,  "warning": 18  },
+    "monthlyChurnPct": { "danger": 50,  "warning": 35  }
+  },
+  "scenarioMultipliers": {
+    "conservative": { "revenueMultiplier": 0.50, "costMultiplier": 1.15 },
+    "realistic":    { "revenueMultiplier": 1.00, "costMultiplier": 1.00 },
+    "optimistic":   { "revenueMultiplier": 1.40, "costMultiplier": 0.95 }
+  }
+}

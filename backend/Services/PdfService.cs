@@ -63,7 +63,7 @@ namespace backend.Services
             document.Add(sectorP);
 
             document.Add(new Paragraph("\n\n\n\n"));
-            var preparedBy = new Paragraph($"Prepared by: {idea.User.FullName}\nDate: {DateTime.UtcNow:MMMM dd, yyyy}\nLocation: {idea.Location ?? "N/A"}", smallFont);
+            var preparedBy = new Paragraph($"Prepared by: {idea.User.FullName}\nDate: {DateTime.UtcNow:MMMM dd, yyyy}\nLocation: Amman, Jordan", smallFont);
             preparedBy.Alignment = Element.ALIGN_CENTER;
             document.Add(preparedBy);
 
@@ -108,7 +108,8 @@ namespace backend.Services
             var descTable = new PdfPTable(2) { WidthPercentage = 100, SpacingBefore = 10 };
             descTable.SetWidths(new[] { 1f, 2f });
             AddTableRow(descTable, "Sector", idea.Sector, boldFont, bodyFont);
-            AddTableRow(descTable, "Location", idea.Location ?? "N/A", boldFont, bodyFont);
+            AddTableRow(descTable, "Region", idea.AmmanRegion + " Amman", boldFont, bodyFont);
+            AddTableRow(descTable, "Business Type", idea.BusinessType, boldFont, bodyFont);
             AddTableRow(descTable, "Budget", $"{idea.EstimatedBudget:N0} JOD", boldFont, bodyFont);
             AddTableRow(descTable, "Competition", idea.CompetitionLevel ?? "N/A", boldFont, bodyFont);
             AddTableRow(descTable, "Target Audience", idea.TargetAudience ?? "N/A", boldFont, bodyFont);

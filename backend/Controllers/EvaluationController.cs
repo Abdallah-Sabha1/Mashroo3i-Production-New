@@ -32,29 +32,21 @@ namespace backend.Controllers
 
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
+            if (idea.Evaluation != null) return Conflict(new { message = "Evaluation already exists for this idea." });
 
-            if (idea.Evaluation != null)
-                return Conflict(new { message = "Evaluation already exists for this idea." });
-
-            // Set status to analyzing
             idea.Status = Models.BusinessIdea.StatusAnalyzing;
             await _context.SaveChangesAsync();
 
             try
             {
                 var evaluation = await _aiService.EvaluateBusinessIdeaAsync(idea);
-
                 _context.Evaluations.Add(evaluation);
-
-                // Set status to completed
                 idea.Status = Models.BusinessIdea.StatusCompleted;
                 await _context.SaveChangesAsync();
-
                 return Ok(MapToResponse(evaluation));
             }
             catch (Exception)
             {
-                // Revert status on failure
                 idea.Status = Models.BusinessIdea.StatusSubmitted;
                 await _context.SaveChangesAsync();
                 throw;
@@ -84,17 +76,27 @@ namespace backend.Controllers
             try { swotObj = JsonSerializer.Deserialize<object>(eval.SwotAnalysis) ?? new { }; }
             catch { swotObj = new { }; }
 
+            List<string> redFlags = new();
+            try
+            {
+                if (!string.IsNullOrEmpty(eval.RedFlags))
+                    redFlags = JsonSerializer.Deserialize<List<string>>(eval.RedFlags) ?? new();
+            }
+            catch { }
+
             return new EvaluationResponseDto
             {
-                EvaluationId = eval.EvaluationId,
-                IdeaId = eval.IdeaId,
-                NoveltyScore = eval.NoveltyScore,
+                EvaluationId         = eval.EvaluationId,
+                IdeaId               = eval.IdeaId,
+                NoveltyScore         = eval.NoveltyScore,
                 MarketPotentialScore = eval.MarketPotentialScore,
-                OverallScore = eval.OverallScore,
-                RiskLevel = eval.RiskLevel,
-                SwotAnalysis = swotObj,
-                Recommendations = eval.Recommendations,
-                GeneratedAt = eval.GeneratedAt
+                OverallScore         = eval.OverallScore,
+                RiskLevel            = eval.RiskLevel,
+                SwotAnalysis         = swotObj,
+                Recommendations      = eval.Recommendations,
+                Verdict              = eval.Verdict,
+                RedFlags             = redFlags,
+                GeneratedAt          = eval.GeneratedAt
             };
         }
     }

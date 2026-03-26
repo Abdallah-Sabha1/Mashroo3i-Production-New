@@ -32,7 +32,9 @@ namespace backend.Data
                 entity.HasKey(e => e.IdeaId);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).IsRequired();
-                entity.Property(e => e.Sector).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.BusinessType).IsRequired().HasMaxLength(10).HasDefaultValue("B2C");
+                entity.Property(e => e.Sector).IsRequired().HasMaxLength(100).HasDefaultValue("other");
+                entity.Property(e => e.AmmanRegion).IsRequired().HasMaxLength(20).HasDefaultValue("central");
                 entity.Property(e => e.EstimatedBudget).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(e => e.User)

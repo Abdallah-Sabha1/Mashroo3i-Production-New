@@ -20,12 +20,14 @@ namespace backend.DTOs.Idea
         public string? Usp { get; set; }
 
         [Required]
-        public string Sector { get; set; } = string.Empty;
+        public string Sector { get; set; } = "other";
 
         [Required]
         public decimal EstimatedBudget { get; set; }
 
-        public string? Location { get; set; }
+        public string BusinessType { get; set; } = "B2C";
+        public string AmmanRegion { get; set; } = "central";
+        public string? BusinessTypeReason { get; set; }
         public string? MarketSize { get; set; }
         public string? CompetitionLevel { get; set; }
     }

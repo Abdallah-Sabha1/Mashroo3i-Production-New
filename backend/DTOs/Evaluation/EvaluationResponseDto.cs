@@ -10,6 +10,8 @@ namespace backend.DTOs.Evaluation
         public string RiskLevel { get; set; } = string.Empty;
         public object SwotAnalysis { get; set; } = new { };
         public string? Recommendations { get; set; }
+        public string? Verdict { get; set; }
+        public List<string> RedFlags { get; set; } = new();
         public DateTime GeneratedAt { get; set; }
     }
 }
