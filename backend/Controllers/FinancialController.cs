@@ -34,30 +34,30 @@ namespace backend.Controllers
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
 
-            var result = _financialService.CalculateFinancialPlan(dto);
+            var result = _financialService.CalculateFinancialPlan(dto, idea);
 
             if (idea.FinancialPlan != null)
             {
                 idea.FinancialPlan.InitialInvestment = dto.InitialInvestment;
-                idea.FinancialPlan.MonthlyRevenue = dto.MonthlyRevenue;
-                idea.FinancialPlan.MonthlyCosts = result.MonthlyCosts;
-                idea.FinancialPlan.BreakEvenMonths = result.BreakEvenMonths;
-                idea.FinancialPlan.RoiPercentage = result.RoiPercentage;
-                idea.FinancialPlan.FinancialSummary = result.FinancialSummaryJson;
-                idea.FinancialPlan.CreatedAt = DateTime.UtcNow;
+                idea.FinancialPlan.MonthlyRevenue    = result.MonthlyRevenue;
+                idea.FinancialPlan.MonthlyCosts      = result.MonthlyCosts;
+                idea.FinancialPlan.BreakEvenMonths   = result.BreakEvenMonths;
+                idea.FinancialPlan.RoiPercentage     = result.RoiPercentage;
+                idea.FinancialPlan.FinancialSummary  = result.FinancialSummaryJson;
+                idea.FinancialPlan.CreatedAt         = DateTime.UtcNow;
             }
             else
             {
                 var plan = new FinancialPlan
                 {
-                    IdeaId = ideaId,
+                    IdeaId            = ideaId,
                     InitialInvestment = dto.InitialInvestment,
-                    MonthlyRevenue = dto.MonthlyRevenue,
-                    MonthlyCosts = result.MonthlyCosts,
-                    BreakEvenMonths = result.BreakEvenMonths,
-                    RoiPercentage = result.RoiPercentage,
-                    FinancialSummary = result.FinancialSummaryJson,
-                    CreatedAt = DateTime.UtcNow
+                    MonthlyRevenue    = result.MonthlyRevenue,
+                    MonthlyCosts      = result.MonthlyCosts,
+                    BreakEvenMonths   = result.BreakEvenMonths,
+                    RoiPercentage     = result.RoiPercentage,
+                    FinancialSummary  = result.FinancialSummaryJson,
+                    CreatedAt         = DateTime.UtcNow
                 };
                 _context.FinancialPlans.Add(plan);
             }
@@ -65,7 +65,7 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             var saved = await _context.FinancialPlans.FirstAsync(f => f.IdeaId == ideaId);
-            return Ok(MapToResponse(saved));
+            return Ok(MapToResponse(saved, idea));
         }
 
         [HttpGet("{ideaId}")]
@@ -79,33 +79,105 @@ namespace backend.Controllers
             if (idea.UserId != GetUserId()) return Forbid();
             if (idea.FinancialPlan == null) return NotFound(new { message = "No financial plan found." });
 
-            return Ok(MapToResponse(idea.FinancialPlan));
+            return Ok(MapToResponse(idea.FinancialPlan, idea));
         }
 
         private int GetUserId() =>
             int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-        private static FinancialResultDto MapToResponse(FinancialPlan plan)
+        private static FinancialResultDto MapToResponse(FinancialPlan plan, BusinessIdea idea)
         {
-            object? summaryObj = null;
-            if (!string.IsNullOrEmpty(plan.FinancialSummary))
+            var dto = new FinancialResultDto
             {
-                try { summaryObj = JsonSerializer.Deserialize<object>(plan.FinancialSummary); }
-                catch { }
-            }
-
-            return new FinancialResultDto
-            {
-                PlanId = plan.PlanId,
-                IdeaId = plan.IdeaId,
+                PlanId            = plan.PlanId,
+                IdeaId            = plan.IdeaId,
+                BusinessType      = idea.BusinessType,
                 InitialInvestment = plan.InitialInvestment,
-                MonthlyRevenue = plan.MonthlyRevenue,
-                MonthlyCosts = plan.MonthlyCosts,
-                BreakEvenMonths = plan.BreakEvenMonths,
-                RoiPercentage = plan.RoiPercentage,
-                FinancialSummary = summaryObj,
-                CreatedAt = plan.CreatedAt
+                MonthlyRevenue    = plan.MonthlyRevenue,
+                MonthlyCosts      = plan.MonthlyCosts,
+                BreakEvenMonths   = plan.BreakEvenMonths,
+                RoiPercentage     = plan.RoiPercentage,
+                CreatedAt         = plan.CreatedAt
             };
+
+            if (string.IsNullOrEmpty(plan.FinancialSummary)) return dto;
+
+            try
+            {
+                var json = JsonDocument.Parse(plan.FinancialSummary).RootElement;
+
+                dto.PlannedPrice    = GetDecimal(json, "plannedPrice");
+                dto.GrossMarginPct  = GetDecimal(json, "grossMarginPct");
+                dto.MonthlyProfit   = GetDecimal(json, "monthlyProfit");
+                dto.LTV             = GetDecimal(json, "ltv");
+                dto.CAC             = GetDecimal(json, "cac");
+                dto.LtvCacRatio     = GetDecimal(json, "ltvCacRatio");
+                dto.BreakEvenUnits  = GetDecimal(json, "breakEvenUnits");
+                dto.ARR             = GetDecimal(json, "arr");
+
+                dto.Conservative    = ParseScenario(json, "conservative");
+                dto.Realistic       = ParseScenario(json, "realistic");
+                dto.Optimistic      = ParseScenario(json, "optimistic");
+
+                if (json.TryGetProperty("redFlags", out var rf) && rf.ValueKind == JsonValueKind.Array)
+                    dto.RedFlags = rf.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
+
+                if (json.TryGetProperty("benchmarkComparisons", out var bc) && bc.ValueKind == JsonValueKind.Array)
+                    dto.BenchmarkComparisons = bc.EnumerateArray().Select(e => new BenchmarkComparisonDto
+                    {
+                        Metric           = GetString(e, "metric"),
+                        YourValue        = GetString(e, "yourValue"),
+                        BenchmarkTypical = GetString(e, "benchmarkTypical"),
+                        Status           = GetString(e, "status", "ok")
+                    }).ToList();
+
+                if (json.TryGetProperty("assumptionsLog", out var al) && al.ValueKind == JsonValueKind.Array)
+                    dto.AssumptionsLog = al.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
+
+                if (json.TryGetProperty("monthlyProjections", out var mp) && mp.ValueKind == JsonValueKind.Array)
+                    dto.MonthlyProjections = mp.EnumerateArray().Select(e => new MonthlyProjectionDto
+                    {
+                        Month          = GetInt(e, "month"),
+                        Revenue        = GetDecimal(e, "revenue"),
+                        Costs          = GetDecimal(e, "costs"),
+                        Profit         = GetDecimal(e, "profit"),
+                        CumulativeCash = GetDecimal(e, "cumulativeCash")
+                    }).ToList();
+            }
+            catch { /* return partial dto on parse failure */ }
+
+            return dto;
+        }
+
+        private static ScenarioResultDto? ParseScenario(JsonElement json, string key)
+        {
+            if (!json.TryGetProperty(key, out var s)) return null;
+            return new ScenarioResultDto
+            {
+                MonthlyRevenue  = GetDecimal(s, "monthlyRevenue"),
+                MonthlyCosts    = GetDecimal(s, "monthlyCosts"),
+                MonthlyProfit   = GetDecimal(s, "monthlyProfit"),
+                BreakEvenMonths = GetInt(s, "breakEvenMonths"),
+                Roi24Months     = GetDecimal(s, "roi24Months")
+            };
+        }
+
+        private static decimal GetDecimal(JsonElement el, string key)
+        {
+            if (el.TryGetProperty(key, out var prop) && prop.TryGetDecimal(out var val)) return val;
+            return 0m;
+        }
+
+        private static int GetInt(JsonElement el, string key)
+        {
+            if (el.TryGetProperty(key, out var prop) && prop.TryGetInt32(out var val)) return val;
+            return 0;
+        }
+
+        private static string GetString(JsonElement el, string key, string defaultVal = "")
+        {
+            if (el.TryGetProperty(key, out var prop)) return prop.GetString() ?? defaultVal;
+            return defaultVal;
         }
     }
 }

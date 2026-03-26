@@ -1,14 +1,16 @@
 using backend.DTOs.Financial;
+using backend.Models;
 
 namespace backend.Services.Interfaces
 {
     public interface IFinancialService
     {
-        FinancialCalculationResult CalculateFinancialPlan(FinancialInputDto input);
+        FinancialCalculationResult CalculateFinancialPlan(FinancialInputDto input, BusinessIdea idea);
     }
 
     public class FinancialCalculationResult
     {
+        public decimal MonthlyRevenue { get; set; }
         public decimal MonthlyCosts { get; set; }
         public decimal MonthlyProfit { get; set; }
         public int BreakEvenMonths { get; set; }
