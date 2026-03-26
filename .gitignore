@@ -38,3 +38,26 @@ out/
 # Local secrets - never commit these
 backend/appsettings.Development.json
 backend/appsettings.Local.json
+backend/appsettings.Production.json
+backend/appsettings.Staging.json
+backend/secrets.json
+
+# SSL / certificates
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.cert
+
+# Database dumps
+*.sql
+*.backup
+*.bak
+
+# Environment files (all variants)
+.env.production
+.env.staging
+.env.test
+frontend/.env.local
+frontend/.env.production
