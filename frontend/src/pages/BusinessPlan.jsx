@@ -108,7 +108,7 @@ const BusinessPlan = () => {
             <div className="mt-8 text-sm text-slate-500 dark:text-gray-500 space-y-1">
               <p>Prepared by: {user?.fullName}</p>
               <p>Date: {formatDate(new Date().toISOString())}</p>
-              <p>Location: {idea?.location}</p>
+              <p>Market: Amman, Jordan</p>
             </div>
           </Card>
 
@@ -116,7 +116,7 @@ const BusinessPlan = () => {
           <Card>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Table of Contents</h2>
             <ol className="space-y-2 text-sm">
-              {['Executive Summary', 'Business Description', 'AI Evaluation Results', 'SWOT Analysis', 'Market Analysis', 'Financial Projections', 'Recommendations'].map((s, i) => (
+              {['Executive Summary', 'Business Description', 'AI Verdict', 'Evaluation Scores', 'SWOT Analysis', 'What to do next', 'Financial Projections'].map((s, i) => (
                 <li key={s} className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-gray-800 last:border-0">
                   <span className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center text-primary-600 font-semibold text-sm">{i + 1}</span>
                   <span className="text-slate-700 dark:text-gray-300">{s}</span>
@@ -157,8 +157,8 @@ const BusinessPlan = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 ['Sector', idea?.sector],
-                ['Location', idea?.location],
-                ['Budget', formatCurrency(idea?.estimatedBudget || 0)],
+                ['Region', (idea?.ammanRegion || '') + ' Amman'],
+                ['Starting Budget', formatCurrency(idea?.estimatedBudget || 0)],
                 ['Competition', idea?.competitionLevel],
                 ['Target Audience', idea?.targetAudience],
                 ['Market Size', idea?.marketSize],
@@ -176,14 +176,14 @@ const BusinessPlan = () => {
             <Card>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">3</span>
-                AI Evaluation Results
+                AI Verdict
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  ['Novelty', evalData.noveltyScore],
-                  ['Market Potential', evalData.marketPotentialScore],
-                  ['Overall', evalData.overallScore],
-                  ['Risk', evalData.riskLevel],
+                  ['How original', evalData.noveltyScore],
+                  ['Market opportunity', evalData.marketPotentialScore],
+                  ['Overall score', evalData.overallScore],
+                  ['Risk assessment', evalData.riskLevel],
                 ].map(([label, val]) => (
                   <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 text-center">
                     <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
@@ -255,11 +255,11 @@ const BusinessPlan = () => {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {[
-                  ['Initial Investment', formatCurrency(finData.initialInvestment)],
-                  ['Monthly Revenue', formatCurrency(finData.monthlyRevenue)],
-                  ['Monthly Costs', formatCurrency(finData.monthlyCosts)],
-                  ['Break-Even', finData.breakEvenMonths > 0 ? `${finData.breakEvenMonths} months` : 'N/A'],
-                  ['2-Year ROI', `${finData.roiPercentage?.toFixed(1)}%`],
+                  ['Starting budget', formatCurrency(finData.initialInvestment)],
+                  ['Monthly income', formatCurrency(finData.monthlyRevenue)],
+                  ['Monthly expenses', formatCurrency(finData.monthlyCosts)],
+                  ['Time to break even', finData.breakEvenMonths > 0 ? `${finData.breakEvenMonths} months` : 'N/A'],
+                  ['2-year return on investment (ROI)', `${finData.roiPercentage?.toFixed(1)}%`],
                 ].map(([label, val]) => (
                   <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4">
                     <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
@@ -275,7 +275,7 @@ const BusinessPlan = () => {
             <Card className="!bg-blue-50 dark:!bg-blue-950 !border-blue-200 dark:!border-blue-800">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">7</span>
-                Recommendations
+                What to do next
               </h2>
               <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{evalData.recommendations}</p>
             </Card>

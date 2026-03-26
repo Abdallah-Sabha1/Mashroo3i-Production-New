@@ -1,44 +1,14 @@
-import { Link } from 'react-router-dom'
-
-const Footer = () => {
-  return (
-    <footer className="bg-white dark:bg-gray-950 border-t border-slate-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="col-span-2 md:col-span-1">
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
-              Mashroo3i
-            </span>
-            <p className="text-sm text-slate-500 dark:text-gray-500 mt-3 leading-relaxed">AI-powered business planning for Jordanian entrepreneurs.</p>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">Product</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#features" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Features</a></li>
-              <li><Link to="/register" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Get Started</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">Company</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#about" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">About</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wide mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Privacy</a></li>
-              <li><a href="#" className="text-slate-500 hover:text-slate-700 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Terms</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-slate-200 dark:border-gray-800 mt-10 pt-8">
-          <p className="text-xs text-slate-400 dark:text-gray-600 text-center">2024 Mashroo3i. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-  )
-}
+const Footer = () => (
+  <footer className="mt-16 border-t border-slate-100 dark:border-gray-800 bg-white dark:bg-gray-950">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p className="text-xs text-slate-500 dark:text-gray-500 text-center sm:text-left">
+        📍 Mashroo3i benchmarks and evaluations are built for entrepreneurs in Amman, Jordan.
+      </p>
+      <p className="text-xs text-slate-400 dark:text-gray-600">
+        © {new Date().getFullYear()} Mashroo3i
+      </p>
+    </div>
+  </footer>
+)
 
 export default Footer

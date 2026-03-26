@@ -119,7 +119,7 @@ const Dashboard = () => {
                           <span>{formatCurrency(idea.estimatedBudget)}</span>
                           {idea.evaluation && (
                             <span className={`font-semibold ${getScoreColor(idea.evaluation.overallScore)}`}>
-                              Score: {idea.evaluation.overallScore}
+                              Viability: {idea.evaluation.overallScore}/100
                             </span>
                           )}
                         </div>
