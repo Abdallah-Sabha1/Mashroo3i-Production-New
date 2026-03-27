@@ -32,7 +32,11 @@ namespace backend.Controllers
 
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
-            if (idea.Evaluation != null) return Conflict(new { message = "Evaluation already exists for this idea." });
+
+            // Check DB directly — nav property may be null even if a row exists
+            var existing = idea.Evaluation
+                ?? await _context.Evaluations.FirstOrDefaultAsync(e => e.IdeaId == ideaId);
+            if (existing != null) return Ok(MapToResponse(existing));
 
             idea.Status = Models.BusinessIdea.StatusAnalyzing;
             await _context.SaveChangesAsync();
@@ -47,6 +51,11 @@ namespace backend.Controllers
             }
             catch (Exception)
             {
+                // Detach any Added evaluation entity to prevent duplicate key on status save
+                foreach (var entry in _context.ChangeTracker.Entries<Models.Evaluation>()
+                    .Where(e => e.State == EntityState.Added).ToList())
+                    entry.State = EntityState.Detached;
+
                 idea.Status = Models.BusinessIdea.StatusSubmitted;
                 await _context.SaveChangesAsync();
                 throw;

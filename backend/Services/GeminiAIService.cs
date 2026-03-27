@@ -71,7 +71,7 @@ namespace backend.Services
         {
             try
             {
-                var geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+                var geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
                 var requestBody = new
                 {
@@ -84,7 +84,8 @@ namespace backend.Services
                         temperature = 0.7,
                         topK = 40,
                         topP = 0.95,
-                        maxOutputTokens = 2048
+                        maxOutputTokens = 2048,
+                        thinkingConfig = new { thinkingBudget = 0 }
                     }
                 };
 
