@@ -34,33 +34,34 @@ namespace backend.Services
             var regionAovMult = _benchmarkService.GetRegionAovMultiplier(region);
             var channelMult = _benchmarkService.GetChannelCacMultiplier(input.AcquisitionChannel);
 
-            // Sales volume
-            var salesMidpoint = GetRangeMidpoint(input.EstimatedMonthlySalesRange, 50m);
-            assumptions.Add($"Monthly sales midpoint: {salesMidpoint} units (from '{input.EstimatedMonthlySalesRange ?? "default"}')");
+            // Blended metrics from product list
+            var (avgPrice, avgCost, blendedMarginPct) = CalculateBlendedMetrics(input.Products);
 
-            // Revenue (apply region AOV multiplier)
-            var monthlyRevenue = input.PlannedPrice * salesMidpoint * (decimal)regionAovMult;
+            // Monthly volume from customers per day
+            var customersPerDay = input.CustomersPerDay ?? 10m;
+            var monthlySales    = customersPerDay * 30m;
+            assumptions.Add(
+                $"Monthly customers: {customersPerDay}/day × 30 = {monthlySales} customers/month");
+            assumptions.Add(
+                $"Average order value: {avgPrice:N2} JOD (blended across {input.Products?.Count ?? 1} products)");
+            assumptions.Add(
+                $"Blended gross margin: {blendedMarginPct:F1}% across all products");
+
+            // Revenue
+            var monthlyRevenue = avgPrice * monthlySales * (decimal)regionAovMult;
             if (Math.Abs(regionAovMult - 1.0) > 0.001)
-                assumptions.Add($"Price adjusted for {idea.AmmanRegion} Amman region (AOV ×{regionAovMult:F2})");
+                assumptions.Add(
+                    $"Revenue adjusted for {idea.AmmanRegion} Amman region (×{regionAovMult:F2})");
 
             // COGS & gross margin
-            var cogs = input.CostToDeliver * salesMidpoint;
+            var cogs = avgCost * monthlySales;
             var grossProfit = monthlyRevenue - cogs;
-            var grossMarginPct = monthlyRevenue > 0 ? grossProfit / monthlyRevenue * 100m : 0m;
-            assumptions.Add($"Gross margin: {grossMarginPct:F1}% (price {input.PlannedPrice} − cost {input.CostToDeliver} JOD per unit)");
+            var grossMarginPct = blendedMarginPct;
 
             decimal fixedCosts;
-            if (input.MonthlyFixedCosts > 0)
-            {
-                fixedCosts = input.MonthlyFixedCosts;
-                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (entered by you in Step 5)");
-            }
-            else
-            {
-                var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 500m;
-                fixedCosts = benchmarkFixed * (decimal)regionCostMult;
-                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} sector benchmark — you can improve accuracy by entering your actual costs)");
-            }
+            var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 500m;
+            fixedCosts = benchmarkFixed * (decimal)regionCostMult;
+            assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} sector benchmark)");
 
             var monthlyCosts = cogs + fixedCosts;
             var monthlyProfit = monthlyRevenue - monthlyCosts;
@@ -73,13 +74,13 @@ namespace backend.Services
             // LTV (using monthly churn)
             var churnRateRaw = benchmark?.MonthlyChurnRate?.Typical ?? 18m;
             var churnRate = churnRateRaw / 100m;
-            var ltv = churnRate > 0 ? (input.PlannedPrice * grossMarginPct / 100m) / churnRate : 0m;
+            var ltv = churnRate > 0 ? (avgPrice * grossMarginPct / 100m) / churnRate : 0m;
             assumptions.Add($"Monthly churn: {churnRateRaw:F1}% (Amman {idea.Sector} benchmark) → LTV: {ltv:N0} JOD");
 
             var ltvCacRatio = cac > 0 ? ltv / cac : 0m;
 
             // Break-even
-            var contribution = input.PlannedPrice - input.CostToDeliver;
+            var contribution = avgPrice - avgCost;
             var breakEvenUnits = contribution > 0 ? fixedCosts / contribution : 0m;
             var breakEvenMonths = monthlyProfit > 0
                 ? (int)Math.Ceiling(input.InitialInvestment / monthlyProfit)
@@ -89,7 +90,7 @@ namespace backend.Services
 
             return BuildResult(input.InitialInvestment, monthlyRevenue, monthlyCosts, monthlyProfit,
                 grossMarginPct, ltv, cac, ltvCacRatio, breakEvenUnits, breakEvenMonths, arr,
-                input.PlannedPrice, "B2C", assumptions, benchmark, churnRate);
+                avgPrice, "B2C", assumptions, benchmark, churnRate);
         }
 
         // ── B2B ───────────────────────────────────────────────────────────────
@@ -104,6 +105,8 @@ namespace backend.Services
             var regionCostMult = _benchmarkService.GetRegionCostMultiplier(region);
             var channelMult = _benchmarkService.GetChannelCacMultiplier(input.AcquisitionChannel);
 
+            var (avgPrice, avgCost, blendedMarginPct) = CalculateBlendedMetrics(input.Products);
+
             // Clients
             var clientsMidpoint = GetRangeMidpoint(input.TargetClientsYear1Range, 5m);
             assumptions.Add($"Year-1 clients midpoint: {clientsMidpoint} (from '{input.TargetClientsYear1Range ?? "default"}')");
@@ -111,29 +114,21 @@ namespace backend.Services
             var dealMonths = input.EstimatedDealClosingMonths > 0 ? input.EstimatedDealClosingMonths : 3m;
             assumptions.Add($"Average deal closing time: {dealMonths} months");
 
-            // Revenue (PlannedPrice = monthly fee per client)
-            var monthlyRevenue = clientsMidpoint * input.PlannedPrice;
+            // Revenue (avgPrice = blended monthly fee per client)
+            var monthlyRevenue = clientsMidpoint * avgPrice;
             var arr = monthlyRevenue * 12m;
-            assumptions.Add($"Monthly revenue: {clientsMidpoint} clients × {input.PlannedPrice:N0} JOD = {monthlyRevenue:N0} JOD");
+            assumptions.Add($"Monthly revenue: {clientsMidpoint} clients × {avgPrice:N0} JOD = {monthlyRevenue:N0} JOD");
 
             // COGS & gross margin
-            var cogs = input.CostToDeliver * clientsMidpoint;
+            var cogs = avgCost * clientsMidpoint;
             var grossProfit = monthlyRevenue - cogs;
-            var grossMarginPct = monthlyRevenue > 0 ? grossProfit / monthlyRevenue * 100m : 0m;
-            assumptions.Add($"Gross margin: {grossMarginPct:F1}%");
+            var grossMarginPct = blendedMarginPct;
+            assumptions.Add($"Gross margin: {grossMarginPct:F1}% (blended across products)");
 
             decimal fixedCosts;
-            if (input.MonthlyFixedCosts > 0)
-            {
-                fixedCosts = input.MonthlyFixedCosts;
-                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (entered by you in Step 5)");
-            }
-            else
-            {
-                var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 800m;
-                fixedCosts = benchmarkFixed * (decimal)regionCostMult;
-                assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} B2B benchmark — you can improve accuracy by entering your actual costs)");
-            }
+            var benchmarkFixed = benchmark?.MonthlyFixedCosts?.Typical ?? 800m;
+            fixedCosts = benchmarkFixed * (decimal)regionCostMult;
+            assumptions.Add($"Fixed costs: {fixedCosts:N0} JOD/month (estimated from {idea.Sector} B2B benchmark)");
 
             var monthlyCosts = cogs + fixedCosts;
             var monthlyProfit = monthlyRevenue - monthlyCosts;
@@ -147,13 +142,13 @@ namespace backend.Services
             var annualRetentionRaw = benchmark?.ClientRetentionRate?.Typical ?? 80m;
             var annualRetention = annualRetentionRaw / 100m;
             var monthlyChurn = (1m - annualRetention) / 12m;
-            var ltv = monthlyChurn > 0 ? (input.PlannedPrice * grossMarginPct / 100m) / monthlyChurn : 0m;
+            var ltv = monthlyChurn > 0 ? (avgPrice * grossMarginPct / 100m) / monthlyChurn : 0m;
             assumptions.Add($"Annual client retention: {annualRetentionRaw:F0}% (Amman {idea.Sector} B2B benchmark) → monthly churn: {monthlyChurn * 100:F1}% → LTV: {ltv:N0} JOD");
 
             var ltvCacRatio = cac > 0 ? ltv / cac : 0m;
 
             // Break-even
-            var contribution = input.PlannedPrice - input.CostToDeliver;
+            var contribution = avgPrice - avgCost;
             var breakEvenUnits = contribution > 0 ? fixedCosts / contribution : 0m;
             var breakEvenMonths = monthlyProfit > 0
                 ? (int)Math.Ceiling(input.InitialInvestment / monthlyProfit)
@@ -161,7 +156,7 @@ namespace backend.Services
 
             return BuildResult(input.InitialInvestment, monthlyRevenue, monthlyCosts, monthlyProfit,
                 grossMarginPct, ltv, cac, ltvCacRatio, breakEvenUnits, breakEvenMonths, arr,
-                input.PlannedPrice, "B2B", assumptions, benchmark, monthlyChurn);
+                avgPrice, "B2B", assumptions, benchmark, monthlyChurn);
         }
 
         // ── Shared builder ────────────────────────────────────────────────────
@@ -233,6 +228,28 @@ namespace backend.Services
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
+
+        private static (decimal avgPrice, decimal avgCost, decimal blendedMarginPct)
+            CalculateBlendedMetrics(List<ProductItemDto> products)
+        {
+            if (products == null || products.Count == 0)
+                return (10m, 5m, 50m);
+
+            var validProducts = products
+                .Where(p => p.Price > 0)
+                .ToList();
+
+            if (validProducts.Count == 0)
+                return (10m, 5m, 50m);
+
+            var avgPrice = validProducts.Average(p => p.Price);
+            var avgCost  = validProducts.Average(p => p.Cost);
+            var blendedMarginPct = avgPrice > 0
+                ? (avgPrice - avgCost) / avgPrice * 100m
+                : 50m;
+
+            return (avgPrice, avgCost, blendedMarginPct);
+        }
 
         private static decimal GetRangeMidpoint(string? range, decimal defaultValue)
         {

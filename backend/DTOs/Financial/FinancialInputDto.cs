@@ -7,41 +7,34 @@ namespace backend.DTOs.Financial
         [Required]
         public decimal InitialInvestment { get; set; }
 
-        /// <summary>Price you charge per unit / per month per client (JOD)</summary>
+        // List of products/services (1 to 5 items)
+        // Each has a name, price, and cost
         [Required]
-        public decimal PlannedPrice { get; set; }
+        public List<ProductItemDto> Products { get; set; } = new();
 
-        /// <summary>Your cost to deliver one unit / serve one client per month (JOD)</summary>
-        [Required]
-        public decimal CostToDeliver { get; set; }
+        // B2C: how many customers per day
+        // Maps to monthly volume: customersPerDay × 30
+        public decimal? CustomersPerDay { get; set; }
 
-        /// <summary>
-        /// Sum of all monthly fixed costs entered via guided sub-questions:
-        /// rent + (salaries × 1.1425 for employer SSC) + utilities + other.
-        /// Populated by frontend from Step 5 sub-questions.
-        /// If 0, falls back to sector benchmark.
-        /// </summary>
-        public decimal MonthlyFixedCosts { get; set; }
-
-        /// <summary>Main customer acquisition channel: social, referral, seo, paid, events, cold_outreach</summary>
-        public string AcquisitionChannel { get; set; } = "social";
-
-        /// <summary>
-        /// Amman sub-region selected in the financial wizard step.
-        /// "west" | "central" | "east"
-        /// Used to apply regional cost and AOV multipliers from benchmark data.
-        /// </summary>
-        public string AmmanRegion { get; set; } = "central";
-
-        // ── B2C only ───────────────────────────────────────────────────────────
-        /// <summary>Estimated monthly unit sales range, e.g. "50-100" or "200"</summary>
-        public string? EstimatedMonthlySalesRange { get; set; }
-
-        // ── B2B only ───────────────────────────────────────────────────────────
-        /// <summary>Target number of clients by end of year 1, e.g. "5-10" or "20"</summary>
+        // B2B: target clients in year 1 (keep existing)
         public string? TargetClientsYear1Range { get; set; }
-
-        /// <summary>Average months from first contact to signed contract (B2B)</summary>
         public decimal EstimatedDealClosingMonths { get; set; } = 3;
+
+        // Acquisition channel (keep existing)
+        public string AcquisitionChannel { get; set; } = "word_of_mouth";
+
+        // Amman region (keep existing)
+        public string AmmanRegion { get; set; } = "central";
+    }
+
+    public class ProductItemDto
+    {
+        public string Name { get; set; } = string.Empty;
+
+        [Range(0.01, 99999)]
+        public decimal Price { get; set; }
+
+        [Range(0, 99999)]
+        public decimal Cost { get; set; }
     }
 }

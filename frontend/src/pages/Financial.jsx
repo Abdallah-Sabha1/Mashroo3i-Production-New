@@ -1,6 +1,7 @@
 // pages/Financial.jsx — 3-Layer Results Design (Phase 4)
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -12,6 +13,7 @@ import Footer from '../components/layout/Footer'
 import MetricCard from '../components/shared/MetricCard'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
 import Tooltip, { TOOLTIPS } from '../components/ui/Tooltip'
 import { Spinner } from '../components/ui/Loading'
 import { formatCurrency } from '../utils/helpers'
@@ -136,6 +138,51 @@ const Financial = () => {
   const [result,    setResult]    = useState(null)
   const [loading,   setLoading]   = useState(true)
 
+  // ── Form state ────────────────────────────────────────────────────────────
+  const [products, setProducts] = useState([{ name: '', price: '', cost: '' }])
+  const [customersPerDay, setCustomersPerDay] = useState('')
+  const [acquisitionChannel, setAcquisitionChannel] = useState('word_of_mouth')
+  const [ammanRegion, setAmmanRegion] = useState('central')
+  const [targetClientsRange, setTargetClientsRange] = useState('4_10')
+  const [calculating, setCalculating] = useState(false)
+  const [formError, setFormError] = useState('')
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { initialInvestment: '' }
+  })
+
+  const onSubmit = async (data) => {
+    const validProducts = products.filter(p => p.name && parseFloat(p.price) > 0)
+    if (validProducts.length === 0) {
+      setFormError('Please add at least one product or service with a name and price.')
+      return
+    }
+    setCalculating(true)
+    setFormError('')
+    try {
+      const isB2B = idea?.businessType === 'B2B'
+      const payload = {
+        initialInvestment: parseFloat(data.initialInvestment),
+        products: validProducts.map(p => ({
+          name: p.name,
+          price: parseFloat(p.price) || 0,
+          cost: parseFloat(p.cost) || 0,
+        })),
+        acquisitionChannel,
+        ammanRegion,
+        customersPerDay: !isB2B ? (parseFloat(customersPerDay) || 10) : undefined,
+        targetClientsYear1Range: isB2B ? targetClientsRange : undefined,
+        estimatedDealClosingMonths: isB2B ? 2 : undefined,
+      }
+      const res = await finApi.create(ideaId, payload)
+      setResult(res.data)
+    } catch (err) {
+      setFormError(err.response?.data?.message || 'Calculation failed. Please try again.')
+    } finally {
+      setCalculating(false)
+    }
+  }
+
   useEffect(() => { loadData() }, [ideaId])
 
   const loadData = async () => {
@@ -202,17 +249,279 @@ const Financial = () => {
         </motion.div>
 
         {!result ? (
-          /* No financial plan */
-          <Card className="text-center py-20">
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No financial analysis yet</h3>
-            <p className="text-sm text-slate-500 dark:text-gray-500 mb-6">
-              Submit a new idea through the wizard to get a complete financial analysis.
-            </p>
-            <Link to="/submit-idea">
-              <Button>Submit a New Idea</Button>
-            </Link>
-          </Card>
+          /* ── Financial Input Form ── */
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="p-6">
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Build your financial plan</h2>
+                <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">
+                  Answer a few questions and we will calculate your revenue, break-even, and more.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
+                {/* Product / Service Table */}
+                <div>
+                  <div className="mb-3">
+                    <h3 className="text-sm font-semibold text-slate-800 dark:text-gray-200">
+                      What will you sell?
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                      Add your products or services — up to 5 items
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    {/* Header row */}
+                    <div className="grid grid-cols-12 gap-2 px-1">
+                      <span className="col-span-5 text-xs font-medium text-slate-500 dark:text-gray-400">Name</span>
+                      <span className="col-span-3 text-xs font-medium text-slate-500 dark:text-gray-400">Price (JOD)</span>
+                      <span className="col-span-3 text-xs font-medium text-slate-500 dark:text-gray-400">Cost (JOD)</span>
+                      <span className="col-span-1" />
+                    </div>
+
+                    {products.map((product, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                        <input
+                          className="col-span-5 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder={idx === 0 ? 'e.g. Coffee' : 'e.g. Sandwich'}
+                          value={product.name}
+                          onChange={e => {
+                            const updated = [...products]
+                            updated[idx] = { ...updated[idx], name: e.target.value }
+                            setProducts(updated)
+                          }}
+                        />
+                        <input
+                          type="number" min="0" step="0.01"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder="e.g. 3"
+                          value={product.price}
+                          onChange={e => {
+                            const updated = [...products]
+                            updated[idx] = { ...updated[idx], price: e.target.value }
+                            setProducts(updated)
+                          }}
+                        />
+                        <input
+                          type="number" min="0" step="0.01"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          placeholder="e.g. 1"
+                          value={product.cost}
+                          onChange={e => {
+                            const updated = [...products]
+                            updated[idx] = { ...updated[idx], cost: e.target.value }
+                            setProducts(updated)
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => { if (products.length > 1) setProducts(products.filter((_, i) => i !== idx)) }}
+                          className="col-span-1 flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {products.length < 5 && (
+                    <button
+                      type="button"
+                      onClick={() => setProducts([...products, { name: '', price: '', cost: '' }])}
+                      className="mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-medium flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add another item
+                    </button>
+                  )}
+
+                  {/* Live margin preview */}
+                  {(() => {
+                    const valid = products.filter(p => parseFloat(p.price) > 0)
+                    if (valid.length === 0) return null
+                    const avgPrice = valid.reduce((s, p) => s + parseFloat(p.price || 0), 0) / valid.length
+                    const avgCost  = valid.reduce((s, p) => s + parseFloat(p.cost  || 0), 0) / valid.length
+                    const margin   = avgPrice > 0 ? Math.round((avgPrice - avgCost) / avgPrice * 100) : 0
+                    const keep     = (avgPrice - avgCost).toFixed(2)
+                    return (
+                      <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-gray-800/50 border border-slate-200 dark:border-gray-700">
+                        <p className="text-xs text-slate-600 dark:text-gray-300">
+                          For every <strong>{avgPrice.toFixed(2)} JOD</strong> average sale, you keep{' '}
+                          <strong className="text-emerald-600">{keep} JOD</strong> after costs
+                          <span className="text-slate-400 dark:text-gray-500 ml-1">({margin}% margin)</span>
+                        </p>
+                      </div>
+                    )
+                  })()}
+                </div>
+
+                {/* Customers per day (B2C) or Clients range (B2B) */}
+                {idea?.businessType !== 'B2B' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
+                      How many customers do you expect per day?
+                    </label>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 mb-3">
+                      Think about a typical day when you are open and running
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { label: '1–5',  value: 3 },
+                        { label: '5–20', value: 12 },
+                        { label: '20–50',value: 35 },
+                        { label: '50+',  value: 75 },
+                      ].map(opt => (
+                        <button
+                          key={opt.label} type="button"
+                          onClick={() => setCustomersPerDay(opt.value)}
+                          className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                            customersPerDay === opt.value
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-indigo-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    {customersPerDay && (
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">
+                        That is approximately {customersPerDay * 30} customers per month
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                      How many clients are you targeting in year 1?
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {['1–3', '4–10', '11–30', '30+'].map((label, i) => {
+                        const val = ['1_3', '4_10', '11_30', '30_plus'][i]
+                        return (
+                          <button key={val} type="button"
+                            onClick={() => setTargetClientsRange(val)}
+                            className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
+                              targetClientsRange === val
+                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-indigo-300'
+                            }`}
+                          >{label}</button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Starting investment */}
+                <Input
+                  label="How much are you willing to invest to start? (JOD)"
+                  type="number"
+                  placeholder="e.g. 15000"
+                  required
+                  error={errors.initialInvestment?.message}
+                  {...register('initialInvestment', {
+                    required: 'Required',
+                    min: { value: 1, message: 'Must be positive' }
+                  })}
+                />
+
+                {/* Acquisition channel */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                    How will you find your first customers?
+                  </label>
+                  <div className="space-y-2">
+                    {[
+                      { value: 'word_of_mouth',        label: 'Word of mouth / personal network' },
+                      { value: 'social_media_organic', label: 'Social media (Instagram, TikTok)' },
+                      { value: 'paid_ads',             label: 'Paid ads (Instagram, Google)' },
+                      { value: 'partnerships',         label: 'Partnerships or referrals' },
+                      ...(idea?.businessType === 'B2B'
+                        ? [{ value: 'direct_sales', label: 'Direct sales / cold outreach' }]
+                        : []),
+                    ].map(ch => (
+                      <button
+                        key={ch.value} type="button"
+                        onClick={() => setAcquisitionChannel(ch.value)}
+                        className={`w-full text-left px-4 py-2.5 rounded-lg text-sm border transition-all flex items-center gap-3 ${
+                          acquisitionChannel === ch.value
+                            ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700 text-indigo-800 dark:text-indigo-200'
+                            : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:border-slate-300'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          acquisitionChannel === ch.value ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-gray-600'
+                        }`} />
+                        {ch.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Amman region */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                    Where in Amman?
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'west',    label: 'West Amman',  sub: 'Abdoun, Sweifieh' },
+                      { value: 'central', label: 'Central',     sub: 'Downtown, Jabal' },
+                      { value: 'east',    label: 'East Amman',  sub: 'Zarqa Road, Marka' },
+                    ].map(r => (
+                      <button
+                        key={r.value} type="button"
+                        onClick={() => setAmmanRegion(r.value)}
+                        className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
+                          ammanRegion === r.value
+                            ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700'
+                            : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
+                        }`}
+                      >
+                        <p className={`font-medium text-xs ${
+                          ammanRegion === r.value
+                            ? 'text-indigo-800 dark:text-indigo-200'
+                            : 'text-slate-800 dark:text-gray-200'
+                        }`}>{r.label}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{r.sub}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Error message */}
+                {formError && (
+                  <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-4 py-3">
+                    <p className="text-sm text-red-700 dark:text-red-400">{formError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={calculating}
+                  className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {calculating ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Calculating...
+                    </>
+                  ) : 'Calculate My Financial Plan'}
+                </button>
+
+              </form>
+            </Card>
+          </motion.div>
         ) : (
           <div className="space-y-4">
 
