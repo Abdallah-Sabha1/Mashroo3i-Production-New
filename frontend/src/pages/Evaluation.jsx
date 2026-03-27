@@ -1,24 +1,22 @@
-// pages/Evaluation.jsx — 3-Layer Results Design (Phase 4)
-import { useState, useEffect } from 'react'
+// pages/Evaluation.jsx — Clean document-style results
+import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { evaluation as evalApi, ideas as ideasApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
-import Footer from '../components/layout/Footer'
 import ScoreCircle from '../components/shared/ScoreCircle'
 import SwotGrid from '../components/shared/SwotGrid'
 import Button from '../components/ui/Button'
-import Card from '../components/ui/Card'
-import Tooltip, { TOOLTIPS } from '../components/ui/Tooltip'
 import { Spinner } from '../components/ui/Loading'
+import { getSectorLabel } from '../utils/constants'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const LOADING_MSGS = [
-  'AI is reading your business idea…',
-  'Checking Amman market data…',
-  'Calculating risk and opportunities…',
-  'Almost done — writing your report…',
+const AI_MESSAGES = [
+  'Reading your idea...',
+  'Thinking about the Amman market...',
+  'Analyzing competition...',
+  'Almost ready...',
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -34,9 +32,9 @@ function scoreDesc(score, type) {
     if (score >= 60) return 'Moderate market — find your niche'
     return 'Challenging market conditions'
   }
-  if (score >= 80) return 'Strong viability'
-  if (score >= 60) return 'Viable with refinement'
-  return 'Needs significant improvement'
+  if (score >= 80) return 'Strong potential'
+  if (score >= 60) return 'Needs significant work'
+  return 'Rethink before investing'
 }
 
 function parseSwot(raw) {
@@ -58,87 +56,26 @@ function parseRecommendations(text) {
   return sentences.length > 1 ? sentences : [text]
 }
 
-function getVerdict(score, riskLevel) {
-  if (!score) return null
-  const highRisk = riskLevel?.toLowerCase().includes('high')
-  const lowRisk  = riskLevel?.toLowerCase().includes('low')
-  if (score >= 65 && lowRisk)  return 'promising'
-  if (score < 40  || highRisk) return 'risky'
-  return 'refine'
-}
+// ─── SVG Icons ────────────────────────────────────────────────────────────────
 
-const VERDICT_CONFIG = {
-  promising: {
-    icon: '✅',
-    title: 'This idea looks promising',
-    bg:    'bg-green-50 dark:bg-green-950',
-    border:'border-green-200 dark:border-green-800',
-    title_color: 'text-green-800 dark:text-green-300',
-    text_color:  'text-green-700 dark:text-green-400',
-    badge: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
-  },
-  refine: {
-    icon: '⚠️',
-    title: 'This idea needs some refinement',
-    bg:    'bg-amber-50 dark:bg-amber-950',
-    border:'border-amber-200 dark:border-amber-800',
-    title_color: 'text-amber-800 dark:text-amber-300',
-    text_color:  'text-amber-700 dark:text-amber-400',
-    badge: 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
-  },
-  risky: {
-    icon: '🔴',
-    title: 'This idea carries high risk',
-    bg:    'bg-red-50 dark:bg-red-950',
-    border:'border-red-200 dark:border-red-800',
-    title_color: 'text-red-800 dark:text-red-300',
-    text_color:  'text-red-700 dark:text-red-400',
-    badge: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
-  },
-}
-
-const RISK_BADGE_COLOR = {
-  'Low Risk':    'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
-  'Medium Risk': 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
-  'High Risk':   'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
-}
-
-// ─── Shared: Expandable Section ───────────────────────────────────────────────
-
-function ExpandableSection({ title, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen)
+function VerdictIcon({ score }) {
+  if (score >= 65) return (
+    <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  )
+  if (score >= 40) return (
+    <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+  )
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900">
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors"
-      >
-        <span className="font-semibold text-slate-900 dark:text-white">{title}</span>
-        <svg
-          className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            key="content"
-            initial={{ height: 0 }}
-            animate={{ height: 'auto' }}
-            exit={{ height: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="px-6 pb-6 pt-1 border-t border-slate-100 dark:border-gray-800">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
   )
 }
 
@@ -151,20 +88,26 @@ const Evaluation = () => {
   const [idea,       setIdea]       = useState(null)
   const [loading,    setLoading]    = useState(true)
   const [generating, setGenerating] = useState(false)
-  const [retrying,   setRetrying]   = useState(false)
+  const [pageError,  setPageError]  = useState(null)
   const [msgIndex,   setMsgIndex]   = useState(0)
+  const msgTimer = useRef(null)
 
   useEffect(() => { loadData() }, [ideaId])
 
+  // Rotate AI loading messages
   useEffect(() => {
-    if (!generating) return
-    const interval = setInterval(() => {
-      setMsgIndex(i => (i + 1) % LOADING_MSGS.length)
-    }, 3000)
-    return () => clearInterval(interval)
+    if (generating) {
+      msgTimer.current = setInterval(() =>
+        setMsgIndex(i => (i + 1) % AI_MESSAGES.length), 1500)
+    } else {
+      clearInterval(msgTimer.current)
+      setMsgIndex(0)
+    }
+    return () => clearInterval(msgTimer.current)
   }, [generating])
 
   const loadData = async () => {
+    setPageError(null)
     setLoading(true)
     try {
       const ideaRes = await ideasApi.getById(ideaId)
@@ -178,41 +121,41 @@ const Evaluation = () => {
           const genRes = await evalApi.generate(ideaId)
           setEvalData(genRes.data)
           setGenerating(false)
+        } else {
+          throw err
         }
       }
     } catch (err) {
       console.error('Error loading evaluation:', err)
+      if (err.response?.status === 429) {
+        setPageError('Our AI is temporarily busy. Please wait a minute and try again.')
+      } else {
+        setPageError('Something went wrong loading the evaluation. Please try again.')
+      }
     } finally {
       setLoading(false)
+      setGenerating(false)
     }
-  }
-
-  const handleRetry = async () => {
-    setRetrying(true)
-    try {
-      const res = await evalApi.generate(ideaId)
-      setEvalData(res.data)
-    } catch { /* ignore */ }
-    finally { setRetrying(false) }
   }
 
   const handleReEvaluate = async () => {
-    setRetrying(true)
-    setMsgIndex(0)
+    if (!window.confirm(
+      'This will delete the current evaluation and generate a new one. Continue?'
+    )) return
     try {
       await evalApi.delete(ideaId)
-    } catch { /* ignore if not found */ }
-    try {
+      setEvalData(null)
       setGenerating(true)
-      const res = await evalApi.generate(ideaId)
-      setEvalData(res.data)
-    } catch { /* ignore */ }
-    finally {
+      const genRes = await evalApi.generate(ideaId)
+      setEvalData(genRes.data)
+    } catch (err) {
+      console.error('Re-evaluate failed:', err)
+    } finally {
       setGenerating(false)
-      setRetrying(false)
     }
   }
 
+  // Loading state
   if (loading || generating) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -220,221 +163,253 @@ const Evaluation = () => {
         <div className="flex items-center justify-center py-32">
           <div className="text-center space-y-4">
             <Spinner size="lg" />
-            <p className="text-slate-500 dark:text-gray-500 font-medium text-sm">
-              {generating ? LOADING_MSGS[msgIndex] : 'Loading your evaluation…'}
-            </p>
+            <motion.p
+              key={msgIndex}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-slate-500 dark:text-gray-500 text-sm"
+            >
+              {generating ? AI_MESSAGES[msgIndex] : 'Loading evaluation...'}
+            </motion.p>
           </div>
         </div>
       </div>
     )
   }
 
+  // Derived data
   const swotData          = parseSwot(evalData?.swotAnalysis)
+  const redFlags          = evalData?.redFlags || []
   const recommendations   = parseRecommendations(evalData?.recommendations)
-  const redFlags          = Array.isArray(evalData?.redFlags) ? evalData.redFlags : []
-  const verdictKey        = getVerdict(evalData?.overallScore, evalData?.riskLevel)
-  const vc                = verdictKey ? VERDICT_CONFIG[verdictKey] : null
-  const evalFailed        = !evalData || evalData.overallScore === 0
+  const overallScore      = evalData?.overallScore || 0
+
+  const verdictBorderColor =
+    overallScore >= 65 ? 'border-l-emerald-500' :
+    overallScore >= 40 ? 'border-l-amber-500'   :
+                         'border-l-red-500'
+
+  const verdictLabel =
+    overallScore >= 65 ? 'Promising' :
+    overallScore >= 40 ? 'Needs Refinement' :
+                         'High Risk'
+
+  const riskBadgeClass =
+    evalData?.riskLevel === 'Low Risk'
+      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+      : evalData?.riskLevel === 'High Risk'
+      ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+      : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
       <Navbar />
 
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
-        {/* Back link + header */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 mb-5 transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-gray-500
+              hover:text-slate-700 dark:hover:text-gray-300 mb-4 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{idea?.title}</h1>
-          <p className="text-sm text-slate-500 dark:text-gray-500 mt-1 capitalize">
-            {idea?.sector?.replace(/_/g, ' ')} · {idea?.businessType || 'B2C'} · Evaluation Results
+          <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+            {idea?.title}
+          </h1>
+          <p className="text-sm text-slate-400 dark:text-gray-500 mt-1">
+            {getSectorLabel(idea?.sector)} · {idea?.businessType || 'B2C'} · Evaluation Results
           </p>
         </motion.div>
 
+        {/* Page error */}
+        {pageError && (
+          <div className="mb-6 rounded-xl border border-red-200 dark:border-red-800
+            bg-white dark:bg-gray-900 p-4 flex items-start gap-3">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm text-slate-700 dark:text-gray-300">{pageError}</p>
+              <button
+                onClick={loadData}
+                className="text-sm text-indigo-600 dark:text-indigo-400 mt-2 font-medium hover:underline"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-4">
 
-          {/* ─── LAYER 1: Verdict ─────────────────────────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-
-            {evalFailed ? (
-              /* Failed evaluation */
-              <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-6">
-                <p className="font-bold text-red-800 dark:text-red-300 text-lg mb-2">Evaluation unavailable</p>
-                <p className="text-sm text-red-700 dark:text-red-400 mb-4">
-                  The AI analysis didn't complete successfully. This can happen when the idea description is too short or the service was temporarily unavailable.
-                </p>
-                <Button onClick={handleRetry} loading={retrying} variant="danger" size="sm">
-                  Try Again
-                </Button>
-              </div>
-            ) : (
-              /* Verdict banner */
-              <div className={`rounded-2xl border ${vc?.bg} ${vc?.border} p-6`}>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-0.5">{vc?.icon}</span>
-                  <div className="flex-1">
-                    <h2 className={`text-lg font-bold ${vc?.title_color} mb-1`}>{vc?.title}</h2>
-                    {evalData?.verdict && (
-                      <p className={`text-sm ${vc?.text_color} leading-relaxed`}>{evalData.verdict}</p>
+          {/* ── VERDICT ── */}
+          {evalData && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+              <div className={`bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800
+                border-l-4 ${verdictBorderColor} rounded-xl p-5`}>
+                <div className="flex items-start gap-3 mb-2">
+                  <VerdictIcon score={overallScore} />
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      {verdictLabel}
+                    </p>
+                    {evalData.verdict && (
+                      <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
+                        {evalData.verdict}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Red flags */}
                 {redFlags.length > 0 && (
-                  <div className="mt-4 space-y-2">
+                  <div className="space-y-2 mt-3 pt-3 border-t border-slate-100 dark:border-gray-800">
                     {redFlags.map((flag, i) => (
-                      <div key={i} className="flex items-start gap-2.5 bg-white/60 dark:bg-black/20 rounded-xl p-3 border border-amber-200/60 dark:border-amber-800/40">
-                        <span className="text-amber-500 mt-0.5 flex-shrink-0">⚠️</span>
-                        <p className="text-sm text-slate-700 dark:text-gray-300">{flag}</p>
+                      <div key={i} className="flex items-start gap-2">
+                        <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+                          {flag}
+                        </p>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
+            </motion.div>
+          )}
+
+          {/* ── SCORES ── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
+
+              <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  Evaluation Scores
+                </h2>
+                <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
+                  Based on Amman market conditions and your {idea?.businessType || 'B2C'} business type
+                </p>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center justify-around gap-8 px-5 py-8">
+                <div className="flex flex-col items-center gap-2">
+                  <ScoreCircle score={evalData?.noveltyScore || 0} label="HOW ORIGINAL IS YOUR IDEA" />
+                  <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
+                    {scoreDesc(evalData?.noveltyScore || 0, 'novelty')}
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <ScoreCircle score={evalData?.marketPotentialScore || 0} label="MARKET OPPORTUNITY" />
+                  <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
+                    {scoreDesc(evalData?.marketPotentialScore || 0, 'market')}
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <ScoreCircle score={evalData?.overallScore || 0} label="OVERALL VIABILITY SCORE" size={160} />
+                  <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
+                    {scoreDesc(evalData?.overallScore || 0, 'overall')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Risk level row */}
+              <div className="px-5 py-3 border-t border-slate-100 dark:border-gray-800
+                flex items-center justify-between">
+                <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
+                  Risk Assessment
+                </p>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${riskBadgeClass}`}>
+                  {evalData?.riskLevel || 'Medium Risk'}
+                </span>
+              </div>
+            </div>
           </motion.div>
 
-          {/* ─── LAYER 2: Scores ──────────────────────────────────────── */}
-          {!evalFailed && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <ExpandableSection title="See your scores">
-                <div className="pt-6 space-y-6">
-                  <div className="flex flex-col md:flex-row items-center justify-around gap-8">
-                    <div className="flex flex-col items-center gap-2">
-                      <Tooltip text={TOOLTIPS.noveltyScore}>
-                        <ScoreCircle
-                          score={evalData?.noveltyScore || 0}
-                          label="How original is your idea"
-                        />
-                      </Tooltip>
-                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
-                        {scoreDesc(evalData?.noveltyScore || 0, 'novelty')}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-center gap-2">
-                      <Tooltip text={TOOLTIPS.marketPotential}>
-                        <ScoreCircle
-                          score={evalData?.marketPotentialScore || 0}
-                          label="Market opportunity"
-                        />
-                      </Tooltip>
-                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
-                        {scoreDesc(evalData?.marketPotentialScore || 0, 'market')}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-center gap-2">
-                      <Tooltip text={TOOLTIPS.overallScore}>
-                        <ScoreCircle
-                          score={evalData?.overallScore || 0}
-                          label="Overall viability score"
-                          size={160}
-                        />
-                      </Tooltip>
-                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
-                        {scoreDesc(evalData?.overallScore || 0, 'overall')}
-                      </p>
-                    </div>
-                  </div>
+          {/* ── SWOT ── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  SWOT Analysis
+                </h2>
+                <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
+                  Strengths, weaknesses, opportunities, and threats specific to your idea in Amman
+                </p>
+              </div>
+              <div className="p-5">
+                <SwotGrid swotData={swotData} />
+              </div>
+            </div>
+          </motion.div>
 
-                  {evalData?.riskLevel && (
-                    <div className="flex items-center justify-center gap-3 pt-2">
-                      <span className="text-sm text-slate-500 dark:text-gray-400">Risk assessment:</span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${RISK_BADGE_COLOR[evalData.riskLevel] || RISK_BADGE_COLOR['Medium Risk']}`}>
-                        {evalData.riskLevel}
+          {/* ── RECOMMENDATIONS ── */}
+          {recommendations.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">
+                  What to do next
+                </h2>
+                <div className="space-y-3">
+                  {recommendations.map((rec, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-gray-800
+                        text-slate-600 dark:text-gray-300 text-xs font-semibold
+                        flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {i + 1}
                       </span>
+                      <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
+                        {rec}
+                      </p>
                     </div>
-                  )}
+                  ))}
                 </div>
-              </ExpandableSection>
+              </div>
             </motion.div>
           )}
 
-          {/* ─── LAYER 3: Full Analysis ───────────────────────────────── */}
-          {!evalFailed && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <ExpandableSection title="See full analysis">
-                <div className="pt-6 space-y-8">
-
-                  {/* SWOT */}
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-4">
-                      SWOT Analysis (Strengths, Weaknesses, Opportunities, Threats)
-                    </h3>
-                    <SwotGrid swotData={swotData} />
-                  </div>
-
-                  {/* Recommendations */}
-                  {recommendations.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-4">
-                        What to do next
-                      </h3>
-                      <div className="bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900 rounded-2xl p-5">
-                        <ol className="space-y-3">
-                          {recommendations.map((rec, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm text-indigo-800 dark:text-indigo-300">
-                              <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-bold">
-                                {i + 1}
-                              </span>
-                              <span className="leading-relaxed">{rec}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Assumptions note */}
-                  <div className="bg-slate-50 dark:bg-gray-800 rounded-2xl p-5 border border-slate-200 dark:border-gray-700">
-                    <p className="text-xs text-slate-500 dark:text-gray-500 leading-relaxed">
-                      All benchmarks are based on research into Amman's market (2025). Results may vary for other cities or unusual business models.
-                    </p>
-                  </div>
-                </div>
-              </ExpandableSection>
-            </motion.div>
-          )}
-
-          {/* ─── Actions ──────────────────────────────────────────────── */}
+          {/* ── ACTIONS ── */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-3 pt-2"
           >
             <Button onClick={() => navigate(`/financial/${ideaId}`)} className="flex-1">
-              View Financial Analysis
+              Continue to Financial Plan
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/business-plan/${ideaId}`)} className="flex-1">
-              Download Business Plan PDF
+              Download Business Plan
             </Button>
           </motion.div>
 
           {/* Re-evaluate */}
-          {!evalFailed && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-              <button
-                onClick={handleReEvaluate}
-                disabled={retrying}
-                className="w-full text-xs text-slate-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-2 disabled:opacity-50"
-              >
-                {retrying ? 'Re-evaluating…' : 'Not satisfied with results? Re-evaluate this idea →'}
-              </button>
-            </motion.div>
-          )}
+          <div className="flex justify-center pt-1">
+            <button
+              onClick={handleReEvaluate}
+              className="text-xs text-slate-400 dark:text-gray-600
+                hover:text-slate-600 dark:hover:text-gray-400 transition-colors"
+            >
+              Re-evaluate this idea
+            </button>
+          </div>
+
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

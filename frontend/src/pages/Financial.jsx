@@ -38,10 +38,10 @@ function ltvCacColor(ratio) {
   return 'text-red-600 dark:text-red-400'
 }
 
-function statusIcon(status) {
-  if (status === 'ok')      return <span className="text-green-600 font-bold">✅</span>
-  if (status === 'warning') return <span className="text-amber-500 font-bold">⚠️</span>
-  return                           <span className="text-red-600 font-bold">🔴</span>
+function statusLabel(status) {
+  if (status === 'ok')      return { text: 'Good',  cls: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' }
+  if (status === 'warning') return { text: 'Watch', cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400' }
+  return                           { text: 'Risk',  cls: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400' }
 }
 
 const CustomChartTooltip = ({ active, payload, label }) => {
@@ -525,196 +525,292 @@ const Financial = () => {
         ) : (
           <div className="space-y-4">
 
-            {/* ─── LAYER 1: Summary ─────────────────────────────────── */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4">
-
-              {/* Red flags */}
-              {redFlags.length > 0 && (
-                <div className="space-y-2">
+            {/* Red flags */}
+            {redFlags.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="rounded-xl border border-amber-200 dark:border-amber-800/50
+                  bg-white dark:bg-gray-900 overflow-hidden">
                   {redFlags.map((flag, i) => (
-                    <div key={i} className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
-                      <span className="text-amber-500 flex-shrink-0">⚠️</span>
-                      <p className="text-sm text-amber-800 dark:text-amber-300">{flag}</p>
+                    <div key={i} className={`flex items-start gap-3 px-4 py-3 ${
+                      i < redFlags.length - 1
+                        ? 'border-b border-amber-100 dark:border-amber-900/50'
+                        : ''
+                    }`}>
+                      <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">{flag}</p>
                     </div>
                   ))}
                 </div>
-              )}
+              </motion.div>
+            )}
 
-              {/* 3 Key Metric Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <MetricCard
-                  label="Monthly income"
-                  value={fmtJOD(result.monthlyRevenue)}
-                  subtitle="Based on your price × estimated sales volume"
-                />
-                <MetricCard
-                  label="Time to break even"
-                  tooltip={TOOLTIPS.breakEven}
-                  value={result.breakEvenMonths > 0 && result.breakEvenMonths < 9999
-                    ? `${result.breakEvenMonths} months`
-                    : 'Not reached'}
-                  colorClass={bepColor(result.breakEvenMonths)}
-                  subtitle="When your income covers all costs"
-                />
-                <MetricCard
-                  label="Return on customer acquisition"
-                  tooltip={TOOLTIPS.ltvCac}
-                  value={result.ltvCacRatio > 0 ? `${result.ltvCacRatio.toFixed(1)}:1` : '—'}
-                  colorClass={ltvCacColor(result.ltvCacRatio)}
-                  subtitle="Customer value vs. cost to acquire"
-                />
+            {/* Key metrics — clean row list */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+              <div className="rounded-xl border border-slate-200 dark:border-gray-800
+                bg-white dark:bg-gray-900 overflow-hidden">
+                {[
+                  {
+                    label: 'Monthly income',
+                    sub:   'Based on your products × estimated customers',
+                    value: fmtJOD(result.monthlyRevenue),
+                    good:  true,
+                  },
+                  {
+                    label: 'Monthly expenses',
+                    sub:   'Products cost + estimated fixed costs',
+                    value: fmtJOD(result.monthlyCosts),
+                    good:  false,
+                  },
+                  {
+                    label:  'Monthly profit',
+                    sub:    (result.monthlyRevenue - result.monthlyCosts) >= 0
+                              ? 'What remains after all costs'
+                              : 'You are spending more than you earn',
+                    value:  fmtJOD(Math.abs(result.monthlyRevenue - result.monthlyCosts)),
+                    good:   (result.monthlyRevenue - result.monthlyCosts) >= 0,
+                    prefix: (result.monthlyRevenue - result.monthlyCosts) < 0 ? '−' : '',
+                  },
+                  {
+                    label: 'Time to break even',
+                    sub:   'When your total income covers your investment',
+                    value: result.breakEvenMonths > 0 && result.breakEvenMonths < 999
+                             ? `${result.breakEvenMonths} months`
+                             : 'Not reached in 2 years',
+                    good:  result.breakEvenMonths > 0 && result.breakEvenMonths <= 18,
+                  },
+                ].map((m, i, arr) => (
+                  <div key={m.label}
+                    className={`flex items-center justify-between px-5 py-4 ${
+                      i < arr.length - 1
+                        ? 'border-b border-slate-100 dark:border-gray-800'
+                        : ''
+                    }`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-slate-800 dark:text-gray-200">{m.label}</p>
+                      <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">{m.sub}</p>
+                    </div>
+                    <p className={`text-base font-semibold tabular-nums ${
+                      m.good
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {m.prefix}{m.value}
+                    </p>
+                  </div>
+                ))}
               </div>
+            </motion.div>
 
-              {/* Gross margin statement */}
-              {gmExample && (
-                <div className="bg-slate-50 dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-800 px-5 py-4">
-                  <p className="text-sm text-slate-600 dark:text-gray-400">
-                    For every <strong>10 JOD</strong> you earn, approximately{' '}
-                    <strong className="text-slate-800 dark:text-gray-200">{gmExample} JOD</strong> remains after your direct costs.{' '}
-                    <span className="text-xs text-slate-400 dark:text-gray-500">
-                      (<Tooltip text={TOOLTIPS.grossMargin}>Gross margin</Tooltip>: {gmPct.toFixed(1)}%)
+            {/* Gross margin plain language */}
+            {gmExample && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <div className="rounded-xl border border-slate-200 dark:border-gray-800
+                  bg-white dark:bg-gray-900 px-5 py-4">
+                  <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
+                    For every{' '}
+                    <span className="font-semibold text-slate-900 dark:text-white">10 JOD</span>{' '}
+                    you earn, approximately{' '}
+                    <span className="font-semibold text-emerald-600">{gmExample} JOD</span>{' '}
+                    remains after the cost of your products.{' '}
+                    <span className="text-slate-400 dark:text-gray-500 text-xs">
+                      (Gross margin: {gmPct.toFixed(1)}%)
                     </span>
                   </p>
                 </div>
-              )}
-            </motion.div>
+              </motion.div>
+            )}
 
-            {/* ─── LAYER 2: Scenarios + Chart ───────────────────────── */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <ExpandableSection title="See financial scenarios">
-                <div className="pt-5 space-y-6">
+            {/* 3 Scenarios */}
+            {result.realistic && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <div className="rounded-xl border border-slate-200 dark:border-gray-800
+                  bg-white dark:bg-gray-900 overflow-hidden">
 
-                  {/* 3 Scenario cards */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <ScenarioCard
-                      label="Conservative"
-                      subtitle="careful estimate"
-                      data={result.conservative}
-                    />
-                    <ScenarioCard
-                      label="Realistic"
-                      subtitle="as planned"
-                      data={result.realistic}
-                      highlight
-                    />
-                    <ScenarioCard
-                      label="Optimistic"
-                      subtitle="strong growth"
-                      data={result.optimistic}
-                    />
+                  <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Three possible outcomes
+                    </h3>
+                    <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
+                      The future is uncertain — here are three scenarios.
+                    </p>
                   </div>
 
-                  <p className="text-xs text-slate-500 dark:text-gray-500 leading-relaxed">
-                    <strong>Conservative</strong> assumes fewer sales with higher costs.{' '}
-                    <strong>Realistic</strong> is based on your inputs.{' '}
-                    <strong>Optimistic</strong> assumes 40% more sales and lower costs.
-                  </p>
-
-                  {/* 12-Month Projection Chart */}
-                  {chartData.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-4">
-                        12-Month Income vs Expenses
-                      </h4>
-                      <ResponsiveContainer width="100%" height={280}>
-                        <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                          <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                          <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" width={55}
-                            tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                          <RechartsTooltip content={<CustomChartTooltip />} />
-                          <Legend wrapperStyle={{ fontSize: 12 }} />
-                          {bepLabel && (
-                            <ReferenceLine
-                              x={bepLabel}
-                              stroke="#16a34a"
-                              strokeDasharray="4 2"
-                              label={{ value: 'Break-even', position: 'top', fontSize: 10, fill: '#16a34a' }}
-                            />
-                          )}
-                          <Line type="monotone" dataKey="Revenue"  name="Monthly income"   stroke="#6366f1" strokeWidth={2} dot={false} />
-                          <Line type="monotone" dataKey="Expenses" name="Monthly expenses"  stroke="#ef4444" strokeWidth={2} dot={false} />
-                          <Line type="monotone" dataKey="Profit"   name="Monthly profit"   stroke="#10b981" strokeWidth={2} dot={false} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
-                </div>
-              </ExpandableSection>
-            </motion.div>
-
-            {/* ─── LAYER 3: Benchmarks + Assumptions ────────────────── */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <ExpandableSection title="See how you compare to similar businesses">
-                <div className="pt-5 space-y-6">
-
-                  {/* Benchmark Table */}
-                  {benchmarks.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">
-                        Amman Market Benchmark Comparison
-                      </h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-700">
-                        <table className="w-full text-sm">
-                          <thead className="bg-slate-50 dark:bg-gray-800">
-                            <tr>
-                              {['What', 'Your Value', 'Amman Benchmark', 'Status'].map(h => (
-                                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider">{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {benchmarks.map((row, i) => (
-                              <tr key={i} className={`border-t border-slate-100 dark:border-gray-800 ${i % 2 === 1 ? 'bg-slate-50/50 dark:bg-gray-800/30' : ''}`}>
-                                <td className="px-4 py-3 font-medium text-slate-800 dark:text-gray-200 text-sm">{row.metric}</td>
-                                <td className="px-4 py-3 text-slate-700 dark:text-gray-300 font-semibold">{row.yourValue}</td>
-                                <td className="px-4 py-3 text-slate-500 dark:text-gray-500">{row.benchmarkTypical}</td>
-                                <td className="px-4 py-3">{statusIcon(row.status)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                  {/* Realistic — prominent */}
+                  <div className="px-5 py-4 bg-indigo-50/40 dark:bg-indigo-950/20
+                    border-b border-slate-100 dark:border-gray-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">As planned</p>
+                        <p className="text-xs text-slate-400 dark:text-gray-500">Based on your inputs</p>
                       </div>
+                      <span className="text-xs px-2 py-1 rounded-full
+                        bg-indigo-100 dark:bg-indigo-900
+                        text-indigo-700 dark:text-indigo-300 font-medium">
+                        Most likely
+                      </span>
                     </div>
-                  )}
-
-                  {/* Assumptions Log */}
-                  {assumptions.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-1">
-                        What we assumed in this calculation
-                      </h4>
-                      <p className="text-xs text-slate-500 dark:text-gray-500 mb-3">
-                        These estimates come from Amman market benchmarks. If your situation is different, submit a new idea with updated inputs.
-                      </p>
-                      <div className="bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-4">
-                        <ul className="space-y-2">
-                          {assumptions.map((item, i) => (
-                            <li key={i} className="flex items-start gap-2 text-xs text-slate-600 dark:text-gray-400">
-                              <span className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 flex-shrink-0" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <p className="text-xs text-slate-400 dark:text-gray-600 mt-3 leading-relaxed">
-                        All benchmarks are based on research into Amman's market (2025). Results may vary for other cities or unusual business models.
-                      </p>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { label: 'Monthly income', value: fmtJOD(result.realistic.monthlyRevenue), good: true },
+                        { label: 'Monthly profit',  value: fmtJOD(result.realistic.monthlyProfit),  good: result.realistic.monthlyProfit >= 0 },
+                        {
+                          label: 'Break even',
+                          value: result.realistic.breakEvenMonths > 0 && result.realistic.breakEvenMonths < 999
+                            ? `${result.realistic.breakEvenMonths} mo` : 'N/A',
+                          good: true,
+                        },
+                      ].map(item => (
+                        <div key={item.label}>
+                          <p className="text-xs text-slate-400 dark:text-gray-500">{item.label}</p>
+                          <p className={`text-sm font-semibold mt-0.5 ${
+                            item.good ? 'text-slate-900 dark:text-white' : 'text-red-600 dark:text-red-400'
+                          }`}>{item.value}</p>
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
+
+                  {/* Conservative + Optimistic */}
+                  <div className="grid grid-cols-2 divide-x divide-slate-100 dark:divide-gray-800">
+                    {[
+                      { key: 'conservative', label: 'If things are slower', sub: 'Fewer customers, higher costs' },
+                      { key: 'optimistic',   label: 'If growth is strong',  sub: '40% more customers' },
+                    ].map(({ key, label, sub }) => {
+                      const s = result[key]
+                      if (!s) return null
+                      return (
+                        <div key={key} className="px-5 py-4">
+                          <p className="text-xs font-medium text-slate-700 dark:text-gray-300">{label}</p>
+                          <p className="text-xs text-slate-400 dark:text-gray-500 mb-3">{sub}</p>
+                          <p className="text-xs text-slate-400 dark:text-gray-500">Monthly profit</p>
+                          <p className={`text-sm font-semibold mt-0.5 ${
+                            s.monthlyProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                          }`}>
+                            {fmtJOD(s.monthlyProfit)}
+                          </p>
+                          <p className="text-xs text-slate-400 dark:text-gray-500 mt-2">Break even</p>
+                          <p className="text-xs font-medium text-slate-700 dark:text-gray-300">
+                            {s.breakEvenMonths > 0 && s.breakEvenMonths < 999
+                              ? `${s.breakEvenMonths} months` : 'N/A'}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </ExpandableSection>
-            </motion.div>
+              </motion.div>
+            )}
 
-            {/* ─── Action ───────────────────────────────────────────── */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            {/* Benchmark comparisons */}
+            {benchmarks.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <div className="rounded-xl border border-slate-200 dark:border-gray-800
+                  bg-white dark:bg-gray-900 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                      How you compare to similar businesses in Amman
+                    </h3>
+                  </div>
+                  {benchmarks.map((item, i) => {
+                    const sl = statusLabel(item.status)
+                    return (
+                      <div key={i}
+                        className={`flex items-center justify-between px-5 py-3 ${
+                          i < benchmarks.length - 1
+                            ? 'border-b border-slate-100 dark:border-gray-800'
+                            : ''
+                        }`}
+                      >
+                        <p className="text-sm text-slate-600 dark:text-gray-400">{item.metric}</p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-slate-900 dark:text-white">
+                            {item.yourValue}
+                          </span>
+                          <span className="text-xs text-slate-400 dark:text-gray-500">
+                            vs {item.benchmarkTypical}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sl.cls}`}>
+                            {sl.text}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Assumptions log */}
+            {assumptions.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                <details className="group">
+                  <summary className="cursor-pointer text-xs text-slate-400 dark:text-gray-600
+                    hover:text-slate-600 dark:hover:text-gray-400 flex items-center gap-2 py-1 list-none">
+                    <svg className="w-3 h-3 group-open:rotate-90 transition-transform"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    What we assumed in this calculation
+                  </summary>
+                  <div className="mt-3 space-y-1.5 pl-5 border-l-2 border-slate-100 dark:border-gray-800">
+                    {assumptions.map((a, i) => (
+                      <p key={i} className="text-xs text-slate-400 dark:text-gray-500 leading-relaxed">{a}</p>
+                    ))}
+                    <p className="text-xs text-slate-300 dark:text-gray-700 italic mt-2">
+                      Based on Amman market research (2025). Results are estimates.
+                    </p>
+                  </div>
+                </details>
+              </motion.div>
+            )}
+
+            {/* Chart */}
+            {chartData.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                <div className="rounded-xl border border-slate-200 dark:border-gray-800
+                  bg-white dark:bg-gray-900 p-5">
+                  <h3 className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-4">
+                    Revenue vs costs — 12 months
+                  </h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" width={55}
+                        tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                      <RechartsTooltip content={<CustomChartTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      {bepLabel && (
+                        <ReferenceLine
+                          x={bepLabel}
+                          stroke="#16a34a"
+                          strokeDasharray="4 2"
+                          label={{ value: 'Break-even', position: 'top', fontSize: 10, fill: '#16a34a' }}
+                        />
+                      )}
+                      <Line type="monotone" dataKey="Revenue"  name="Monthly income"   stroke="#6366f1" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="Expenses" name="Monthly expenses"  stroke="#ef4444" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="Profit"   name="Monthly profit"   stroke="#10b981" strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Action */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
               <Link to={`/business-plan/${ideaId}`} className="block">
-                <Button className="w-full" size="lg">
-                  Download Business Plan PDF
+                <Button className="w-full" variant="secondary">
+                  Download Business Plan (PDF)
                 </Button>
               </Link>
             </motion.div>
+
           </div>
         )}
       </div>

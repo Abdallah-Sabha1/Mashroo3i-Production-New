@@ -87,22 +87,33 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Action */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-12">
-          <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 p-8 text-white shadow-lg">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold mb-1">Ready to validate your next idea?</h2>
-                <p className="text-white/70 text-sm">Submit a business idea and get AI-powered analysis instantly</p>
-              </div>
-              <Link to="/submit-idea">
-                <button className="px-6 py-2.5 rounded-xl bg-white text-indigo-600 font-medium hover:shadow-md transition-all flex items-center gap-2 whitespace-nowrap">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  New Idea
-                </button>
-              </Link>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="rounded-xl border border-indigo-200 dark:border-indigo-800
+            bg-indigo-50 dark:bg-indigo-950/50 px-6 py-5
+            flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+                Ready to evaluate your next idea?
+              </h2>
+              <p className="text-xs text-indigo-700/70 dark:text-indigo-400/70 mt-1">
+                Submit a business idea and get AI-powered analysis in minutes
+              </p>
             </div>
+            <Link to="/submit-idea" className="flex-shrink-0">
+              <button className="px-5 py-2 rounded-lg bg-indigo-600 text-white
+                text-sm font-medium hover:bg-indigo-700 transition-colors
+                flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Idea
+              </button>
+            </Link>
           </div>
         </motion.div>
 
@@ -131,10 +142,18 @@ const Dashboard = () => {
                         </div>
                         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-gray-500">
                           <span>{formatDate(idea.createdAt)}</span>
-                          <span>{formatCurrency(idea.estimatedBudget)}</span>
                           {idea.evaluation && (
-                            <span className={`font-semibold ${getScoreColor(idea.evaluation.overallScore)}`}>
-                              Viability: {idea.evaluation.overallScore}/100
+                            <span className="flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                idea.evaluation.overallScore >= 65 ? 'bg-emerald-500' :
+                                idea.evaluation.overallScore >= 40 ? 'bg-amber-500' :
+                                                                     'bg-red-500'
+                              }`} />
+                              <span className={`text-sm font-semibold ${
+                                getScoreColor(idea.evaluation.overallScore)
+                              }`}>
+                                {idea.evaluation.overallScore}
+                              </span>
                             </span>
                           )}
                         </div>
