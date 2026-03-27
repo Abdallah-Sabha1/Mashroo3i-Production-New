@@ -51,12 +51,30 @@ namespace backend.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(MapToResponse(evaluation));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Detach any Added evaluation entity to prevent duplicate key on status save
+                // Detach any Added evaluation entity to prevent a second duplicate on the status save
                 foreach (var entry in _context.ChangeTracker.Entries<Models.Evaluation>()
                     .Where(e => e.State == EntityState.Added).ToList())
                     entry.State = EntityState.Detached;
+
+                // 23505 = PostgreSQL unique-constraint violation.
+                // Two concurrent requests both passed the pre-check and raced to insert.
+                // The row was already saved by the other request — just return it.
+                bool isDuplicate = ex is DbUpdateException &&
+                    ex.InnerException?.Message.Contains("23505") == true;
+
+                if (isDuplicate)
+                {
+                    var existing2 = await _context.Evaluations
+                        .FirstOrDefaultAsync(e => e.IdeaId == ideaId);
+                    if (existing2 != null)
+                    {
+                        idea.Status = Models.BusinessIdea.StatusCompleted;
+                        await _context.SaveChangesAsync();
+                        return Ok(MapToResponse(existing2));
+                    }
+                }
 
                 idea.Status = Models.BusinessIdea.StatusSubmitted;
                 await _context.SaveChangesAsync();
