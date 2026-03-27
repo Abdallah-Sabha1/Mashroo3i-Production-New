@@ -1,12 +1,17 @@
 export const SECTORS = [
-  { value: 'food_and_beverage',      label: 'Food & Beverage',        icon: '🍕', desc: 'Restaurants, cafés, catering, food delivery' },
-  { value: 'retail_ecommerce',       label: 'Retail & E-commerce',    icon: '🛍️', desc: 'Online or physical store, products, reselling' },
-  { value: 'tech_and_software',      label: 'Tech & Software',        icon: '💻', desc: 'Apps, websites, digital tools, software' },
-  { value: 'education_and_training', label: 'Education & Training',   icon: '📚', desc: 'Tutoring, courses, coaching, training' },
-  { value: 'health_and_wellness',    label: 'Health & Wellness',      icon: '💪', desc: 'Gym, clinic, nutrition, beauty, personal care' },
-  { value: 'professional_services',  label: 'Professional Services',  icon: '🔧', desc: 'Consulting, marketing, accounting, design, IT' },
-  { value: 'other',                  label: 'Other',                  icon: '❓', desc: "My idea doesn't fit the categories above" },
+  { value: 'food_and_beverage',      label: 'Food & Beverage',       desc: 'Restaurants, cafés, catering, food delivery' },
+  { value: 'retail_ecommerce',       label: 'Retail & E-commerce',   desc: 'Online or physical store, products, reselling' },
+  { value: 'tech_and_software',      label: 'Tech & Software',       desc: 'Apps, websites, digital tools, software' },
+  { value: 'education_and_training', label: 'Education & Training',  desc: 'Tutoring, courses, coaching, training' },
+  { value: 'health_and_wellness',    label: 'Health & Wellness',     desc: 'Gym, clinic, nutrition, beauty, personal care' },
+  { value: 'professional_services',  label: 'Professional Services', desc: 'Consulting, marketing, accounting, design, IT' },
+  { value: 'other',                  label: 'Other',                 desc: "Doesn't fit the above categories" },
 ]
+
+export const getSectorLabel = (value) => {
+  const s = SECTORS.find(s => s.value === value)
+  return s ? s.label : value
+}
 
 export const AMMAN_REGIONS = [
   { value: 'west',    label: 'West Amman',    desc: 'Abdoun, Sweifieh, Shmeisani — premium customers, higher costs' },
