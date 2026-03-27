@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.DTOs.Idea;
@@ -27,6 +28,7 @@ namespace backend.Controllers
 
         [HttpPost("analyze")]
         [AllowAnonymous]
+        [EnableRateLimiting("ai_endpoints")]
         public async Task<ActionResult<IdeaInsightsDto>> AnalyzeIdea(AnalyzeIdeaDto dto)
         {
             if (!ModelState.IsValid)

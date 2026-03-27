@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.DTOs.Evaluation;
@@ -24,6 +25,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("{ideaId}")]
+        [EnableRateLimiting("ai_endpoints")]
         public async Task<ActionResult<EvaluationResponseDto>> Generate(int ideaId)
         {
             var idea = await _context.BusinessIdeas
@@ -60,6 +62,24 @@ namespace backend.Controllers
                 await _context.SaveChangesAsync();
                 throw;
             }
+        }
+
+        [HttpDelete("{ideaId}")]
+        public async Task<ActionResult> Delete(int ideaId)
+        {
+            var idea = await _context.BusinessIdeas
+                .Include(i => i.Evaluation)
+                .FirstOrDefaultAsync(i => i.IdeaId == ideaId);
+
+            if (idea == null) return NotFound(new { message = "Idea not found." });
+            if (idea.UserId != GetUserId()) return Forbid();
+            if (idea.Evaluation == null)
+                return NotFound(new { message = "No evaluation to delete." });
+
+            _context.Evaluations.Remove(idea.Evaluation);
+            idea.Status = Models.BusinessIdea.StatusSubmitted;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Evaluation deleted. You can now re-evaluate." });
         }
 
         [HttpGet("{ideaId}")]

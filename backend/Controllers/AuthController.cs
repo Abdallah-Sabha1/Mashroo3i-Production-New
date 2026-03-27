@@ -99,6 +99,34 @@ namespace backend.Controllers
             });
         }
 
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<ActionResult<AuthResponseDto>> UpdateProfile(UpdateProfileDto dto)
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound(new { message = "User not found." });
+
+            if (!string.IsNullOrWhiteSpace(dto.FullName))
+                user.FullName = dto.FullName;
+            if (dto.Education != null) user.Education = dto.Education;
+            if (dto.Experience != null) user.Experience = dto.Experience;
+            if (dto.BusinessInterest != null) user.BusinessInterest = dto.BusinessInterest;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new AuthResponseDto
+            {
+                UserId           = user.UserId,
+                FullName         = user.FullName,
+                Email            = user.Email,
+                Education        = user.Education,
+                Experience       = user.Experience,
+                BusinessInterest = user.BusinessInterest,
+                Token            = ""
+            });
+        }
+
         private int GetUserId()
         {
             return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");

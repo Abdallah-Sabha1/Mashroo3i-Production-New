@@ -33,6 +33,7 @@ export const auth = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
+  updateProfile: (data) => api.put('/auth/profile', data),
 }
 
 export const ideas = {
@@ -46,6 +47,7 @@ export const ideas = {
 export const evaluation = {
   generate: (ideaId) => api.post(`/evaluation/${ideaId}`),
   get: (ideaId) => api.get(`/evaluation/${ideaId}`),
+  delete: (ideaId) => api.delete(`/evaluation/${ideaId}`),
 }
 
 export const financial = {
