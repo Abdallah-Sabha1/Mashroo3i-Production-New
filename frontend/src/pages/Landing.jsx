@@ -73,9 +73,9 @@ const features = [
 ]
 
 const stats = [
-  { value: '1,200+', label: 'Ideas Evaluated' },
-  { value: '95%', label: 'Success Rate' },
-  { value: '24/7', label: 'AI Support' },
+  { value: '< 5 min', label: 'Get your full analysis' },
+  { value: '7 sectors', label: 'Amman market coverage' },
+  { value: 'Free', label: 'Always free to start' },
 ]
 
 const Landing = () => {
@@ -111,16 +111,15 @@ const Landing = () => {
                 </svg>
               </Button>
             </Link>
-            <Link to="/login">
-              <Button variant="secondary" size="lg" className="min-w-[200px]">View Demo</Button>
+            <Link to="/register">
+              <Button variant="secondary" size="lg" className="min-w-[200px]">Try it Free</Button>
             </Link>
           </motion.div>
 
           <motion.div variants={fadeUp} className="mt-16">
-            <p className="text-sm text-slate-500 dark:text-gray-500 mb-4">Trusted by entrepreneurs across Jordan</p>
-            <div className="flex gap-8 justify-center text-sm text-slate-400 dark:text-gray-600">
-              <span>Amman</span><span>Irbid</span><span>Zarqa</span><span>Aqaba</span>
-            </div>
+            <p className="text-sm text-slate-500 dark:text-gray-500">
+              Built for entrepreneurs in <span className="font-medium text-slate-700 dark:text-gray-300">Amman, Jordan</span>
+            </p>
           </motion.div>
         </motion.div>
       </section>

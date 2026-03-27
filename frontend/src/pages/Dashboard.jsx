@@ -16,6 +16,8 @@ const Dashboard = () => {
   const navigate = useNavigate()
   const [ideas, setIdeas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     loadIdeas()
@@ -39,6 +41,19 @@ const Dashboard = () => {
   const successRate = evaluated.length > 0
     ? Math.round((evaluated.filter(i => (i.evaluation?.overallScore || 0) >= 60).length / evaluated.length) * 100)
     : 0
+
+  const handleDelete = async (ideaId) => {
+    setDeletingId(ideaId)
+    try {
+      await ideasApi.delete(ideaId)
+      setIdeas(ideas.filter(i => i.ideaId !== ideaId))
+    } catch (err) {
+      console.error('Failed to delete idea:', err)
+    } finally {
+      setDeletingId(null)
+      setConfirmDeleteId(null)
+    }
+  }
 
   const handleEvaluate = async (ideaId) => {
     try {
@@ -137,6 +152,15 @@ const Dashboard = () => {
                         ) : (
                           <Button size="sm" onClick={() => handleEvaluate(idea.ideaId)}>Evaluate</Button>
                         )}
+                        <button
+                          onClick={() => setConfirmDeleteId(idea.ideaId)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                          title="Delete idea"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   </Card>
@@ -146,6 +170,31 @@ const Dashboard = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Delete this idea?</h3>
+            <p className="text-sm text-slate-500 dark:text-gray-500 mb-6">
+              This will permanently delete the idea and all its evaluations. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="ghost" className="flex-1" onClick={() => setConfirmDeleteId(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                loading={!!deletingId}
+                onClick={() => handleDelete(confirmDeleteId)}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

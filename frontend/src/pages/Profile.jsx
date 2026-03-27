@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
 import useAuthStore from '../store/authStore'
+import { auth as authApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
@@ -28,6 +29,12 @@ const Profile = () => {
     setLoading(true)
     setSuccess('')
     try {
+      await authApi.updateProfile({
+        fullName: data.fullName,
+        education: data.education,
+        experience: data.experience,
+        businessInterest: data.businessInterest,
+      })
       setUser({ ...user, ...data })
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(''), 3000)

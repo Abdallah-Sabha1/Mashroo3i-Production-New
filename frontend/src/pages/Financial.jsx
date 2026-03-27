@@ -9,6 +9,7 @@ import {
 import { financial as finApi, ideas as ideasApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
+import MetricCard from '../components/shared/MetricCard'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Tooltip, { TOOLTIPS } from '../components/ui/Tooltip'
@@ -232,39 +233,27 @@ const Financial = () => {
 
               {/* 3 Key Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                {/* Monthly Revenue */}
-                <div className="rounded-2xl border border-slate-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
-                  <p className="text-xs font-medium text-slate-500 dark:text-gray-400 mb-2">Monthly income</p>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{fmtJOD(result.monthlyRevenue)}</p>
-                  <p className="text-xs text-slate-400 dark:text-gray-600 mt-1">Based on your price × estimated sales volume</p>
-                </div>
-
-                {/* Break-Even */}
-                <div className="rounded-2xl border border-slate-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
-                  <p className="text-xs font-medium text-slate-500 dark:text-gray-400 mb-2">
-                    <Tooltip text={TOOLTIPS.breakEven}>Time to break even</Tooltip>
-                  </p>
-                  <p className={`text-2xl font-bold ${bepColor(result.breakEvenMonths)}`}>
-                    {result.breakEvenMonths > 0 && result.breakEvenMonths < 9999
-                      ? `${result.breakEvenMonths} months`
-                      : 'Not reached'}
-                  </p>
-                  <p className="text-xs text-slate-400 dark:text-gray-600 mt-1">When your income starts covering all costs</p>
-                </div>
-
-                {/* LTV:CAC */}
-                <div className="rounded-2xl border border-slate-200 dark:border-gray-800 p-5 bg-white dark:bg-gray-900">
-                  <p className="text-xs font-medium text-slate-500 dark:text-gray-400 mb-2">
-                    <Tooltip text={TOOLTIPS.ltvCac}>Return on customer acquisition</Tooltip>
-                  </p>
-                  <p className={`text-2xl font-bold ${ltvCacColor(result.ltvCacRatio)}`}>
-                    {result.ltvCacRatio > 0 ? `${result.ltvCacRatio.toFixed(1)}:1` : '—'}
-                  </p>
-                  <p className="text-xs text-slate-400 dark:text-gray-600 mt-1">
-                    <Tooltip text={TOOLTIPS.ltvCac}>How much a customer is worth vs. cost to acquire</Tooltip>
-                  </p>
-                </div>
+                <MetricCard
+                  label="Monthly income"
+                  value={fmtJOD(result.monthlyRevenue)}
+                  subtitle="Based on your price × estimated sales volume"
+                />
+                <MetricCard
+                  label="Time to break even"
+                  tooltip={TOOLTIPS.breakEven}
+                  value={result.breakEvenMonths > 0 && result.breakEvenMonths < 9999
+                    ? `${result.breakEvenMonths} months`
+                    : 'Not reached'}
+                  colorClass={bepColor(result.breakEvenMonths)}
+                  subtitle="When your income covers all costs"
+                />
+                <MetricCard
+                  label="Return on customer acquisition"
+                  tooltip={TOOLTIPS.ltvCac}
+                  value={result.ltvCacRatio > 0 ? `${result.ltvCacRatio.toFixed(1)}:1` : '—'}
+                  colorClass={ltvCacColor(result.ltvCacRatio)}
+                  subtitle="Customer value vs. cost to acquire"
+                />
               </div>
 
               {/* Gross margin statement */}

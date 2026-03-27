@@ -12,7 +12,32 @@ import Card from '../components/ui/Card'
 import Tooltip, { TOOLTIPS } from '../components/ui/Tooltip'
 import { Spinner } from '../components/ui/Loading'
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const LOADING_MSGS = [
+  'AI is reading your business idea…',
+  'Checking Amman market data…',
+  'Calculating risk and opportunities…',
+  'Almost done — writing your report…',
+]
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function scoreDesc(score, type) {
+  if (type === 'novelty') {
+    if (score >= 80) return 'Very original for Amman'
+    if (score >= 60) return 'Somewhat unique — needs differentiation'
+    return 'Common idea — strong differentiator needed'
+  }
+  if (type === 'market') {
+    if (score >= 80) return 'Strong market demand in Amman'
+    if (score >= 60) return 'Moderate market — find your niche'
+    return 'Challenging market conditions'
+  }
+  if (score >= 80) return 'Strong viability'
+  if (score >= 60) return 'Viable with refinement'
+  return 'Needs significant improvement'
+}
 
 function parseSwot(raw) {
   if (!raw) return {}
@@ -127,8 +152,17 @@ const Evaluation = () => {
   const [loading,    setLoading]    = useState(true)
   const [generating, setGenerating] = useState(false)
   const [retrying,   setRetrying]   = useState(false)
+  const [msgIndex,   setMsgIndex]   = useState(0)
 
   useEffect(() => { loadData() }, [ideaId])
+
+  useEffect(() => {
+    if (!generating) return
+    const interval = setInterval(() => {
+      setMsgIndex(i => (i + 1) % LOADING_MSGS.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [generating])
 
   const loadData = async () => {
     setLoading(true)
@@ -162,6 +196,23 @@ const Evaluation = () => {
     finally { setRetrying(false) }
   }
 
+  const handleReEvaluate = async () => {
+    setRetrying(true)
+    setMsgIndex(0)
+    try {
+      await evalApi.delete(ideaId)
+    } catch { /* ignore if not found */ }
+    try {
+      setGenerating(true)
+      const res = await evalApi.generate(ideaId)
+      setEvalData(res.data)
+    } catch { /* ignore */ }
+    finally {
+      setGenerating(false)
+      setRetrying(false)
+    }
+  }
+
   if (loading || generating) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -170,7 +221,7 @@ const Evaluation = () => {
           <div className="text-center space-y-4">
             <Spinner size="lg" />
             <p className="text-slate-500 dark:text-gray-500 font-medium text-sm">
-              {generating ? 'AI is analyzing your business idea — this takes about 10 seconds…' : 'Loading your evaluation…'}
+              {generating ? LOADING_MSGS[msgIndex] : 'Loading your evaluation…'}
             </p>
           </div>
         </div>
@@ -257,25 +308,40 @@ const Evaluation = () => {
               <ExpandableSection title="See your scores">
                 <div className="pt-6 space-y-6">
                   <div className="flex flex-col md:flex-row items-center justify-around gap-8">
-                    <Tooltip text={TOOLTIPS.noveltyScore}>
-                      <ScoreCircle
-                        score={evalData?.noveltyScore || 0}
-                        label="How original is your idea"
-                      />
-                    </Tooltip>
-                    <Tooltip text={TOOLTIPS.marketPotential}>
-                      <ScoreCircle
-                        score={evalData?.marketPotentialScore || 0}
-                        label="Market opportunity"
-                      />
-                    </Tooltip>
-                    <Tooltip text={TOOLTIPS.overallScore}>
-                      <ScoreCircle
-                        score={evalData?.overallScore || 0}
-                        label="Overall viability score"
-                        size={160}
-                      />
-                    </Tooltip>
+                    <div className="flex flex-col items-center gap-2">
+                      <Tooltip text={TOOLTIPS.noveltyScore}>
+                        <ScoreCircle
+                          score={evalData?.noveltyScore || 0}
+                          label="How original is your idea"
+                        />
+                      </Tooltip>
+                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
+                        {scoreDesc(evalData?.noveltyScore || 0, 'novelty')}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <Tooltip text={TOOLTIPS.marketPotential}>
+                        <ScoreCircle
+                          score={evalData?.marketPotentialScore || 0}
+                          label="Market opportunity"
+                        />
+                      </Tooltip>
+                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
+                        {scoreDesc(evalData?.marketPotentialScore || 0, 'market')}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                      <Tooltip text={TOOLTIPS.overallScore}>
+                        <ScoreCircle
+                          score={evalData?.overallScore || 0}
+                          label="Overall viability score"
+                          size={160}
+                        />
+                      </Tooltip>
+                      <p className="text-xs text-slate-500 dark:text-gray-500 text-center max-w-[130px]">
+                        {scoreDesc(evalData?.overallScore || 0, 'overall')}
+                      </p>
+                    </div>
                   </div>
 
                   {evalData?.riskLevel && (
@@ -352,6 +418,19 @@ const Evaluation = () => {
               Download Business Plan PDF
             </Button>
           </motion.div>
+
+          {/* Re-evaluate */}
+          {!evalFailed && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
+              <button
+                onClick={handleReEvaluate}
+                disabled={retrying}
+                className="w-full text-xs text-slate-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-2 disabled:opacity-50"
+              >
+                {retrying ? 'Re-evaluating…' : 'Not satisfied with results? Re-evaluate this idea →'}
+              </button>
+            </motion.div>
+          )}
         </div>
       </div>
 
