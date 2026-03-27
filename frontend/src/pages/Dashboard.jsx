@@ -9,7 +9,7 @@ import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Card from '../components/ui/Card'
 import { Spinner } from '../components/ui/Loading'
-import { formatDate, formatCurrency, getScoreColor } from '../utils/helpers'
+import { formatDate, formatCurrency, getScoreColor, getSectorLabel } from '../utils/helpers'
 
 const Dashboard = () => {
   const { user } = useAuthStore()
@@ -112,7 +112,7 @@ const Dashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-1">
                           <h3 className="font-semibold text-slate-900 dark:text-white truncate">{idea.title}</h3>
-                          <Badge color="purple" size="sm">{idea.sector}</Badge>
+                          <Badge color="purple" size="sm">{getSectorLabel(idea.sector)}</Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-gray-500">
                           <span>{formatDate(idea.createdAt)}</span>

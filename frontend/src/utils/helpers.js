@@ -29,3 +29,16 @@ export const truncateText = (text, maxLength = 100) => {
   if (!text || text.length <= maxLength) return text
   return text.substring(0, maxLength) + '...'
 }
+
+export const getSectorLabel = (sectorValue) => {
+  const map = {
+    'food_and_beverage':      'Food & Beverage',
+    'retail_ecommerce':       'Retail & E-commerce',
+    'tech_and_software':      'Tech & Software',
+    'education_and_training': 'Education & Training',
+    'health_and_wellness':    'Health & Wellness',
+    'professional_services':  'Professional Services',
+    'other':                  'Other',
+  }
+  return map[sectorValue] || sectorValue
+}

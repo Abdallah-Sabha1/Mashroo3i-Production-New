@@ -1,8 +1,9 @@
-// pages/SubmitIdea.jsx — 5-Step Business Wizard (Phase 3)
+// pages/SubmitIdea.jsx — 5-Step Business Wizard
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import api, { ideas as ideasApi, financial as financialApi } from '../services/api'
+import { useToast } from '../components/ui/Toast'
 import Navbar from '../components/layout/Navbar'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -23,15 +24,15 @@ const SECTORS = [
 const SECTOR_MAP = Object.fromEntries(SECTORS.map(s => [s.value, s.label]))
 
 const B2C_CHANNELS = [
-  { value: 'referral', emoji: '🗣️', label: 'Word of mouth / personal network', desc: 'Tell friends and family, ask for referrals' },
-  { value: 'social',   emoji: '📱', label: 'Social media (organic)',            desc: 'Post on Instagram, TikTok — no paid ads' },
-  { value: 'paid',     emoji: '📢', label: 'Paid ads',                          desc: 'Run ads on Instagram, Google, or TikTok' },
-  { value: 'events',   emoji: '🤝', label: 'Partnerships or referrals',         desc: 'Partner with other businesses or join referral programs' },
-  { value: 'seo',      emoji: '🔍', label: 'SEO / search engine',               desc: 'Get found on Google when people search' },
+  { value: 'referral',      emoji: '🗣️', label: 'Word of mouth / personal network', desc: 'Tell friends and family, ask for referrals' },
+  { value: 'social',        emoji: '📱', label: 'Social media (organic)',            desc: 'Post on Instagram, TikTok — no paid ads' },
+  { value: 'paid',          emoji: '📢', label: 'Paid ads',                          desc: 'Run ads on Instagram, Google, or TikTok' },
+  { value: 'partnerships',  emoji: '🤝', label: 'Partnerships or referrals',         desc: 'Partner with other businesses or join referral programs' },
+  { value: 'seo',           emoji: '🔍', label: 'SEO / search engine',               desc: 'Get found on Google when people search' },
 ]
 const B2B_CHANNELS = [
   ...B2C_CHANNELS,
-  { value: 'cold_outreach', emoji: '📞', label: 'Direct sales / cold outreach', desc: 'Call or email potential clients directly' },
+  { value: 'cold_outreach', emoji: '📞', label: 'Direct sales / cold outreach',      desc: 'Call or email potential clients directly' },
 ]
 
 const DECISION_MAKERS = [
@@ -41,8 +42,18 @@ const DECISION_MAKERS = [
   { value: 'operations', emoji: '📦', label: 'Procurement / Operations' },
 ]
 
-const B2C_SALES_RANGES  = ['1–10', '10–50', '50–200', '200+']
-const B2B_CLIENT_RANGES = ['1–3', '4–10', '11–30', '30+']
+const B2C_SALES_RANGES = [
+  { value: '1_10',     label: '1–10' },
+  { value: '10_50',    label: '10–50' },
+  { value: '50_200',   label: '50–200' },
+  { value: '200_plus', label: '200+' },
+]
+const B2B_CLIENT_RANGES = [
+  { value: '1_3',      label: '1–3' },
+  { value: '4_10',     label: '4–10' },
+  { value: '11_30',    label: '11–30' },
+  { value: '30_plus',  label: '30+' },
+]
 const DEAL_OPTIONS = [
   { label: 'Less than 1 month', value: '0.5' },
   { label: '1–3 months',        value: '2'   },
@@ -51,9 +62,9 @@ const DEAL_OPTIONS = [
 ]
 
 const REGIONS = [
-  { value: 'west',    emoji: '🏙️', label: 'West Amman',    desc: 'Abdoun, Sweifieh, Shmeisani — premium customers, higher costs',       rentHint: 'Typical rent: 800–1,500 JOD/month' },
-  { value: 'central', emoji: '🕌', label: 'Central Amman', desc: 'Downtown, Jabal Amman, Lweibdeh — mixed, medium pricing',              rentHint: 'Typical rent: 500–900 JOD/month' },
-  { value: 'east',    emoji: '🏘️', label: 'East Amman',    desc: 'Zarqa Road, Marka, Qweismeh — price-sensitive market, lower costs',    rentHint: 'Typical rent: 300–600 JOD/month' },
+  { value: 'west',    emoji: '🏙️', label: 'West Amman',    desc: 'Abdoun, Sweifieh, Shmeisani — premium customers, higher costs',     rentHint: 'Typical rent: 800–1,500 JOD/month' },
+  { value: 'central', emoji: '🕌', label: 'Central Amman', desc: 'Downtown, Jabal Amman, Lweibdeh — mixed, medium pricing',            rentHint: 'Typical rent: 500–900 JOD/month' },
+  { value: 'east',    emoji: '🏘️', label: 'East Amman',    desc: 'Zarqa Road, Marka, Qweismeh — price-sensitive market, lower costs',  rentHint: 'Typical rent: 300–600 JOD/month' },
 ]
 
 const STARTUP_HINTS = {
@@ -65,6 +76,16 @@ const STARTUP_HINTS = {
   professional_services:  'Typical: 500–8,000 JOD',
 }
 
+const PRICE_LABELS = {
+  food_and_beverage:      'Price per order or meal (JOD)',
+  retail_ecommerce:       'Price per product (JOD)',
+  tech_and_software:      'Monthly subscription price (JOD)',
+  education_and_training: 'Monthly price per student (JOD)',
+  health_and_wellness:    'Monthly membership or session price (JOD)',
+  professional_services:  'Price per project or monthly retainer (JOD)',
+  other:                  'Price per unit or service (JOD)',
+}
+
 const PRICE_PLACEHOLDERS = {
   food_and_beverage:      'e.g. 8 JOD per meal',
   retail_ecommerce:       'e.g. 25 JOD per item',
@@ -72,11 +93,12 @@ const PRICE_PLACEHOLDERS = {
   education_and_training: 'e.g. 50 JOD per month',
   health_and_wellness:    'e.g. 40 JOD per month',
   professional_services:  'e.g. 300 JOD per project',
+  other:                  'e.g. 50 JOD',
 }
 const COST_PLACEHOLDERS = {
-  food_and_beverage:      'e.g. 3 JOD ingredients per meal',
-  retail_ecommerce:       'e.g. 12 JOD product cost',
-  professional_services:  "e.g. 0 if it's just your time",
+  food_and_beverage:     'e.g. 3 JOD ingredients per meal',
+  retail_ecommerce:      'e.g. 12 JOD product cost',
+  professional_services: "e.g. 0 if it's just your time",
 }
 
 const UNSUPPORTED_B2B = ['food_and_beverage', 'retail_ecommerce', 'health_and_wellness']
@@ -85,6 +107,7 @@ const LOADING_MSGS = [
   'Reading your idea...',
   'Thinking about the Amman market...',
   'Identifying your customers...',
+  'Almost done...',
 ]
 
 const INITIAL_DATA = {
@@ -147,20 +170,22 @@ function RangePills({ options, value, onChange, suggestedValue }) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map(opt => {
-        const selected  = value === opt
-        const suggested = !value && opt === suggestedValue
+        const v        = typeof opt === 'string' ? opt : opt.value
+        const label    = typeof opt === 'string' ? opt : opt.label
+        const selected  = value === v
+        const suggested = !value && v === suggestedValue
         return (
           <button
-            key={opt}
+            key={v}
             type="button"
-            onClick={() => onChange(opt)}
+            onClick={() => onChange(v)}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
               selected   ? 'border-indigo-600 bg-indigo-600 text-white' :
               suggested  ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300' :
                            'border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:border-indigo-300 bg-white dark:bg-gray-900'
             }`}
           >
-            {opt}{suggested && <span className="ml-1.5 text-xs opacity-75">(AI)</span>}
+            {label}{suggested && <span className="ml-1.5 text-xs opacity-75">(AI)</span>}
           </button>
         )
       })}
@@ -268,7 +293,7 @@ function ProgressBar({ step }) {
   )
 }
 
-// ─── Step 1: Your Idea ────────────────────────────────────────────────────────
+// ─── Step 0: Your Idea ────────────────────────────────────────────────────────
 
 function Step1({ data, setField, onNext, loading }) {
   const valid = data.title.trim().length >= 5 && data.description.trim().length >= 100 && !!data.sector
@@ -332,22 +357,25 @@ function Step1({ data, setField, onNext, loading }) {
               key={s.value}
               type="button"
               onClick={() => setField('sector', s.value)}
-              className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+              className={`text-left p-4 rounded-xl border-2 transition-all duration-200 min-h-[56px] ${
                 data.sector === s.value
-                  ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 dark:border-indigo-500'
-                  : 'border-slate-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 bg-white dark:bg-gray-900'
+                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/50 dark:border-purple-500'
+                  : 'border-slate-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700 bg-white dark:bg-gray-900'
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="text-xl">{s.emoji}</span>
-                <span className={`font-semibold text-sm ${data.sector === s.value ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-gray-200'}`}>
+                <span className="text-2xl">{s.emoji}</span>
+                <span className={`font-medium text-sm ${data.sector === s.value ? 'text-purple-700 dark:text-purple-300' : 'text-slate-800 dark:text-gray-200'}`}>
                   {s.label}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 ml-8">{s.desc}</p>
+              <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 ml-9">{s.desc}</p>
             </button>
           ))}
         </div>
+        {!data.sector && (
+          <p className="text-xs text-slate-400 dark:text-gray-600 mt-2">Select the sector that best describes your idea</p>
+        )}
       </div>
 
       <Button onClick={onNext} disabled={!valid || loading} loading={loading} className="w-full" size="lg">
@@ -357,24 +385,43 @@ function Step1({ data, setField, onNext, loading }) {
   )
 }
 
-// ─── Step 2: AI Analysis ──────────────────────────────────────────────────────
+// ─── Step 1: AI Analysis ──────────────────────────────────────────────────────
 
-function Step2({ data, aiLoading, onNext, onBack }) {
+function Step2({ data, setField, aiLoading, onNext, onBack }) {
   const [msgIdx, setMsgIdx] = useState(0)
+  const [editingField, setEditingField] = useState(null)
+  const [editValue, setEditValue] = useState('')
 
   useEffect(() => {
     if (!aiLoading) return
-    const t = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1600)
+    const t = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1500)
     return () => clearInterval(t)
   }, [aiLoading])
+
+  const cards = [
+    { key: 'problemStatement',   label: "The problem you're solving" },
+    { key: 'uniqueSellingPoint', label: 'What makes it different' },
+    { key: 'targetAudience',     label: "Who it's for" },
+  ]
+
+  const startEdit = (key, current) => {
+    setEditingField(key)
+    setEditValue(current || '')
+  }
+
+  const doneEdit = () => {
+    if (editingField) setField(editingField, editValue)
+    setEditingField(null)
+    setEditValue('')
+  }
 
   if (aiLoading) {
     return (
       <motion.div key="s2-load" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20 flex flex-col items-center gap-6">
         <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center">
           <svg className="w-8 h-8 text-indigo-600 animate-spin" fill="none" viewBox="0 0 24 24">
-            <path className="opacity-25" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
         </div>
         <AnimatePresence mode="wait">
@@ -412,14 +459,40 @@ function Step2({ data, aiLoading, onNext, onBack }) {
       <div className="bg-slate-50 dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 space-y-5">
         <h3 className="font-bold text-slate-900 dark:text-white">Here's what we understand about your idea</h3>
 
-        {[
-          { label: 'The Problem You\'re Solving', text: data.problemStatement },
-          { label: 'What Makes It Different',     text: data.uniqueSellingPoint },
-          { label: 'Who It\'s For',               text: data.targetAudience },
-        ].map(({ label, text }, i, arr) => (
-          <div key={label} className={i < arr.length - 1 ? 'pb-5 border-b border-slate-200 dark:border-gray-800' : ''}>
-            <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2">{label}</p>
-            <p className="text-sm text-slate-700 dark:text-gray-300 leading-relaxed">{text || '—'}</p>
+        {cards.map(({ key, label }, i) => (
+          <div key={key} className={i < cards.length - 1 ? 'pb-5 border-b border-slate-200 dark:border-gray-800' : ''}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{label}</p>
+              {editingField !== key && (
+                <button
+                  type="button"
+                  onClick={() => startEdit(key, data[key])}
+                  className="text-xs text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors px-2 py-0.5 rounded-md border border-slate-200 dark:border-gray-700 hover:border-indigo-300"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+            {editingField === key ? (
+              <div>
+                <textarea
+                  value={editValue}
+                  onChange={e => setEditValue(e.target.value)}
+                  rows={3}
+                  autoFocus
+                  className="w-full px-3 py-2 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                />
+                <button
+                  type="button"
+                  onClick={doneEdit}
+                  className="mt-2 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-700 dark:text-gray-300 leading-relaxed">{data[key] || '—'}</p>
+            )}
           </div>
         ))}
       </div>
@@ -440,12 +513,19 @@ function Step2({ data, aiLoading, onNext, onBack }) {
   )
 }
 
-// ─── Step 3: Confirm Business Type ────────────────────────────────────────────
+// ─── Step 2: Confirm Business Type ───────────────────────────────────────────
 
-function Step3({ data, onConfirm, onBack, showModal, onModalChoice }) {
+function Step3({ data, onConfirm, onBack, showWarning, onWarningChoice }) {
   const suggested   = (data.suggestedBusinessType || 'B2C').toUpperCase()
-  const isB2C       = suggested === 'B2C'
   const sectorLabel = SECTOR_MAP[data.sector] || 'your sector'
+
+  const btnClass = (type) => {
+    const isSuggested = suggested === type
+    if (isSuggested) {
+      return 'w-full text-left p-5 rounded-xl border-2 border-purple-500 bg-purple-50 dark:bg-purple-950/40 transition-all duration-200'
+    }
+    return 'w-full text-left p-5 rounded-xl border-2 border-slate-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-600 bg-white dark:bg-gray-900 transition-all duration-200 group'
+  }
 
   return (
     <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-6">
@@ -453,7 +533,7 @@ function Step3({ data, onConfirm, onBack, showModal, onModalChoice }) {
       <div className="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900 rounded-2xl p-6">
         <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 mb-2">Based on your idea, this looks like a</p>
         <p className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-          {isB2C
+          {suggested === 'B2C'
             ? 'B2C business — selling directly to people'
             : 'B2B business — selling to other companies'}
         </p>
@@ -465,39 +545,74 @@ function Step3({ data, onConfirm, onBack, showModal, onModalChoice }) {
       <div>
         <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">Does this sound right?</p>
         <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => onConfirm('B2C')}
-            className="w-full text-left p-5 rounded-xl border-2 border-slate-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 bg-white dark:bg-gray-900 transition-all duration-200 group"
-          >
+          <button type="button" onClick={() => onConfirm('B2C')} className={btnClass('B2C')}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">👥</span>
-              <div>
-                <p className="font-semibold text-slate-800 dark:text-gray-200 text-sm group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+              <div className="flex-1">
+                <p className={`font-semibold text-sm transition-colors ${suggested === 'B2C' ? 'text-purple-700 dark:text-purple-300' : 'text-slate-800 dark:text-gray-200 group-hover:text-purple-700 dark:group-hover:text-purple-300'}`}>
                   Yes, I'm selling to people (B2C)
                 </p>
                 <p className="text-xs text-slate-500 dark:text-gray-500 mt-0.5">Customers pay you directly — retail, subscriptions, services</p>
               </div>
+              {suggested === 'B2C' && (
+                <span className="flex-shrink-0 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900 px-2 py-0.5 rounded-full">AI suggestion</span>
+              )}
             </div>
           </button>
 
-          <button
-            type="button"
-            onClick={() => onConfirm('B2B')}
-            className="w-full text-left p-5 rounded-xl border-2 border-slate-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 bg-white dark:bg-gray-900 transition-all duration-200 group"
-          >
+          <button type="button" onClick={() => onConfirm('B2B')} className={btnClass('B2B')}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">🏢</span>
-              <div>
-                <p className="font-semibold text-slate-800 dark:text-gray-200 text-sm group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+              <div className="flex-1">
+                <p className={`font-semibold text-sm transition-colors ${suggested === 'B2B' ? 'text-purple-700 dark:text-purple-300' : 'text-slate-800 dark:text-gray-200 group-hover:text-purple-700 dark:group-hover:text-purple-300'}`}>
                   No, I'm selling to businesses (B2B)
                 </p>
                 <p className="text-xs text-slate-500 dark:text-gray-500 mt-0.5">Your clients are companies, not individual people</p>
               </div>
+              {suggested === 'B2B' && (
+                <span className="flex-shrink-0 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900 px-2 py-0.5 rounded-full">AI suggestion</span>
+              )}
             </div>
           </button>
         </div>
       </div>
+
+      {/* B2B + Incompatible Sector Inline Warning */}
+      <AnimatePresence>
+        {showWarning && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="rounded-xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 p-5"
+          >
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-xl mt-0.5 flex-shrink-0">⚠️</span>
+              <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                Most <strong>{sectorLabel}</strong> businesses in Amman sell directly to customers (B2C).
+                If you're planning to supply other businesses, Professional Services B2B is a better fit.
+                You can continue as B2B or switch your sector.
+              </p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => onWarningChoice('continue_b2b')}
+                className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-amber-400 dark:border-amber-600 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-800 transition-all"
+              >
+                Continue as B2B
+              </button>
+              <button
+                type="button"
+                onClick={() => onWarningChoice('switch')}
+                className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-indigo-400 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-all"
+              >
+                Switch to Professional Services B2B
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <button
         type="button"
@@ -506,65 +621,16 @@ function Step3({ data, onConfirm, onBack, showModal, onModalChoice }) {
       >
         ← Back
       </button>
-
-      {/* B2B + Unsupported Sector Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.94, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="bg-white dark:bg-gray-900 rounded-2xl p-7 max-w-md w-full shadow-2xl border border-slate-200 dark:border-gray-700"
-            >
-              <div className="flex items-start gap-3 mb-5">
-                <span className="text-3xl mt-0.5">⚠️</span>
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2">A quick note</h3>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
-                    Most <strong className="text-slate-800 dark:text-gray-200">{sectorLabel}</strong> businesses in Amman sell directly to customers (B2C).
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed mt-2">
-                    If you're planning to supply other businesses — like supplying restaurants, clinics, or retailers — your idea works better as a Professional Services B2B.
-                  </p>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 mt-4 mb-3">What fits your idea better?</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => onModalChoice('keep_b2c')}
-                  className="w-full p-4 rounded-xl border-2 border-slate-200 dark:border-gray-700 hover:border-indigo-400 bg-white dark:bg-gray-800 text-sm font-medium text-slate-800 dark:text-gray-200 text-left transition-all"
-                >
-                  Keep as B2C — I sell directly to customers
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onModalChoice('switch')}
-                  className="w-full p-4 rounded-xl border-2 border-indigo-200 dark:border-indigo-800 hover:border-indigo-500 bg-indigo-50 dark:bg-indigo-950 text-sm font-medium text-indigo-700 dark:text-indigo-300 text-left transition-all"
-                >
-                  Switch to Professional Services B2B
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   )
 }
 
-// ─── Step 4: Your Customer ────────────────────────────────────────────────────
+// ─── Step 3: Your Customer ────────────────────────────────────────────────────
 
 function Step4({ data, setField, onNext, onBack }) {
   const isB2B = data.businessType === 'B2B'
-  const suggested = B2C_SALES_RANGES.includes(data.suggestedMonthlySalesRange) ? data.suggestedMonthlySalesRange : null
+  const validB2cRanges = B2C_SALES_RANGES.map(r => r.value)
+  const suggested = validB2cRanges.includes(data.suggestedMonthlySalesRange) ? data.suggestedMonthlySalesRange : null
 
   const valid = isB2B
     ? !!(data.customerDescription && data.acquisitionChannel && data.targetClientsYear1Range && data.estimatedDealClosingMonths)
@@ -576,7 +642,7 @@ function Step4({ data, setField, onNext, onBack }) {
       {/* Q1: Customer description */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1.5">
-          {isB2B ? 'What kind of company will you sell to?' : 'Who is your typical customer?'}{' '}
+          {isB2B ? 'What type of company will you sell to?' : 'Who is your typical customer?'}{' '}
           <span className="text-red-500">*</span>
         </label>
         <p className="text-xs text-slate-500 dark:text-gray-500 mb-2">
@@ -599,7 +665,7 @@ function Step4({ data, setField, onNext, onBack }) {
       {isB2B && (
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
-            Who usually makes the buying decision in these companies?
+            Who makes the buying decision in these companies?
           </label>
           <CardGrid
             options={DECISION_MAKERS}
@@ -613,7 +679,7 @@ function Step4({ data, setField, onNext, onBack }) {
       {/* Q2: Acquisition channel */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
-          How do you plan to {isB2B ? 'reach your first clients' : 'find your first customers'}?{' '}
+          How will you {isB2B ? 'reach your first clients' : 'find your first customers'}?{' '}
           <span className="text-red-500">*</span>
         </label>
         <CardGrid
@@ -628,7 +694,7 @@ function Step4({ data, setField, onNext, onBack }) {
       {isB2B ? (
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-2">
-            How many clients are you targeting in your first year? <span className="text-red-500">*</span>
+            How many clients in your first year? <span className="text-red-500">*</span>
           </label>
           <RangePills
             options={B2B_CLIENT_RANGES}
@@ -639,7 +705,7 @@ function Step4({ data, setField, onNext, onBack }) {
       ) : (
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-2">
-            How many customers do you think you can reach in your first month? <span className="text-red-500">*</span>
+            How many customers in your first month? <span className="text-red-500">*</span>
           </label>
           <RangePills
             options={B2C_SALES_RANGES}
@@ -649,7 +715,7 @@ function Step4({ data, setField, onNext, onBack }) {
           />
           {suggested && !data.estimatedMonthlySalesRange && (
             <p className="text-xs text-slate-500 dark:text-gray-500 mt-2">
-              We suggest <strong>{suggested}</strong> based on your idea. You can change this.
+              We suggest this based on your idea and sector. You can change it.
             </p>
           )}
         </div>
@@ -659,7 +725,7 @@ function Step4({ data, setField, onNext, onBack }) {
       {isB2B && (
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
-            How long do you think it takes to close one deal? <span className="text-red-500">*</span>
+            How long to close one deal? <span className="text-red-500">*</span>
           </label>
           <div className="flex flex-wrap gap-2">
             {DEAL_OPTIONS.map(opt => (
@@ -685,11 +751,10 @@ function Step4({ data, setField, onNext, onBack }) {
   )
 }
 
-// ─── Step 5: Your Numbers ─────────────────────────────────────────────────────
+// ─── Step 4: Your Numbers ─────────────────────────────────────────────────────
 
 function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
   const sector = data.sector || 'other'
-  const isB2B  = data.businessType === 'B2B'
   const rentHint = REGIONS.find(r => r.value === data.ammanRegion)?.rentHint || ''
 
   const employeeCost = data.hasEmployees === true && data.numEmployees && data.salaryPerEmployee
@@ -713,14 +778,14 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
         <SectionTitle>Pricing</SectionTitle>
         <div className="space-y-4">
           <NumberInput
-            label={isB2B ? 'Monthly price per client *' : 'Price per product or service *'}
+            label={`${PRICE_LABELS[sector] || 'Price per unit or service (JOD)'} *`}
             placeholder={PRICE_PLACEHOLDERS[sector] || 'e.g. 50 JOD'}
             value={data.plannedPrice}
             onChange={v => setField('plannedPrice', v)}
           />
           <NumberInput
-            label="Your cost per sale *"
-            helper="The direct cost to make or deliver one product/service — not rent or salaries"
+            label="Your cost to deliver one unit or service (JOD) *"
+            helper="The direct cost to make or deliver — not rent or salaries"
             placeholder={COST_PLACEHOLDERS[sector] || 'e.g. 20 JOD'}
             value={data.costToDeliver}
             onChange={v => setField('costToDeliver', v)}
@@ -733,7 +798,7 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
       {/* ── Section B: Fixed Costs ── */}
       <section>
         <SectionTitle sub="These are costs you pay every month regardless of how much you sell">
-          Monthly Fixed Costs
+          What are your monthly fixed costs?
         </SectionTitle>
 
         {/* Physical location */}
@@ -754,7 +819,7 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
                 className="mt-4 overflow-hidden"
               >
                 <NumberInput
-                  label="Estimated monthly rent"
+                  label="Monthly rent (JOD)"
                   hint={rentHint || 'Select your region below to see a rent estimate'}
                   placeholder="e.g. 700"
                   value={data.rent}
@@ -794,7 +859,7 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
                   />
                 </div>
                 <NumberInput
-                  label="Estimated monthly salary per person"
+                  label="Monthly salary per person"
                   helper="Minimum wage in Amman is 290 JOD/month. Skilled workers: 400–700 JOD/month."
                   placeholder="e.g. 400"
                   value={data.salaryPerEmployee}
@@ -817,7 +882,7 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
         {/* Other costs */}
         <div className="mb-6">
           <NumberInput
-            label="Any other monthly costs? (utilities, software, phone, supplies)"
+            label="Other monthly costs (utilities, software, phone, supplies)"
             placeholder="e.g. 100"
             value={data.otherCosts}
             onChange={v => setField('otherCosts', v)}
@@ -841,8 +906,8 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
       <section>
         <SectionTitle>Starting Capital</SectionTitle>
         <NumberInput
-          label="How much are you willing to invest to start this business? *"
-          helper="This is the total budget you have available to launch"
+          label="How much are you willing to invest to start? *"
+          helper="Total budget you have available to launch"
           hint={STARTUP_HINTS[sector]}
           placeholder="e.g. 15000"
           value={data.initialInvestment}
@@ -854,7 +919,7 @@ function Step5({ data, setField, fixedCosts, onSubmit, onBack, loading }) {
 
       {/* ── Section D: Amman Region ── */}
       <section>
-        <SectionTitle sub="If you're operating online, choose where most of your customers are">
+        <SectionTitle sub="If operating online, choose where most of your customers are">
           Where in Amman do you plan to operate? *
         </SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -898,8 +963,9 @@ const SubmitIdea = () => {
   const [aiLoading,   setAiLoading]   = useState(false)
   const [submitLoad,  setSubmitLoad]  = useState(false)
   const [error,       setError]       = useState('')
-  const [showModal,   setShowModal]   = useState(false)
+  const [showWarning, setShowWarning] = useState(false)
   const navigate = useNavigate()
+  const { addToast } = useToast()
 
   const setField = useCallback((field, value) => {
     setData(prev => ({ ...prev, [field]: value }))
@@ -907,11 +973,11 @@ const SubmitIdea = () => {
 
   const fixedCosts = computeFixedCosts(data)
 
-  // ── Step 1 → 2: Run AI analysis ──
+  // ── Step 0 → 1: Run AI analysis ──
   const handleStep1Next = async () => {
     setError('')
     setAiLoading(true)
-    setStep(1) // show loading state immediately
+    setStep(1)
     try {
       const res = await api.post('/ideas/analyze', {
         title:       data.title,
@@ -921,11 +987,11 @@ const SubmitIdea = () => {
       const ai = res.data
       setData(prev => ({
         ...prev,
-        problemStatement:          ai.problemStatement         || '',
-        uniqueSellingPoint:        ai.uniqueSellingPoint        || '',
-        targetAudience:            ai.targetAudience            || '',
-        suggestedBusinessType:     ai.suggestedBusinessType     || 'B2C',
-        businessTypeReason:        ai.businessTypeReason        || '',
+        problemStatement:           ai.problemStatement          || '',
+        uniqueSellingPoint:         ai.uniqueSellingPoint         || '',
+        targetAudience:             ai.targetAudience             || '',
+        suggestedBusinessType:      ai.suggestedBusinessType      || 'B2C',
+        businessTypeReason:         ai.businessTypeReason         || '',
         suggestedMonthlySalesRange: ai.suggestedMonthlySalesRange || '',
       }))
     } catch {
@@ -936,24 +1002,24 @@ const SubmitIdea = () => {
     }
   }
 
-  // ── Step 3: Business type confirmed ──
+  // ── Step 2: Business type confirmed ──
   const handleConfirmType = (businessType) => {
     if (businessType === 'B2B' && UNSUPPORTED_B2B.includes(data.sector)) {
       setField('businessType', 'B2B')
-      setShowModal(true)
+      setShowWarning(true)
     } else {
+      setShowWarning(false)
       setField('businessType', businessType)
       setStep(3)
     }
   }
 
-  const handleModalChoice = (choice) => {
-    setShowModal(false)
+  const handleWarningChoice = (choice) => {
+    setShowWarning(false)
     if (choice === 'switch') {
       setData(prev => ({ ...prev, sector: 'professional_services', businessType: 'B2B' }))
-    } else {
-      setField('businessType', 'B2C')
     }
+    // 'continue_b2b': businessType already set to B2B in handleConfirmType
     setStep(3)
   }
 
@@ -963,37 +1029,38 @@ const SubmitIdea = () => {
     setSubmitLoad(true)
     try {
       const ideaRes = await ideasApi.create({
-        title:             data.title,
-        description:       data.description,
-        problemStatement:  data.problemStatement,
-        usp:               data.uniqueSellingPoint,
-        targetAudience:    data.customerDescription || data.targetAudience,
-        businessType:      data.businessType,
-        sector:            data.sector,
-        ammanRegion:       data.ammanRegion,
+        title:              data.title,
+        description:        data.description,
+        problemStatement:   data.problemStatement,
+        usp:                data.uniqueSellingPoint,
+        targetAudience:     data.customerDescription || data.targetAudience,
+        businessType:       data.businessType,
+        sector:             data.sector,
+        ammanRegion:        data.ammanRegion,
         businessTypeReason: data.businessTypeReason,
-        estimatedBudget:   parseFloat(data.initialInvestment) || 0,
-        marketSize:        '',
-        competitionLevel:  '',
+        estimatedBudget:    parseFloat(data.initialInvestment) || 0,
       })
 
       const ideaId = ideaRes.data.ideaId
 
       const fin = {
-        initialInvestment: parseFloat(data.initialInvestment) || 0,
-        plannedPrice:      parseFloat(data.plannedPrice)      || 0,
-        costToDeliver:     parseFloat(data.costToDeliver)     || 0,
+        initialInvestment:  parseFloat(data.initialInvestment) || 0,
+        plannedPrice:       parseFloat(data.plannedPrice)       || 0,
+        costToDeliver:      parseFloat(data.costToDeliver)      || 0,
+        monthlyFixedCosts:  fixedCosts,
         acquisitionChannel: data.acquisitionChannel || 'social',
+        ammanRegion:        data.ammanRegion,
       }
       if (data.businessType === 'B2C') {
-        fin.estimatedMonthlySalesRange = data.estimatedMonthlySalesRange || '10-50'
+        fin.estimatedMonthlySalesRange = data.estimatedMonthlySalesRange || '10_50'
       } else {
-        fin.targetClientsYear1Range      = data.targetClientsYear1Range || '4-10'
-        fin.estimatedDealClosingMonths   = parseFloat(data.estimatedDealClosingMonths) || 2
+        fin.targetClientsYear1Range    = data.targetClientsYear1Range    || '4_10'
+        fin.estimatedDealClosingMonths = parseFloat(data.estimatedDealClosingMonths) || 2
       }
 
       await financialApi.create(ideaId, fin)
-      navigate('/dashboard')
+      addToast('Your idea has been submitted! AI evaluation is running...', 'success')
+      navigate(`/evaluation/${ideaId}`)
     } catch (e) {
       setError(e.response?.data?.message || 'Submission failed. Please try again.')
     } finally {
@@ -1038,6 +1105,7 @@ const SubmitIdea = () => {
               {step === 1 && (
                 <Step2
                   data={data}
+                  setField={setField}
                   aiLoading={aiLoading}
                   onNext={() => setStep(2)}
                   onBack={() => { setStep(0); setAiLoading(false) }}
@@ -1048,8 +1116,8 @@ const SubmitIdea = () => {
                   data={data}
                   onConfirm={handleConfirmType}
                   onBack={() => setStep(1)}
-                  showModal={showModal}
-                  onModalChoice={handleModalChoice}
+                  showWarning={showWarning}
+                  onWarningChoice={handleWarningChoice}
                 />
               )}
               {step === 3 && (
@@ -1074,7 +1142,7 @@ const SubmitIdea = () => {
           </Card>
 
           <p className="text-center text-xs text-slate-400 dark:text-gray-600 mt-6">
-            Mashroo3i is built for entrepreneurs in Amman, Jordan
+            📍 Mashroo3i is built for entrepreneurs in Amman, Jordan
           </p>
         </motion.div>
       </div>
