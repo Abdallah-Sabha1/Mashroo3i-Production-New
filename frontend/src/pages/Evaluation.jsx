@@ -183,6 +183,10 @@ const Evaluation = () => {
   const recommendations   = parseRecommendations(evalData?.recommendations)
   const overallScore      = evalData?.overallScore || 0
 
+  // A saved evaluation with score 0 means the AI call failed and stored a bad row.
+  // Treat it as a failure so we show the retry UI instead of fake "High Risk" data.
+  const evalFailed = evalData && overallScore === 0
+
   const verdictBorderColor =
     overallScore >= 65 ? 'border-l-emerald-500' :
     overallScore >= 40 ? 'border-l-amber-500'   :
@@ -249,8 +253,40 @@ const Evaluation = () => {
 
         <div className="space-y-4">
 
+          {/* ── FAILED EVALUATION ── */}
+          {evalFailed && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800
+                border-l-4 border-l-red-400 rounded-xl p-5">
+                <div className="flex items-start gap-3 mb-3">
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Evaluation did not complete
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
+                      The AI analysis failed to generate a score. This can happen when the
+                      service is busy or the idea description is too short.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleReEvaluate}
+                  className="ml-8 text-sm font-medium text-indigo-600 dark:text-indigo-400
+                    hover:underline"
+                >
+                  Try evaluating again →
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* ── VERDICT ── */}
-          {evalData && (
+          {evalData && !evalFailed && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
               <div className={`bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800
                 border-l-4 ${verdictBorderColor} rounded-xl p-5`}>
@@ -290,7 +326,7 @@ const Evaluation = () => {
           )}
 
           {/* ── SCORES ── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          {!evalFailed && <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
 
               <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
@@ -334,10 +370,10 @@ const Evaluation = () => {
                 </span>
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
 
           {/* ── SWOT ── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          {!evalFailed && <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -351,10 +387,10 @@ const Evaluation = () => {
                 <SwotGrid swotData={swotData} />
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
 
           {/* ── RECOMMENDATIONS ── */}
-          {recommendations.length > 0 && (
+          {!evalFailed && recommendations.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">
