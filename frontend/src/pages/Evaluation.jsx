@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { evaluation as evalApi, ideas as ideasApi } from '../services/api'
+import { evaluation as evalApi, ideas as ideasApi, getErrorMessage } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import ScoreCircle from '../components/shared/ScoreCircle'
 import SwotGrid from '../components/shared/SwotGrid'
@@ -130,7 +130,7 @@ const Evaluation = () => {
       if (err.response?.status === 429) {
         setPageError('Our AI is temporarily busy. Please wait a minute and try again.')
       } else {
-        setPageError('Something went wrong loading the evaluation. Please try again.')
+        setPageError(getErrorMessage(err))
       }
     } finally {
       setLoading(false)

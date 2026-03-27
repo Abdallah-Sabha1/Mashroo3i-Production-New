@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import api, { ideas as ideasApi } from '../services/api'
+import api, { ideas as ideasApi, getErrorMessage } from '../services/api'
 import { useToast } from '../components/ui/Toast'
 import Navbar from '../components/layout/Navbar'
 import Button from '../components/ui/Button'
@@ -539,8 +539,8 @@ const SubmitIdea = () => {
         sector: selectedSector,
       })
       setAiInsights(res.data)
-    } catch {
-      setError('AI analysis failed. Please check your connection and try again.')
+    } catch (err) {
+      setError(getErrorMessage(err))
       setStep(0)
     } finally {
       setAiLoading(false)
@@ -567,7 +567,7 @@ const SubmitIdea = () => {
       addToast('Idea submitted successfully!', 'success')
       navigate('/dashboard?welcome=true')
     } catch (e) {
-      setError(e.response?.data?.message || 'Submission failed. Please try again.')
+      setError(getErrorMessage(e))
     } finally {
       setSubmitLoading(false)
     }

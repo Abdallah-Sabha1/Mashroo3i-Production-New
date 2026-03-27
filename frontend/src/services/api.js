@@ -24,7 +24,26 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'
+      return Promise.reject(error)
     }
+
+    // Attach a human-readable message to every error
+    if (error.response?.status === 429) {
+      error.userMessage =
+        'Too many requests. Please wait a minute and try again.'
+    } else if (error.response?.status >= 500) {
+      error.userMessage =
+        'Something went wrong on our end. Please try again in a moment.'
+    } else if (!error.response) {
+      error.userMessage =
+        'Cannot reach the server. Please check your internet connection.'
+    } else {
+      error.userMessage =
+        error.response?.data?.message ||
+        error.response?.data?.title ||
+        'Something went wrong. Please try again.'
+    }
+
     return Promise.reject(error)
   }
 )
@@ -58,5 +77,11 @@ export const financial = {
 export const businessPlan = {
   download: (ideaId) => api.get(`/businessplan/${ideaId}/download`, { responseType: 'blob' }),
 }
+
+export const getErrorMessage = (err) =>
+  err?.userMessage ||
+  err?.response?.data?.message ||
+  err?.message ||
+  'Something went wrong. Please try again.'
 
 export default api

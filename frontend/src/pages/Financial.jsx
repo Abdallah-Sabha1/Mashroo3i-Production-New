@@ -7,7 +7,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { financial as finApi, ideas as ideasApi } from '../services/api'
+import { financial as finApi, ideas as ideasApi, getErrorMessage } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import MetricCard from '../components/shared/MetricCard'
@@ -177,7 +177,7 @@ const Financial = () => {
       const res = await finApi.create(ideaId, payload)
       setResult(res.data)
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Calculation failed. Please try again.')
+      setFormError(getErrorMessage(err))
     } finally {
       setCalculating(false)
     }

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ideas as ideasApi, evaluation as evalApi } from '../services/api'
+import { ideas as ideasApi, evaluation as evalApi, getErrorMessage } from '../services/api'
 import useAuthStore from '../store/authStore'
 import Navbar from '../components/layout/Navbar'
 import StatsCard from '../components/shared/StatsCard'
+import OnboardingModal from '../components/shared/OnboardingModal'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Card from '../components/ui/Card'
@@ -14,24 +15,40 @@ import { formatDate, formatCurrency, getScoreColor, getSectorLabel } from '../ut
 const Dashboard = () => {
   const { user } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [ideas, setIdeas] = useState([])
   const [loading, setLoading] = useState(true)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
     loadIdeas()
   }, [])
+
+  useEffect(() => {
+    const alreadyOnboarded = localStorage.getItem('mashroo3i_onboarded')
+    const isWelcome = searchParams.get('welcome') === 'true'
+    if (!alreadyOnboarded || isWelcome) {
+      setTimeout(() => setShowOnboarding(true), 500)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadIdeas = async () => {
     try {
       const res = await ideasApi.getAll()
       setIdeas(res.data)
     } catch (err) {
-      console.error('Failed to load ideas:', err)
+      console.error('Failed to load ideas:', getErrorMessage(err))
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false)
+    searchParams.delete('welcome')
+    setSearchParams(searchParams, { replace: true })
   }
 
   const evaluated = ideas.filter(i => i.evaluation)
@@ -128,6 +145,14 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No ideas yet</h3>
               <p className="text-slate-500 dark:text-gray-500 mb-6 text-sm">Submit your first business idea to get started.</p>
               <Link to="/submit-idea"><Button>Submit Your First Idea</Button></Link>
+              <div className="mt-3">
+                <button
+                  onClick={() => setShowOnboarding(true)}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  How does it work?
+                </button>
+              </div>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -189,6 +214,8 @@ const Dashboard = () => {
           )}
         </motion.div>
       </div>
+
+      {showOnboarding && <OnboardingModal onClose={handleCloseOnboarding} />}
 
       {/* Delete confirmation modal */}
       {confirmDeleteId && (
