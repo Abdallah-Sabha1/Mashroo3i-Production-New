@@ -40,7 +40,21 @@ backend/appsettings.Development.json
 backend/appsettings.Local.json
 backend/appsettings.Production.json
 backend/appsettings.Staging.json
+backend/appsettings.*.json
 backend/secrets.json
+backend/user-secrets.json
+
+# Environment files (backend)
+backend/.env
+backend/.env.*
+
+# JWT / auth secrets
+**/jwt-secret*
+**/*secret*key*
+
+# API keys files
+**/api-keys*
+**/.apikeys
 
 # SSL / certificates
 *.key
