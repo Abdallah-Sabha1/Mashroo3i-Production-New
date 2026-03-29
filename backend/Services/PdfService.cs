@@ -2,6 +2,7 @@ using System.Text.Json;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using backend.Data;
+using backend.Models;
 using backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,10 @@ namespace backend.Services
                 .Include(i => i.User)
                 .Include(i => i.Evaluation)
                 .Include(i => i.FinancialPlan)
+                .Include(i => i.FinancialProjection)
+                    .ThenInclude(fp => fp!.Scenarios)
+                .Include(i => i.FinancialProjection)
+                    .ThenInclude(fp => fp!.Benchmark)
                 .FirstOrDefaultAsync(i => i.IdeaId == ideaId)
                 ?? throw new Exception("Idea not found");
 
@@ -96,6 +101,7 @@ namespace backend.Services
                 "12-Month Projection",
                 "Benchmark Comparisons",
                 "Assumptions",
+                "Financial Projections (Scenario Analysis)",
             };
             for (int i = 0; i < tocItems.Length; i++)
             {
@@ -379,7 +385,173 @@ namespace backend.Services
                 }
             }
 
-            // ── 11. Disclaimer ────────────────────────────────────────────────────
+            // ── 11. Financial Projections (Scenario Analysis) ────────────────────
+            if (idea.FinancialProjection != null)
+            {
+                var fp = idea.FinancialProjection;
+                document.NewPage();
+                AddSectionHeader(document, "11. Financial Projections (Scenario Analysis)", headingFont);
+
+                // Industry + business model info
+                var fpInfoTable = new PdfPTable(2) { WidthPercentage = 100, SpacingBefore = 6 };
+                fpInfoTable.SetWidths(new[] { 1f, 2f });
+                AddTableRow(fpInfoTable, "Industry",       fp.Benchmark?.IndustryNameEn ?? fp.SelectedIndustryType, boldFont, bodyFont);
+                AddTableRow(fpInfoTable, "Business Model", fp.SelectedBusinessModel,                               boldFont, bodyFont);
+                if (fp.Benchmark != null)
+                {
+                    AddTableRow(fpInfoTable, "Data Confidence", $"{fp.Benchmark.ConfidenceLevel} ({fp.Benchmark.Confidence * 100:F0}%)", boldFont, bodyFont);
+                    AddTableRow(fpInfoTable, "Region",          fp.Benchmark.Region,                                                       boldFont, bodyFont);
+                }
+                document.Add(fpInfoTable);
+
+                // Data sources
+                if (fp.Benchmark?.DataSourcesJson is not null)
+                {
+                    try
+                    {
+                        var sources = JsonSerializer.Deserialize<List<string>>(fp.Benchmark.DataSourcesJson) ?? new();
+                        if (sources.Count > 0)
+                        {
+                            document.Add(new Paragraph("Data Sources", subHeadingFont) { SpacingBefore = 14, SpacingAfter = 4 });
+                            var srcList = new List(List.UNORDERED);
+                            srcList.SetListSymbol("\u2022  ");
+                            foreach (var src in sources)
+                                srcList.Add(new ListItem(src, smallFont));
+                            document.Add(srcList);
+                        }
+                    }
+                    catch { }
+                }
+
+                // 3-Scenario side-by-side table
+                var optimistic   = fp.Scenarios.FirstOrDefault(s => s.ScenarioName == "Optimistic");
+                var realistic    = fp.Scenarios.FirstOrDefault(s => s.ScenarioName == "Realistic");
+                var pessimistic  = fp.Scenarios.FirstOrDefault(s => s.ScenarioName == "Pessimistic");
+
+                if (optimistic != null || realistic != null || pessimistic != null)
+                {
+                    document.Add(new Paragraph("Scenario Comparison (12 Months)", subHeadingFont) { SpacingBefore = 16, SpacingAfter = 8 });
+
+                    // Header row
+                    var scn3Table = new PdfPTable(4) { WidthPercentage = 100, SpacingBefore = 6 };
+                    scn3Table.SetWidths(new[] { 2f, 1.5f, 1.5f, 1.5f });
+                    var scnHeaderBg = new BaseColor(238, 242, 255);
+                    foreach (var h in new[] { "Metric", "Optimistic", "Realistic", "Pessimistic" })
+                    {
+                        scn3Table.AddCell(new PdfPCell(new Phrase(h, boldFont))
+                            { BackgroundColor = scnHeaderBg, Padding = 9, HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+
+                    static string BepLabel(int m) => m <= 0 ? "N/A" : m > 12 ? "> 12 mo" : $"{m} mo";
+                    static string RoiLabel(decimal r) => $"{r:F1}%";
+                    static string ProfitLabel(decimal p) => $"{Math.Round(p):N0} JOD";
+
+                    // Break-even row
+                    var bepBg = new BaseColor(240, 253, 244);
+                    scn3Table.AddCell(new PdfPCell(new Phrase("Break-even Month", boldFont)) { Padding = 8, BackgroundColor = LightGray, BorderColor = BaseColor.White });
+                    foreach (var s in new[] { optimistic, realistic, pessimistic })
+                    {
+                        scn3Table.AddCell(new PdfPCell(new Phrase(s != null ? BepLabel(s.BreakEvenMonth) : "—", bodyFont))
+                            { Padding = 8, HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+
+                    // ROI row
+                    scn3Table.AddCell(new PdfPCell(new Phrase("12-Month ROI", boldFont)) { Padding = 8, BackgroundColor = LightGray, BorderColor = BaseColor.White });
+                    foreach (var s in new[] { optimistic, realistic, pessimistic })
+                    {
+                        scn3Table.AddCell(new PdfPCell(new Phrase(s != null ? RoiLabel(s.ROI12Months) : "—", bodyFont))
+                            { Padding = 8, HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+
+                    // Total profit row
+                    scn3Table.AddCell(new PdfPCell(new Phrase("Total 12-Month Profit", boldFont)) { Padding = 8, BackgroundColor = LightGray, BorderColor = BaseColor.White });
+                    foreach (var s in new[] { optimistic, realistic, pessimistic })
+                    {
+                        var profit = s?.TotalProfit12Months ?? 0;
+                        var profitFont = profit >= 0
+                            ? FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, new BaseColor(22, 163, 74))
+                            : FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, new BaseColor(220, 38, 38));
+                        scn3Table.AddCell(new PdfPCell(new Phrase(s != null ? ProfitLabel(profit) : "—", profitFont))
+                            { Padding = 8, HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+
+                    // Cumulative cash flow row
+                    scn3Table.AddCell(new PdfPCell(new Phrase("Cumulative Cash Flow", boldFont)) { Padding = 8, BackgroundColor = LightGray, BorderColor = BaseColor.White });
+                    foreach (var s in new[] { optimistic, realistic, pessimistic })
+                    {
+                        var cf = s?.CumulativeCashFlow12Months ?? 0;
+                        var cfFont = cf >= 0
+                            ? FontFactory.GetFont(FontFactory.HELVETICA, 10, new BaseColor(22, 163, 74))
+                            : FontFactory.GetFont(FontFactory.HELVETICA, 10, new BaseColor(220, 38, 38));
+                        scn3Table.AddCell(new PdfPCell(new Phrase(s != null ? ProfitLabel(cf) : "—", cfFont))
+                            { Padding = 8, HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+
+                    document.Add(scn3Table);
+                }
+
+                // Monthly data table — Realistic scenario only
+                if (realistic != null && !string.IsNullOrEmpty(realistic.MonthlyDataJson))
+                {
+                    try
+                    {
+                        var monthlyRows = JsonSerializer.Deserialize<List<MonthlyProjectionData>>(
+                            realistic.MonthlyDataJson,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+
+                        if (monthlyRows.Count > 0)
+                        {
+                            document.Add(new Paragraph("Monthly Breakdown — Realistic Scenario", subHeadingFont) { SpacingBefore = 18, SpacingAfter = 8 });
+
+                            var mTable = new PdfPTable(6) { WidthPercentage = 100, SpacingBefore = 6 };
+                            mTable.SetWidths(new[] { 0.6f, 1.3f, 1.3f, 1.3f, 0.9f, 1.5f });
+                            var mHeaderBg = new BaseColor(238, 242, 255);
+                            foreach (var h in new[] { "Mo.", "Revenue", "Costs", "Profit", "Margin", "Cum. Cash Flow" })
+                            {
+                                mTable.AddCell(new PdfPCell(new Phrase(h, boldFont))
+                                    { BackgroundColor = mHeaderBg, Padding = 7, HorizontalAlignment = Element.ALIGN_CENTER });
+                            }
+
+                            foreach (var row in monthlyRows.Take(12))
+                            {
+                                var profitColor = row.Profit >= 0
+                                    ? new BaseColor(22, 163, 74)
+                                    : new BaseColor(220, 38, 38);
+                                var profitRowFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 9, profitColor);
+
+                                mTable.AddCell(new PdfPCell(new Phrase($"M{row.Month}", smallFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                                mTable.AddCell(new PdfPCell(new Phrase($"{Math.Round(row.Revenue):N0}", bodyFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+                                mTable.AddCell(new PdfPCell(new Phrase($"{Math.Round(row.Costs):N0}", bodyFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+                                mTable.AddCell(new PdfPCell(new Phrase($"{Math.Round(row.Profit):N0}", profitRowFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+                                mTable.AddCell(new PdfPCell(new Phrase($"{row.MarginPercent:F1}%", bodyFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_CENTER });
+                                mTable.AddCell(new PdfPCell(new Phrase($"{Math.Round(row.CumulativeCashFlow):N0}", bodyFont))
+                                    { Padding = 6, HorizontalAlignment = Element.ALIGN_RIGHT });
+                            }
+                            document.Add(mTable);
+                            document.Add(new Paragraph("All figures in JOD.", smallFont) { SpacingBefore = 5 });
+                        }
+                    }
+                    catch { }
+                }
+
+                // Arabic disclaimer note
+                document.Add(new Paragraph("\n"));
+                var fpDisclTable = new PdfPTable(1) { WidthPercentage = 100 };
+                fpDisclTable.AddCell(new PdfPCell(new Phrase(
+                    "هذه التوقعات مبنية على بيانات مرجعية من مشاريع مماثلة في عمّان ولا تُعدّ ضماناً للنتائج الفعلية.",
+                    smallFont))
+                {
+                    BackgroundColor = new BaseColor(238, 242, 255), Padding = 10, BorderColor = BaseColor.White
+                });
+                document.Add(fpDisclTable);
+            }
+
+            // ── 12. Disclaimer ────────────────────────────────────────────────────
             document.Add(new Paragraph("\n\n"));
             var disclaimerTable = new PdfPTable(1) { WidthPercentage = 100 };
             var disclaimerCell = new PdfPCell(new Phrase(

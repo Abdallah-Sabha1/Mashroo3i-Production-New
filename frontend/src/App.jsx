@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'))
 const SubmitIdea = lazy(() => import('./pages/SubmitIdea'))
 const Evaluation = lazy(() => import('./pages/Evaluation'))
 const Financial = lazy(() => import('./pages/Financial'))
+const FinancialProjections = lazy(() => import('./pages/FinancialProjections'))
 const BusinessPlan = lazy(() => import('./pages/BusinessPlan'))
 const Profile = lazy(() => import('./pages/Profile'))
 
@@ -38,6 +39,7 @@ const App = () => {
           <Route path="/submit-idea" element={<ProtectedRoute><SubmitIdea /></ProtectedRoute>} />
           <Route path="/evaluation/:ideaId" element={<ProtectedRoute><Evaluation /></ProtectedRoute>} />
           <Route path="/financial/:ideaId" element={<ProtectedRoute><Financial /></ProtectedRoute>} />
+          <Route path="/financial-projections/:ideaId" element={<ProtectedRoute><FinancialProjections /></ProtectedRoute>} />
           <Route path="/business-plan/:ideaId" element={<ProtectedRoute><BusinessPlan /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />

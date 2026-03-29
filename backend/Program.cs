@@ -115,6 +115,7 @@ builder.Services.AddScoped<IIdeaAnalysisService, IdeaAnalysisService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddSingleton<IBenchmarkService, BenchmarkService>();
+builder.Services.AddScoped<IFinancialProjectionService, FinancialProjectionService>();
 builder.Services.AddHttpClient<GeminiAIService>();
 
 var app = builder.Build();
@@ -133,11 +134,15 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
 
-// Auto-migrate on startup
+// Auto-migrate and seed on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try { db.Database.Migrate(); }
+    try
+    {
+        db.Database.Migrate();
+        BenchmarkSeeder.SeedBenchmarks(db);
+    }
     catch { db.Database.EnsureCreated(); }
 }
 
