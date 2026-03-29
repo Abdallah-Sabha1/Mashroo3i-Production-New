@@ -421,12 +421,16 @@ const Evaluation = () => {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-3 pt-2"
           >
-            <Button onClick={() => navigate(`/financial/${ideaId}`)} className="flex-1">
-              Continue to Financial Plan
+            {/* New benchmark-driven projections */}
+            <Button onClick={() => navigate(`/financial-projections/${ideaId}`)} className="flex-1">
+              Financial Projections
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
+            </Button>
+            <Button variant="secondary" onClick={() => navigate(`/financial/${ideaId}`)} className="flex-1">
+              Classic Financial Plan
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/business-plan/${ideaId}`)} className="flex-1">
               Download Business Plan

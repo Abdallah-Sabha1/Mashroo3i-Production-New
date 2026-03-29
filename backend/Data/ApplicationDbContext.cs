@@ -11,6 +11,9 @@ namespace backend.Data
         public DbSet<BusinessIdea> BusinessIdeas { get; set; }
         public DbSet<Evaluation> Evaluations { get; set; }
         public DbSet<FinancialPlan> FinancialPlans { get; set; }
+        public DbSet<IndustryBenchmark> IndustryBenchmarks { get; set; }
+        public DbSet<FinancialProjection> FinancialProjections { get; set; }
+        public DbSet<ProjectionScenario> ProjectionScenarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -69,6 +72,79 @@ namespace backend.Data
                 entity.HasOne(e => e.BusinessIdea)
                     .WithOne(i => i.FinancialPlan)
                     .HasForeignKey<FinancialPlan>(e => e.IdeaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // IndustryBenchmark
+            modelBuilder.Entity<IndustryBenchmark>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.IndustryType, e.BusinessModel });
+                entity.Property(e => e.Confidence).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.StartupCostLow).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.StartupCostMid).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.StartupCostHigh).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyCostLow).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyCostHigh).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyCostTypical).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.GrossMarginLow).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.GrossMarginHigh).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.GrossMarginTypical).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.NetMarginLow).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.NetMarginHigh).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.NetMarginTypical).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.AverageOrderValueLow).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.AverageOrderValueHigh).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.AverageOrderValueTypical).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyGrowthRatePercent).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.AverageCACTypical).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.MonthlyChurnRateLow).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.MonthlyChurnRateHigh).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.MonthlyChurnRateTypical).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.CustomerRetentionRatePercent).HasColumnType("decimal(5,2)");
+            });
+
+            // FinancialProjection
+            modelBuilder.Entity<FinancialProjection>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.BusinessIdeaId).IsUnique();
+                entity.HasIndex(e => e.BenchmarkId);
+                entity.Property(e => e.EffectiveInitialInvestment).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.EffectiveMonthlyRevenue).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.EffectiveGrossMargin).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.UserInitialInvestment).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.UserMonthlyRevenueAssumption).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.UserProfitMarginAssumption).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.UserMonthlyGrowthRate).HasColumnType("decimal(5,2)");
+
+                entity.HasOne(e => e.BusinessIdea)
+                    .WithOne(i => i.FinancialProjection)
+                    .HasForeignKey<FinancialProjection>(e => e.BusinessIdeaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Benchmark)
+                    .WithMany(b => b.FinancialProjections)
+                    .HasForeignKey(e => e.BenchmarkId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ProjectionScenario
+            modelBuilder.Entity<ProjectionScenario>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.FinancialProjectionId);
+                entity.Property(e => e.ROI12Months).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TotalProfit12Months).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.CumulativeCashFlow12Months).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.AvgMonthlyRevenue).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.AvgMonthlyProfit).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.RevenueMultiplier).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.CostMultiplier).HasColumnType("decimal(5,2)");
+
+                entity.HasOne(e => e.FinancialProjection)
+                    .WithMany(p => p.Scenarios)
+                    .HasForeignKey(e => e.FinancialProjectionId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

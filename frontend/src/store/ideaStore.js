@@ -5,6 +5,9 @@ const INITIAL_WIZARD = {
   title: '',
   description: '',
   sector: '',
+  // Financial Projections wizard
+  selectedIndustryType: '',
+  selectedBusinessModel: '',
   // Step 2 — from AI
   problemStatement: '',
   uniqueSellingPoint: '',

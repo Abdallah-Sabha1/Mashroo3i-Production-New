@@ -17,9 +17,14 @@ namespace backend.Models
         public string Status { get; set; } = "submitted";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Added for Financial Projections wizard
+        public string? SelectedIndustryType { get; set; }
+        public string? SelectedBusinessModel { get; set; }
+
         public User User { get; set; } = null!;
         public Evaluation? Evaluation { get; set; }
         public FinancialPlan? FinancialPlan { get; set; }
+        public virtual FinancialProjection? FinancialProjection { get; set; }
 
         public const string StatusSubmitted = "submitted";
         public const string StatusAnalyzing = "analyzing";
