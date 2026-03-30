@@ -3,6 +3,7 @@
     "appName": "Mashroo3i",
     "loading": "Loading...",
     "error": "An error occurred",
+    "errorLoadingData": "Could not load data. Please check your connection and try again.",
     "save": "Save",
     "cancel": "Cancel",
     "next": "Next",
@@ -380,14 +381,10 @@
       "projections": "Projections"
     },
     "stepTitles": {
-      "1": "Choose your industry",
-      "2": "Choose your business model",
-      "3": "Your 12-month financial projections"
+      "projections": "Your 12-month financial projections"
     },
     "stepSubtitles": {
-      "1": "Based on your sector, we'll use benchmark data from similar businesses in Amman",
-      "2": "Do you sell to individuals or businesses? This affects pricing and projections",
-      "3": "Compare possible scenarios and customize assumptions based on your plans"
+      "projections": "Compare possible scenarios and customize assumptions based on your plans"
     },
     "previous": "Previous",
     "next": "Next",
@@ -417,15 +414,22 @@
     },
     "projections": {
       "assumptionsTitle": "Financial Assumptions",
-      "assumptionsSubtitle": "Default values from benchmark data — you can edit them",
+      "assumptionsSubtitle": "Default values from benchmark data — adjust them if needed",
       "reset": "Reset",
       "recalculate": "Recalculate",
       "calculating": "Calculating...",
+      "benchmark": "Industry benchmark",
       "inputs": {
-        "investment": "Initial Investment (JOD)",
-        "revenue": "Expected Monthly Revenue (JOD)",
-        "margin": "Gross Profit Margin (%)",
-        "growth": "Monthly Growth Rate (%)"
+        "investment": "Initial Investment",
+        "revenue": "Monthly Revenue",
+        "margin": "Gross Profit Margin",
+        "growth": "Monthly Growth Rate"
+      },
+      "help": {
+        "investment": "Total upfront costs to start the business. Adjust up or down based on your plan.",
+        "revenue": "Expected sales per month. Adjust based on your pricing and expected customer count.",
+        "margin": "The percentage of each sale that becomes profit. Adjust if you expect different pricing or costs.",
+        "growth": "Monthly sales growth rate. Adjust based on your growth strategy and market conditions."
       },
       "scenarios": {
         "optimistic": "Optimistic",

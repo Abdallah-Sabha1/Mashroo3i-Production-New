@@ -34,11 +34,12 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   const [activeTab, setActiveTab]   = useState('realisticScenario')
   const [showTable, setShowTable]   = useState(false)
 
-  // Editable assumptions
-  const [investment, setInvestment]   = useState('')
-  const [revenue, setRevenue]         = useState('')
-  const [margin, setMargin]           = useState('')
-  const [growth, setGrowth]           = useState('')
+  // Adjustment percentages (instead of asking for raw numbers)
+  const [investmentAdj, setInvestmentAdj] = useState(0)    // ±% from benchmark
+  const [revenueAdj, setRevenueAdj]       = useState(0)    // ±% from benchmark
+  const [marginAdj, setMarginAdj]         = useState(0)    // ±% from benchmark
+  const [growthAdj, setGrowthAdj]         = useState(0)    // ±% from benchmark
+  const [useBenchmark, setUseBenchmark]   = useState(true) // Use benchmark defaults
 
   // Initial load — create projection from benchmark
   useEffect(() => {
@@ -48,16 +49,13 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
 
     financialProjectionService.getProjection(ideaId)
       .then(res => {
-        if (!active) return
+        if (active) return
         setProjection(res.data)
-        syncFormFromProjection(res.data)
       })
       .catch(() => {
         financialProjectionService.createProjection(ideaId, { industryType, businessModel })
           .then(res => {
-            if (!active) return
-            setProjection(res.data)
-            syncFormFromProjection(res.data)
+            if (active) setProjection(res.data)
           })
           .catch(() => { if (active) setError(t('financialWizard.projections.errorMsg')) })
       })
@@ -66,22 +64,49 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
     return () => { active = false }
   }, [ideaId, industryType, businessModel])
 
-  const syncFormFromProjection = (proj) => {
-    setInvestment(proj.userInitialInvestment ?? proj.effectiveInitialInvestment ?? '')
-    setRevenue(proj.userMonthlyRevenueAssumption ?? proj.effectiveMonthlyRevenue ?? '')
-    setMargin(proj.userProfitMarginAssumption ?? proj.effectiveGrossMargin ?? '')
-    setGrowth(proj.userMonthlyGrowthRate ?? proj.benchmark?.monthlyGrowthRatePercent ?? '')
-  }
-
   const handleRecalculate = async () => {
+    if (useBenchmark && investmentAdj === 0 && revenueAdj === 0 && marginAdj === 0 && growthAdj === 0) {
+      // Reset to benchmark — no custom values
+      setRecalculating(true)
+      setError(null)
+      try {
+        const res = await financialProjectionService.updateProjection(ideaId, {
+          initialInvestment: undefined,
+          monthlyRevenue:    undefined,
+          profitMargin:      undefined,
+          growthRate:        undefined,
+        })
+        setProjection(res.data)
+      } catch {
+        setError(t('financialWizard.projections.recalcError'))
+      } finally {
+        setRecalculating(false)
+      }
+      return
+    }
+
+    // Calculate adjusted values from benchmark
+    const bm = projection?.benchmark
+    if (!bm || !projection) return
+
+    const benchInvest = projection.effectiveInitialInvestment || bm.startupCostMid || 0
+    const benchRevenue = projection.effectiveMonthlyRevenue || 0
+    const benchMargin = projection.effectiveGrossMargin || bm.grossMarginTypical || 0
+    const benchGrowth = bm.monthlyGrowthRatePercent || 0
+
+    const adjustedInvest = benchInvest * (1 + investmentAdj / 100)
+    const adjustedRevenue = benchRevenue * (1 + revenueAdj / 100)
+    const adjustedMargin = benchMargin + marginAdj
+    const adjustedGrowth = benchGrowth + growthAdj
+
     setRecalculating(true)
     setError(null)
     try {
       const res = await financialProjectionService.updateProjection(ideaId, {
-        initialInvestment: investment ? parseFloat(investment) : undefined,
-        monthlyRevenue:    revenue    ? parseFloat(revenue)    : undefined,
-        profitMargin:      margin     ? parseFloat(margin)     : undefined,
-        growthRate:        growth     ? parseFloat(growth)     : undefined,
+        initialInvestment: adjustedInvest,
+        monthlyRevenue:    adjustedRevenue,
+        profitMargin:      adjustedMargin,
+        growthRate:        adjustedGrowth,
       })
       setProjection(res.data)
     } catch {
@@ -92,8 +117,12 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   }
 
   const handleReset = () => {
-    if (!projection) return
-    syncFormFromProjection({ ...projection, userInitialInvestment: null, userMonthlyRevenueAssumption: null, userProfitMarginAssumption: null, userMonthlyGrowthRate: null })
+    setInvestmentAdj(0)
+    setRevenueAdj(0)
+    setMarginAdj(0)
+    setGrowthAdj(0)
+    setUseBenchmark(true)
+    if (projection) handleRecalculate()
   }
 
   if (loading) return (
@@ -122,11 +151,43 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   const scene = projection?.[activeTab]
   const tab   = SCENARIO_TABS.find(t => t.key === activeTab)
 
-  const inputFields = [
-    { label: t('financialWizard.projections.inputs.investment'), value: investment, set: setInvestment, ph: bm ? Math.round(bm.startupCostMid) : '' },
-    { label: t('financialWizard.projections.inputs.revenue'),    value: revenue,    set: setRevenue,    ph: projection ? Math.round(projection.effectiveMonthlyRevenue) : '' },
-    { label: t('financialWizard.projections.inputs.margin'),     value: margin,     set: setMargin,     ph: bm ? bm.grossMarginTypical : '' },
-    { label: t('financialWizard.projections.inputs.growth'),     value: growth,     set: setGrowth,     ph: bm ? bm.monthlyGrowthRatePercent : '' },
+  // Calculate effective benchmark values
+  const bmInvest = projection?.effectiveInitialInvestment || bm?.startupCostMid || 0
+  const bmRevenue = projection?.effectiveMonthlyRevenue || 0
+  const bmMargin = projection?.effectiveGrossMargin || bm?.grossMarginTypical || 0
+  const bmGrowth = bm?.monthlyGrowthRatePercent || 0
+
+  const adjustmentFields = [
+    {
+      label: t('financialWizard.projections.inputs.investment'),
+      help: t('financialWizard.projections.help.investment'),
+      benchmark: Math.round(bmInvest),
+      value: investmentAdj,
+      set: setInvestmentAdj,
+    },
+    {
+      label: t('financialWizard.projections.inputs.revenue'),
+      help: t('financialWizard.projections.help.revenue'),
+      benchmark: Math.round(bmRevenue),
+      value: revenueAdj,
+      set: setRevenueAdj,
+    },
+    {
+      label: t('financialWizard.projections.inputs.margin'),
+      help: t('financialWizard.projections.help.margin'),
+      benchmark: Math.round(bmMargin),
+      value: marginAdj,
+      set: setMarginAdj,
+      isPercent: true,
+    },
+    {
+      label: t('financialWizard.projections.inputs.growth'),
+      help: t('financialWizard.projections.help.growth'),
+      benchmark: Math.round(bmGrowth * 10) / 10,
+      value: growthAdj,
+      set: setGrowthAdj,
+      isPercent: true,
+    },
   ]
 
   return (
@@ -135,7 +196,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       {/* 1 ── Benchmark banner */}
       {bm && <BenchmarkInfoCard benchmark={bm} />}
 
-      {/* 2 ── Editable assumptions */}
+      {/* 2 ── Benchmark-based assumptions */}
       <div className="rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between gap-3">
           <div>
@@ -153,27 +214,56 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
           </button>
         </div>
 
-        <div className="p-5 grid grid-cols-2 gap-4">
-          {inputFields.map(({ label, value, set, ph }) => (
-            <div key={label} className="col-span-2 sm:col-span-1">
-              <label className="block text-xs font-medium text-slate-600 dark:text-gray-400 mb-1">{label}</label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={value}
-                onChange={e => set(e.target.value)}
-                placeholder={String(ph)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700
-                  bg-white dark:bg-gray-800 text-slate-900 dark:text-white
-                  placeholder-slate-300 dark:placeholder-gray-600
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-          ))}
+        <div className="p-5 space-y-4">
+          {adjustmentFields.map(({ label, help, benchmark, value, set, isPercent }) => {
+            const adjusted = isPercent
+              ? benchmark + value
+              : Math.round(benchmark * (1 + value / 100))
+            return (
+              <div key={label}>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-gray-300">{label}</label>
+                  <div className="text-xs text-slate-500 dark:text-gray-400">
+                    <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.projections.benchmark')}:</span>
+                    {' '}
+                    <span className="font-semibold text-slate-700 dark:text-gray-300">
+                      {benchmark.toLocaleString()}{isPercent ? '%' : ' JOD'}
+                    </span>
+                    {value !== 0 && (
+                      <>
+                        {' → '}
+                        <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+                          {adjusted.toLocaleString()}{isPercent ? '%' : ' JOD'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400 dark:text-gray-500 mb-2">{help}</p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min={isPercent ? '-50' : '-75'}
+                    max={isPercent ? '50' : '75'}
+                    step="5"
+                    value={value}
+                    onChange={e => set(parseInt(e.target.value))}
+                    className="flex-1 h-2 bg-slate-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer
+                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+                      [&::-webkit-slider-thumb]:bg-indigo-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
+                      [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-indigo-600
+                      [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
+                  />
+                  <span className="text-sm font-medium text-slate-700 dark:text-gray-300 min-w-[3.5rem] text-right">
+                    {value > 0 ? '+' : ''}{value}%
+                  </span>
+                </div>
+              </div>
+            )
+          })}
         </div>
 
-        <div className="px-5 pb-5">
+        <div className="px-5 pb-5 pt-2">
           <button
             onClick={handleRecalculate}
             disabled={recalculating}
