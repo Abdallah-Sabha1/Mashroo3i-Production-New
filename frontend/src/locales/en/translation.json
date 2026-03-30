@@ -1,0 +1,486 @@
+{
+  "common": {
+    "appName": "Mashroo3i",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "back": "Back",
+    "submit": "Submit",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close",
+    "download": "Download",
+    "print": "Print",
+    "currency": "JOD",
+    "months": "months",
+    "typical": "typical",
+    "notSpecified": "Not specified",
+    "na": "N/A",
+    "tryAgain": "Try Again",
+    "retry": "Retry",
+    "startNow": "Start Now",
+    "skip": "Skip"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newIdea": "New Idea",
+    "profile": "Profile",
+    "signIn": "Sign in",
+    "getStarted": "Get Started",
+    "signOut": "Sign out",
+    "features": "Features",
+    "about": "About",
+    "toggleLanguage": "عربي",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode"
+  },
+  "footer": {
+    "disclaimer": "Mashroo3i benchmarks and evaluations are built for entrepreneurs in Amman, Jordan. Results may not apply to other cities or regions."
+  },
+  "landing": {
+    "badge": "Now available for Jordanian entrepreneurs",
+    "heroTitle": "Validate your ideas",
+    "heroTitleHighlight": "with AI",
+    "heroSubtitle": "Mashroo3i evaluates your business ideas, creates financial plans, and generates professional business plans tailored for the Jordanian market.",
+    "startFree": "Start Free",
+    "tryFree": "Try it Free",
+    "builtFor": "Built for entrepreneurs in",
+    "ammanJordan": "Amman, Jordan",
+    "stats": {
+      "time": "Get your full analysis",
+      "sectors": "Amman market coverage",
+      "free": "Always free to start"
+    },
+    "features": {
+      "label": "Features",
+      "title": "Everything you need to launch",
+      "subtitle": "From idea validation to investor-ready business plans.",
+      "aiEval": { "title": "AI-Powered Evaluation", "desc": "Get instant, data-driven analysis of your business idea with our advanced evaluation engine." },
+      "financial": { "title": "Financial Planning", "desc": "Comprehensive financial projections with break-even analysis and 24-month forecasts." },
+      "pdf": { "title": "Business Plan Generator", "desc": "Generate professional, investor-ready business plans in PDF format instantly." },
+      "market": { "title": "Market Analysis", "desc": "Understand your target market with detailed competition and growth potential analysis." },
+      "swot": { "title": "SWOT Analysis", "desc": "Identify strengths, weaknesses, opportunities, and threats specific to your sector." },
+      "growth": { "title": "Growth Tracking", "desc": "Monitor your business progress with visual dashboards and performance metrics." }
+    },
+    "cta": {
+      "title": "Ready to bring your idea to life?",
+      "subtitle": "Join entrepreneurs building the future with Mashroo3i.",
+      "button": "Start for Free"
+    }
+  },
+  "auth": {
+    "login": {
+      "subtitle": "Sign in to your account",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "invalidCredentials": "Invalid email or password."
+      }
+    },
+    "register": {
+      "subtitle": "Create your account",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Min 8 characters",
+      "education": "Education",
+      "educationPlaceholder": "e.g., BS Computer Science",
+      "experience": "Experience",
+      "experiencePlaceholder": "e.g., 3 years in marketing",
+      "businessInterest": "Business Interest",
+      "businessInterestPlaceholder": "e.g., Technology, Food & Beverage",
+      "createAccount": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 8 characters",
+        "failed": "Registration failed. Please try again."
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back,",
+    "subtitle": "Here's an overview of your business ideas",
+    "stats": {
+      "totalIdeas": "Total Ideas",
+      "totalIdeasDesc": "All submitted ideas",
+      "evaluations": "Evaluations",
+      "evaluationsDesc": "{{pct}}% completion",
+      "avgScore": "Avg Score",
+      "avgScoreDesc": "Out of 100",
+      "successRate": "Success Rate",
+      "successRateDesc": "Score above 60"
+    },
+    "quickAction": {
+      "title": "Ready to evaluate your next idea?",
+      "subtitle": "Submit a business idea and get AI-powered analysis in minutes",
+      "button": "New Idea"
+    },
+    "ideas": {
+      "title": "Your Ideas",
+      "empty": "No ideas yet",
+      "emptySub": "Submit your first business idea to get started.",
+      "submitFirst": "Submit Your First Idea",
+      "howItWorks": "How does it work?",
+      "viewResults": "View Results",
+      "financialPlan": "Financial Plan",
+      "evaluate": "Evaluate"
+    },
+    "delete": {
+      "title": "Delete this idea?",
+      "body": "This will permanently delete the idea and all its evaluations. This cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+  "submitIdea": {
+    "title": "Tell us about your idea",
+    "subtitle": "We'll analyze it and build a financial model tailored to the Amman market.",
+    "stepOf": "Step {{step}} of {{total}}",
+    "steps": ["Your Idea", "AI Analysis", "Your Business", "Review"],
+    "footer": "📍 Mashroo3i is built for entrepreneurs in Amman, Jordan",
+    "step0": {
+      "titleLabel": "What is your business idea called?",
+      "titlePlaceholder": "e.g. Specialty coffee shop in Abdoun",
+      "titleMin": "Enter at least 5 characters",
+      "descLabel": "Describe your idea",
+      "descHint": "What does it do? What problem does it solve? The more detail you give, the better our analysis.",
+      "descPlaceholder": "e.g. I want to open a café in Sweifieh that focuses on specialty coffee and remote work space...",
+      "descMore": "{{count}} more characters needed",
+      "descGood": "Good length",
+      "descChars": "{{count}} chars",
+      "sectorLabel": "What field is your idea in?",
+      "sectorError": "Please select a sector to continue",
+      "analyzeBtn": "Analyze My Idea →",
+      "sectors": {
+        "food_and_beverage": { "label": "Food & Beverage", "desc": "Restaurants, cafés, catering, food delivery" },
+        "retail_ecommerce": { "label": "Retail & E-commerce", "desc": "Online or physical store, products, reselling" },
+        "tech_and_software": { "label": "Tech & Software", "desc": "Apps, websites, digital tools, software" },
+        "education_and_training": { "label": "Education & Training", "desc": "Tutoring, courses, coaching, training" },
+        "health_and_wellness": { "label": "Health & Wellness", "desc": "Gym, clinic, nutrition, beauty, personal care" },
+        "professional_services": { "label": "Professional Services", "desc": "Consulting, marketing, accounting, design, IT" },
+        "other": { "label": "Other", "desc": "Doesn't fit the above categories" }
+      },
+      "budgetHints": {
+        "food_and_beverage": "Typical in Amman: 8,000–40,000 JOD",
+        "retail_ecommerce": "Typical in Amman: 2,000–30,000 JOD",
+        "tech_and_software": "Typical in Amman: 3,000–25,000 JOD",
+        "education_and_training": "Typical in Amman: 1,500–20,000 JOD",
+        "health_and_wellness": "Typical in Amman: 5,000–60,000 JOD",
+        "professional_services": "Typical in Amman: 500–8,000 JOD",
+        "other": "Typical for small businesses in Amman: 2,000–20,000 JOD"
+      }
+    },
+    "step1": {
+      "loading": ["Reading your idea...", "Thinking about Amman market...", "Identifying your customers...", "Almost ready..."],
+      "analysisComplete": "Analysis complete",
+      "insightsTitle": "Here's what we understand about your idea",
+      "editBtn": "Edit",
+      "doneBtn": "Done",
+      "cards": {
+        "problemStatement": "The problem you're solving",
+        "uniqueSellingPoint": "What makes it different",
+        "targetAudience": "Who it's for"
+      },
+      "bizTypeIntro": "Based on your idea, this looks like a",
+      "b2bLabel": "B2B business (selling to other businesses)",
+      "b2cLabel": "B2C business (selling directly to people)",
+      "confirm": "Does this sound right?",
+      "yesB2C": "Yes, selling to people",
+      "noB2B": "No, selling to businesses",
+      "continueBtn": "Continue →",
+      "editDesc": "Edit my description"
+    },
+    "step2": {
+      "budgetLabel": "How much money do you have to start? (JOD)",
+      "budgetPlaceholder": "e.g. 15000",
+      "regionLabel": "Where in Amman will you operate?",
+      "regions": {
+        "west": { "label": "West Amman", "sub": "Abdoun, Sweifieh" },
+        "central": { "label": "Central Amman", "sub": "Downtown, Jabal" },
+        "east": { "label": "East Amman", "sub": "Zarqa Road, Marka" }
+      },
+      "back": "← Back",
+      "continue": "Continue →"
+    },
+    "step3": {
+      "title": "Review before submitting",
+      "subtitle": "Make sure everything looks right.",
+      "sectionIdea": "Your Idea",
+      "sectionAI": "AI Insights",
+      "problem": "Problem",
+      "different": "What makes it different",
+      "sectionBizType": "Business Type",
+      "b2b": "Selling to businesses (B2B)",
+      "b2c": "Selling to people (B2C)",
+      "sectionDetails": "Your Details",
+      "budget": "Starting budget",
+      "location": "Location",
+      "back": "← Back",
+      "submitting": "Submitting...",
+      "submitBtn": "Submit for Evaluation →",
+      "successToast": "Idea submitted successfully!"
+    }
+  },
+  "evaluation": {
+    "backToDashboard": "Back to Dashboard",
+    "evaluationResults": "Evaluation Results",
+    "loadingEval": "Loading evaluation...",
+    "aiMessages": ["Reading your idea...", "Thinking about the Amman market...", "Analyzing competition...", "Almost ready..."],
+    "tryAgain": "Try again",
+    "evalFailed": {
+      "title": "Evaluation did not complete",
+      "body": "The AI analysis failed to generate a score. This can happen when the service is busy or the idea description is too short.",
+      "retry": "Try evaluating again →"
+    },
+    "rateLimited": "Our AI is temporarily busy. Please wait a minute and try again.",
+    "verdicts": {
+      "promising": "Promising",
+      "needsRefinement": "Needs Refinement",
+      "highRisk": "High Risk"
+    },
+    "scores": {
+      "title": "Evaluation Scores",
+      "subtitle": "Based on Amman market conditions and your {{type}} business type",
+      "novelty": "HOW ORIGINAL IS YOUR IDEA",
+      "market": "MARKET OPPORTUNITY",
+      "overall": "OVERALL VIABILITY SCORE",
+      "riskAssessment": "Risk Assessment",
+      "scoreDescs": {
+        "noveltyHigh": "Very original for Amman",
+        "noveltyMid": "Somewhat unique — needs differentiation",
+        "noveltyLow": "Common idea — strong differentiator needed",
+        "marketHigh": "Strong market demand in Amman",
+        "marketMid": "Moderate market — find your niche",
+        "marketLow": "Challenging market conditions",
+        "overallHigh": "Strong potential",
+        "overallMid": "Needs significant work",
+        "overallLow": "Rethink before investing"
+      }
+    },
+    "swot": {
+      "title": "SWOT Analysis",
+      "subtitle": "Strengths, weaknesses, opportunities, and threats specific to your idea in Amman"
+    },
+    "recommendations": {
+      "title": "What to do next"
+    },
+    "actions": {
+      "financialProjections": "Financial Projections",
+      "classicPlan": "Classic Financial Plan",
+      "downloadPlan": "Download Business Plan",
+      "reEvaluate": "Re-evaluate this idea",
+      "confirmReEval": "This will delete the current evaluation and generate a new one. Continue?"
+    }
+  },
+  "businessPlan": {
+    "backToDashboard": "Back to Dashboard",
+    "title": "Business Plan",
+    "print": "Print",
+    "downloadPdf": "Download PDF",
+    "preparedBy": "Prepared by:",
+    "date": "Date:",
+    "market": "Market:",
+    "toc": "Table of Contents",
+    "tocItems": ["Executive Summary", "Business Description", "AI Verdict", "Evaluation Scores", "SWOT Analysis", "What to do next", "Financial Projections"],
+    "sections": {
+      "execSummary": "Executive Summary",
+      "problemStatement": "Problem Statement",
+      "usp": "Unique Selling Point",
+      "businessDesc": "Business Description",
+      "sector": "Sector",
+      "region": "Region",
+      "budget": "Starting Budget",
+      "competition": "Competition",
+      "targetAudience": "Target Audience",
+      "marketSize": "Market Size",
+      "aiVerdict": "AI Verdict",
+      "howOriginal": "How original",
+      "marketOpportunity": "Market opportunity",
+      "overallScore": "Overall score",
+      "riskAssessment": "Risk assessment",
+      "swot": "SWOT Analysis",
+      "strengths": "Strengths",
+      "weaknesses": "Weaknesses",
+      "opportunities": "Opportunities",
+      "threats": "Threats",
+      "marketAnalysis": "Market Analysis",
+      "targetMarket": "Target Market",
+      "competitionLevel": "Competition Level",
+      "notAssessed": "Not assessed",
+      "financialProjections": "Financial Projections",
+      "startingBudget": "Starting budget",
+      "monthlyIncome": "Monthly income",
+      "monthlyExpenses": "Monthly expenses",
+      "breakEven": "Time to break even",
+      "roi": "2-year return on investment (ROI)",
+      "whatNext": "What to do next"
+    }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your account information",
+    "personalInfo": "Personal Information",
+    "fullName": "Full Name",
+    "email": "Email",
+    "education": "Education",
+    "educationPlaceholder": "e.g., BS Computer Science",
+    "experience": "Experience",
+    "experiencePlaceholder": "e.g., 3 years in marketing",
+    "businessInterest": "Business Interest",
+    "businessInterestPlaceholder": "e.g., Technology, Healthcare",
+    "updateProfile": "Update Profile",
+    "updateSuccess": "Profile updated successfully!",
+    "account": "Account",
+    "signOut": "Sign Out",
+    "nameRequired": "Name is required"
+  },
+  "onboarding": {
+    "steps": [
+      {
+        "title": "Submit your idea",
+        "body": "Describe your business idea in plain words. No experience needed — our AI reads it and understands it."
+      },
+      {
+        "title": "Get an honest AI evaluation",
+        "body": "Our AI scores your idea against Amman market data, identifies risks, and gives you specific recommendations."
+      },
+      {
+        "title": "Build a realistic financial plan",
+        "body": "Add your products, set a price, and tell us how many customers you expect. We calculate your break-even and 3 realistic scenarios."
+      }
+    ],
+    "skip": "Skip",
+    "next": "Next",
+    "startNow": "Start now"
+  },
+  "financialWizard": {
+    "backToAnalysis": "Back to Analysis",
+    "steps": {
+      "industry": "Industry",
+      "businessModel": "Business Model",
+      "projections": "Projections"
+    },
+    "stepTitles": {
+      "1": "Choose your industry",
+      "2": "Choose your business model",
+      "3": "Your 12-month financial projections"
+    },
+    "stepSubtitles": {
+      "1": "Based on your sector, we'll use benchmark data from similar businesses in Amman",
+      "2": "Do you sell to individuals or businesses? This affects pricing and projections",
+      "3": "Compare possible scenarios and customize assumptions based on your plans"
+    },
+    "previous": "Previous",
+    "next": "Next",
+    "industry": {
+      "loading": "Loading industries..."
+    },
+    "businessModel": {
+      "b2c": {
+        "title": "B2C",
+        "titleAr": "Retail — For Individual Consumers",
+        "desc": "You sell directly to individual customers, like restaurants, stores, and consumer apps.",
+        "examples": ["Restaurant or café", "Online store", "Consumer app"]
+      },
+      "b2b": {
+        "title": "B2B",
+        "titleAr": "For Businesses & Institutions",
+        "desc": "You offer services or products to other businesses, like consulting or enterprise software.",
+        "examples": ["Consulting & training", "Business software", "Marketing & PR services"]
+      },
+      "benchmark": {
+        "startupCost": "Startup Cost",
+        "grossMargin": "Gross Margin",
+        "breakEven": "Break-even",
+        "months": "months",
+        "noData": "No benchmark data for this model"
+      }
+    },
+    "projections": {
+      "assumptionsTitle": "Financial Assumptions",
+      "assumptionsSubtitle": "Default values from benchmark data — you can edit them",
+      "reset": "Reset",
+      "recalculate": "Recalculate",
+      "calculating": "Calculating...",
+      "inputs": {
+        "investment": "Initial Investment (JOD)",
+        "revenue": "Expected Monthly Revenue (JOD)",
+        "margin": "Gross Profit Margin (%)",
+        "growth": "Monthly Growth Rate (%)"
+      },
+      "scenarios": {
+        "optimistic": "Optimistic",
+        "realistic": "Realistic",
+        "pessimistic": "Pessimistic"
+      },
+      "cards": {
+        "breakEven": "Break-even Point",
+        "roi": "ROI (12 months)",
+        "totalProfit": "Total Profit (12 months)",
+        "cashFlow": "Final Cash Flow",
+        "month": "month",
+        "moreThan12": "> 12 months"
+      },
+      "chart": {
+        "title": "Monthly Projections — 12 Months",
+        "revenue": "Revenue",
+        "costs": "Costs",
+        "profit": "Profit",
+        "cashFlow": "Cash Flow"
+      },
+      "table": {
+        "showMonthly": "Show monthly table ↓",
+        "hideMonthly": "Hide monthly table ↑",
+        "month": "Month",
+        "revenue": "Revenue",
+        "costs": "Costs",
+        "profit": "Profit",
+        "margin": "Margin",
+        "cumulative": "Cumulative Cash Flow"
+      },
+      "noData": "No data for this scenario",
+      "disclaimer": "These projections are estimates based on benchmark data from similar businesses in Amman and are not a guarantee of actual results",
+      "errorMsg": "Could not calculate projections. Check your connection and try again.",
+      "recalcError": "Recalculation failed. Please try again.",
+      "retry": "Retry"
+    },
+    "benchmark": {
+      "forBusinesses": "for businesses",
+      "forIndividuals": "for individuals",
+      "accuracy": "Accuracy",
+      "confidence": {
+        "HIGH": "High",
+        "MEDIUM": "Medium",
+        "LOW": "Low"
+      },
+      "details": "Benchmark Details",
+      "startupCost": "Startup Cost",
+      "monthlyCost": "Monthly Cost",
+      "grossMargin": "Gross Margin",
+      "breakEven": "Break-even",
+      "monthlyGrowth": "Monthly Growth Rate",
+      "dataSources": "Data Sources",
+      "typical": "typical",
+      "months": "months"
+    }
+  }
+}

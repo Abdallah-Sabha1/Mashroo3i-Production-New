@@ -2,57 +2,23 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import api, { ideas as ideasApi, getErrorMessage } from '../services/api'
 import { useToast } from '../components/ui/Toast'
 import Navbar from '../components/layout/Navbar'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const STEP_NAMES = ['Your Idea', 'AI Analysis', 'Your Business', 'Review']
-
-const SECTORS = [
-  { value: 'food_and_beverage',      label: 'Food & Beverage',       desc: 'Restaurants, cafés, catering, food delivery' },
-  { value: 'retail_ecommerce',       label: 'Retail & E-commerce',   desc: 'Online or physical store, products, reselling' },
-  { value: 'tech_and_software',      label: 'Tech & Software',       desc: 'Apps, websites, digital tools, software' },
-  { value: 'education_and_training', label: 'Education & Training',  desc: 'Tutoring, courses, coaching, training' },
-  { value: 'health_and_wellness',    label: 'Health & Wellness',     desc: 'Gym, clinic, nutrition, beauty, personal care' },
-  { value: 'professional_services',  label: 'Professional Services', desc: 'Consulting, marketing, accounting, design, IT' },
-  { value: 'other',                  label: 'Other',                 desc: "Doesn't fit the above categories" },
-]
-
-const BUDGET_HINTS = {
-  food_and_beverage:      'Typical in Amman: 8,000–40,000 JOD',
-  retail_ecommerce:       'Typical in Amman: 2,000–30,000 JOD',
-  tech_and_software:      'Typical in Amman: 3,000–25,000 JOD',
-  education_and_training: 'Typical in Amman: 1,500–20,000 JOD',
-  health_and_wellness:    'Typical in Amman: 5,000–60,000 JOD',
-  professional_services:  'Typical in Amman: 500–8,000 JOD',
-  other:                  'Typical for small businesses in Amman: 2,000–20,000 JOD',
-}
-
-const AMMAN_REGIONS = [
-  { value: 'west',    label: 'West Amman',    sub: 'Abdoun, Sweifieh' },
-  { value: 'central', label: 'Central Amman', sub: 'Downtown, Jabal' },
-  { value: 'east',    label: 'East Amman',    sub: 'Zarqa Road, Marka' },
-]
-
-const LOADING_MSGS = [
-  'Reading your idea...',
-  'Thinking about Amman market...',
-  'Identifying your customers...',
-  'Almost ready...',
-]
-
 // ─── ProgressBar ──────────────────────────────────────────────────────────────
 
 function ProgressBar({ step }) {
+  const { t } = useTranslation()
+  const STEP_NAMES = t('submitIdea.steps', { returnObjects: true })
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-slate-500 dark:text-gray-400">
-          Step <span className="font-semibold text-slate-700 dark:text-gray-200">{step + 1}</span> of {STEP_NAMES.length}
+          {t('submitIdea.stepOf', { step: step + 1, total: STEP_NAMES.length })}
         </span>
         <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{STEP_NAMES[step]}</span>
       </div>
@@ -81,10 +47,21 @@ function ProgressBar({ step }) {
 // ─── Step 0: Your Idea ────────────────────────────────────────────────────────
 
 function Step0({ title, setTitle, description, setDescription, selectedSector, setSelectedSector, onNext, loading }) {
+  const { t } = useTranslation()
   const [sectorError, setSectorError] = useState(false)
   const descLeft = Math.max(0, 100 - description.length)
   const titleValid = title.trim().length >= 5
   const descValid  = description.trim().length >= 100
+
+  const SECTORS = [
+    'food_and_beverage',
+    'retail_ecommerce',
+    'tech_and_software',
+    'education_and_training',
+    'health_and_wellness',
+    'professional_services',
+    'other',
+  ]
 
   const handleNext = () => {
     if (!selectedSector) { setSectorError(true); return }
@@ -98,67 +75,67 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
       {/* Title */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1.5">
-          What is your business idea called? <span className="text-red-500">*</span>
+          {t('submitIdea.step0.titleLabel')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="e.g. Specialty coffee shop in Abdoun"
+          placeholder={t('submitIdea.step0.titlePlaceholder')}
           maxLength={200}
           className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
         />
         {title.length > 0 && title.length < 5 && (
-          <p className="text-xs text-red-500 mt-1">Enter at least 5 characters</p>
+          <p className="text-xs text-red-500 mt-1">{t('submitIdea.step0.titleMin')}</p>
         )}
       </div>
 
       {/* Description */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1">
-          Describe your idea <span className="text-red-500">*</span>
+          {t('submitIdea.step0.descLabel')} <span className="text-red-500">*</span>
         </label>
         <p className="text-xs text-slate-500 dark:text-gray-500 mb-2">
-          What does it do? What problem does it solve? The more detail you give, the better our analysis.
+          {t('submitIdea.step0.descHint')}
         </p>
         <textarea
           value={description}
           onChange={e => setDescription(e.target.value)}
           rows={6}
-          placeholder="e.g. I want to open a café in Sweifieh that focuses on specialty coffee and remote work space. Many young professionals in Amman struggle to find quiet, well-designed places to work from..."
+          placeholder={t('submitIdea.step0.descPlaceholder')}
           maxLength={2000}
           className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
         />
         <div className="flex items-center justify-between mt-1">
           {descLeft > 0
-            ? <p className="text-xs text-orange-500">{descLeft} more characters needed</p>
-            : <p className="text-xs text-green-600 dark:text-green-400">Good length</p>
+            ? <p className="text-xs text-orange-500">{t('submitIdea.step0.descMore', { count: descLeft })}</p>
+            : <p className="text-xs text-green-600 dark:text-green-400">{t('submitIdea.step0.descGood')}</p>
           }
-          <p className="text-xs text-slate-400">{description.length} chars</p>
+          <p className="text-xs text-slate-400">{t('submitIdea.step0.descChars', { count: description.length })}</p>
         </div>
       </div>
 
       {/* Sector */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
-          What field is your idea in? <span className="text-red-500">*</span>
+          {t('submitIdea.step0.sectorLabel')} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
           {SECTORS.slice(0, -1).map(s => (
             <button
-              key={s.value}
+              key={s}
               type="button"
-              onClick={() => { setSelectedSector(s.value); setSectorError(false) }}
+              onClick={() => { setSelectedSector(s); setSectorError(false) }}
               className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                selectedSector === s.value
+                selectedSector === s
                   ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50'
                   : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 bg-white dark:bg-gray-800'
               }`}
             >
-              <p className={`font-medium text-sm ${selectedSector === s.value ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
-                {s.label}
+              <p className={`font-medium text-sm ${selectedSector === s ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
+                {t(`submitIdea.step0.sectors.${s}.label`)}
               </p>
-              <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{s.desc}</p>
+              <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t(`submitIdea.step0.sectors.${s}.desc`)}</p>
             </button>
           ))}
           {/* "Other" spans full width */}
@@ -172,18 +149,18 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
             }`}
           >
             <p className={`font-medium text-sm ${selectedSector === 'other' ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
-              Other
+              {t('submitIdea.step0.sectors.other.label')}
             </p>
-            <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">Doesn't fit the above categories</p>
+            <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t('submitIdea.step0.sectors.other.desc')}</p>
           </button>
         </div>
         {sectorError && (
-          <p className="text-xs text-red-500 mt-2">Please select a sector to continue</p>
+          <p className="text-xs text-red-500 mt-2">{t('submitIdea.step0.sectorError')}</p>
         )}
       </div>
 
       <Button onClick={handleNext} disabled={!titleValid || !descValid || loading} loading={loading} className="w-full" size="lg">
-        Analyze My Idea →
+        {t('submitIdea.step0.analyzeBtn')}
       </Button>
     </motion.div>
   )
@@ -192,20 +169,22 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
 // ─── Step 1: AI Analysis ──────────────────────────────────────────────────────
 
 function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, setConfirmedBusinessType, onNext, onBack }) {
+  const { t } = useTranslation()
+  const LOADING_MSGS = t('submitIdea.step1.loading', { returnObjects: true })
   const [msgIdx, setMsgIdx] = useState(0)
   const [editingField, setEditingField] = useState(null)
   const [editValue, setEditValue]       = useState('')
 
   useEffect(() => {
     if (!aiLoading) return
-    const t = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1500)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1500)
+    return () => clearInterval(timer)
   }, [aiLoading])
 
   const cards = [
-    { key: 'problemStatement',   label: "The problem you're solving" },
-    { key: 'uniqueSellingPoint', label: 'What makes it different' },
-    { key: 'targetAudience',     label: "Who it's for" },
+    { key: 'problemStatement',   label: t('submitIdea.step1.cards.problemStatement') },
+    { key: 'uniqueSellingPoint', label: t('submitIdea.step1.cards.uniqueSellingPoint') },
+    { key: 'targetAudience',     label: t('submitIdea.step1.cards.targetAudience') },
   ]
 
   const startEdit = (key) => { setEditingField(key); setEditValue(aiInsights?.[key] || '') }
@@ -253,13 +232,13 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          Analysis complete
+          {t('submitIdea.step1.analysisComplete')}
         </span>
       </div>
 
       {/* Insight cards */}
       <div className="bg-slate-50 dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 space-y-5">
-        <h3 className="font-bold text-slate-900 dark:text-white">Here's what we understand about your idea</h3>
+        <h3 className="font-bold text-slate-900 dark:text-white">{t('submitIdea.step1.insightsTitle')}</h3>
         {cards.map(({ key, label }, i) => (
           <div key={key} className={i < cards.length - 1 ? 'pb-5 border-b border-slate-200 dark:border-gray-800' : ''}>
             <div className="flex items-center justify-between mb-2">
@@ -270,7 +249,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                   onClick={() => startEdit(key)}
                   className="text-xs text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors px-2 py-0.5 rounded-md border border-slate-200 dark:border-gray-700 hover:border-indigo-300"
                 >
-                  Edit
+                  {t('submitIdea.step1.editBtn')}
                 </button>
               )}
             </div>
@@ -288,7 +267,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                   onClick={doneEdit}
                   className="mt-2 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors"
                 >
-                  Done
+                  {t('submitIdea.step1.doneBtn')}
                 </button>
               </div>
             ) : (
@@ -301,18 +280,18 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
       {/* Business type confirmation */}
       <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900">
         <p className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
-          Based on your idea, this looks like a
+          {t('submitIdea.step1.bizTypeIntro')}
           <strong className="text-indigo-600 dark:text-indigo-400 mx-1">
             {aiInsights?.suggestedBusinessType === 'B2B'
-              ? 'B2B business (selling to other businesses)'
-              : 'B2C business (selling directly to people)'}
+              ? t('submitIdea.step1.b2bLabel')
+              : t('submitIdea.step1.b2cLabel')}
           </strong>
         </p>
         {aiInsights?.businessTypeReason && (
           <p className="text-xs text-slate-500 dark:text-gray-400">{aiInsights.businessTypeReason}</p>
         )}
         <p className="text-xs font-medium text-slate-600 dark:text-gray-300 mt-3 mb-2">
-          Does this sound right?
+          {t('submitIdea.step1.confirm')}
         </p>
         <div className="flex gap-2">
           <button
@@ -324,7 +303,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                 : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
             }`}
           >
-            Yes, selling to people
+            {t('submitIdea.step1.yesB2C')}
           </button>
           <button
             type="button"
@@ -335,21 +314,21 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                 : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
             }`}
           >
-            No, selling to businesses
+            {t('submitIdea.step1.noB2B')}
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
         <Button onClick={onNext} disabled={!confirmedBusinessType} className="w-full" size="lg">
-          Continue →
+          {t('submitIdea.step1.continueBtn')}
         </Button>
         <button
           type="button"
           onClick={onBack}
           className="w-full text-sm text-slate-500 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 transition-colors text-center"
         >
-          Edit my description
+          {t('submitIdea.step1.editDesc')}
         </button>
       </div>
     </motion.div>
@@ -359,7 +338,10 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
 // ─── Step 2: Your Business ────────────────────────────────────────────────────
 
 function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegion, setAmmanRegion, onNext, onBack }) {
+  const { t } = useTranslation()
   const valid = (parseFloat(estimatedBudget) || 0) > 0 && !!ammanRegion
+
+  const REGIONS = ['west', 'central', 'east']
 
   return (
     <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-7">
@@ -367,42 +349,42 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
       {/* Budget */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1.5">
-          How much money do you have to start? (JOD) <span className="text-red-500">*</span>
+          {t('submitIdea.step2.budgetLabel')} <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
           value={estimatedBudget}
           onChange={e => setEstimatedBudget(e.target.value)}
-          placeholder="e.g. 15000"
+          placeholder={t('submitIdea.step2.budgetPlaceholder')}
           min="1"
           className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
         />
-        {BUDGET_HINTS[selectedSector] && (
-          <p className="text-xs text-slate-500 mt-1">{BUDGET_HINTS[selectedSector]}</p>
+        {selectedSector && t(`submitIdea.step0.budgetHints.${selectedSector}`, { defaultValue: '' }) && (
+          <p className="text-xs text-slate-500 mt-1">{t(`submitIdea.step0.budgetHints.${selectedSector}`)}</p>
         )}
       </div>
 
       {/* Region */}
       <div>
         <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
-          Where in Amman will you operate? <span className="text-red-500">*</span>
+          {t('submitIdea.step2.regionLabel')} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-3 gap-2">
-          {AMMAN_REGIONS.map(r => (
+          {REGIONS.map(r => (
             <button
-              key={r.value}
+              key={r}
               type="button"
-              onClick={() => setAmmanRegion(r.value)}
+              onClick={() => setAmmanRegion(r)}
               className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
-                ammanRegion === r.value
+                ammanRegion === r
                   ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700'
                   : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
               }`}
             >
-              <p className={`font-medium text-xs ${ammanRegion === r.value ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
-                {r.label}
+              <p className={`font-medium text-xs ${ammanRegion === r ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
+                {t(`submitIdea.step2.regions.${r}.label`)}
               </p>
-              <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{r.sub}</p>
+              <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{t(`submitIdea.step2.regions.${r}.sub`)}</p>
             </button>
           ))}
         </div>
@@ -414,10 +396,10 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
           onClick={onBack}
           className="px-5 py-2.5 text-sm font-medium text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors"
         >
-          ← Back
+          {t('submitIdea.step2.back')}
         </button>
         <Button onClick={onNext} disabled={!valid} className="flex-1" size="lg">
-          Continue →
+          {t('submitIdea.step2.continue')}
         </Button>
       </div>
     </motion.div>
@@ -427,21 +409,22 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
 // ─── Step 3: Review ───────────────────────────────────────────────────────────
 
 function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estimatedBudget, ammanRegion, onSubmit, onBack, loading }) {
-  const sectorLabel = SECTORS.find(s => s.value === selectedSector)?.label || selectedSector
-  const regionLabel = AMMAN_REGIONS.find(r => r.value === ammanRegion)?.label || ammanRegion
+  const { t } = useTranslation()
+  const sectorLabel = t(`submitIdea.step0.sectors.${selectedSector}.label`, { defaultValue: selectedSector })
+  const regionLabel = t(`submitIdea.step2.regions.${ammanRegion}.label`, { defaultValue: ammanRegion })
   const truncate = (str, n) => str && str.length > n ? str.slice(0, n) + '...' : (str || '—')
 
   return (
     <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
 
       <div>
-        <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">Review before submitting</h3>
-        <p className="text-sm text-slate-500 dark:text-gray-500">Make sure everything looks right.</p>
+        <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{t('submitIdea.step3.title')}</h3>
+        <p className="text-sm text-slate-500 dark:text-gray-500">{t('submitIdea.step3.subtitle')}</p>
       </div>
 
       {/* Your Idea */}
       <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">Your Idea</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionIdea')}</p>
         <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
         <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
           {sectorLabel}
@@ -450,38 +433,38 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
 
       {/* AI Insights */}
       <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">AI Insights</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionAI')}</p>
         <div>
-          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">Problem</p>
+          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.problem')}</p>
           <p className="text-sm text-slate-700 dark:text-gray-300">{truncate(aiInsights?.problemStatement, 80)}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">What makes it different</p>
+          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.different')}</p>
           <p className="text-sm text-slate-700 dark:text-gray-300">{truncate(aiInsights?.uniqueSellingPoint, 80)}</p>
         </div>
       </div>
 
       {/* Business Type */}
       <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500 mb-2">Business Type</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500 mb-2">{t('submitIdea.step3.sectionBizType')}</p>
         <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
           {confirmedBusinessType === 'B2B'
-            ? 'Selling to businesses (B2B)'
-            : 'Selling to people (B2C)'}
+            ? t('submitIdea.step3.b2b')
+            : t('submitIdea.step3.b2c')}
         </p>
       </div>
 
       {/* Your Details */}
       <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">Your Details</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionDetails')}</p>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-500 dark:text-gray-500">Starting budget</span>
+          <span className="text-slate-500 dark:text-gray-500">{t('submitIdea.step3.budget')}</span>
           <span className="font-medium text-slate-900 dark:text-white">
             {parseFloat(estimatedBudget).toLocaleString()} JOD
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-500 dark:text-gray-500">Location</span>
+          <span className="text-slate-500 dark:text-gray-500">{t('submitIdea.step3.location')}</span>
           <span className="font-medium text-slate-900 dark:text-white">{regionLabel}</span>
         </div>
       </div>
@@ -492,10 +475,10 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
           onClick={onBack}
           className="px-5 py-2.5 text-sm font-medium text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors"
         >
-          ← Back
+          {t('submitIdea.step3.back')}
         </button>
         <Button onClick={onSubmit} loading={loading} className="flex-1" size="lg">
-          {loading ? 'Submitting...' : 'Submit for Evaluation →'}
+          {loading ? t('submitIdea.step3.submitting') : t('submitIdea.step3.submitBtn')}
         </Button>
       </div>
     </motion.div>
@@ -505,6 +488,7 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const SubmitIdea = () => {
+  const { t } = useTranslation()
   const [step,                   setStep]                   = useState(0)
   const [title,                  setTitle]                  = useState('')
   const [description,            setDescription]            = useState('')
@@ -564,7 +548,7 @@ const SubmitIdea = () => {
         ammanRegion,
         estimatedBudget:    parseFloat(estimatedBudget),
       })
-      addToast('Idea submitted successfully!', 'success')
+      addToast(t('submitIdea.step3.successToast'), 'success')
       navigate('/dashboard?welcome=true')
     } catch (e) {
       setError(getErrorMessage(e))
@@ -579,10 +563,10 @@ const SubmitIdea = () => {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
-            Tell us about your idea
+            {t('submitIdea.title')}
           </h1>
           <p className="text-slate-500 dark:text-gray-500 mb-8 text-sm">
-            We'll analyze it and build a financial model tailored to the Amman market.
+            {t('submitIdea.subtitle')}
           </p>
 
           <ProgressBar step={step} />
@@ -649,7 +633,7 @@ const SubmitIdea = () => {
           </Card>
 
           <p className="text-center text-xs text-slate-400 dark:text-gray-600 mt-6">
-            📍 Mashroo3i is built for entrepreneurs in Amman, Jordan
+            {t('submitIdea.footer')}
           </p>
         </motion.div>
       </div>

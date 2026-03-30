@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { ideas as ideasApi, evaluation as evalApi, getErrorMessage } from '../services/api'
 import useAuthStore from '../store/authStore'
 import Navbar from '../components/layout/Navbar'
@@ -13,6 +14,7 @@ import { Spinner } from '../components/ui/Loading'
 import { formatDate, formatCurrency, getScoreColor, getSectorLabel } from '../utils/helpers'
 
 const Dashboard = () => {
+  const { t } = useTranslation()
   const { user } = useAuthStore()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -90,17 +92,17 @@ const Dashboard = () => {
         {/* Welcome */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Welcome back, {user?.fullName?.split(' ')[0] || 'Entrepreneur'}
+            {t('dashboard.welcome')} {user?.fullName?.split(' ')[0] || t('nav.dashboard')}
           </h1>
-          <p className="text-slate-600 dark:text-gray-400">Here's an overview of your business ideas</p>
+          <p className="text-slate-600 dark:text-gray-400">{t('dashboard.subtitle')}</p>
         </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatsCard label="Total Ideas" value={ideas.length} description="All submitted ideas" delay={0} />
-          <StatsCard label="Evaluations" value={evaluated.length} description={`${ideas.length > 0 ? Math.round(evaluated.length/ideas.length*100) : 0}% completion`} delay={0.1} />
-          <StatsCard label="Avg Score" value={avgScore} description="Out of 100" delay={0.2} />
-          <StatsCard label="Success Rate" value={`${successRate}%`} description="Score above 60" delay={0.3} />
+          <StatsCard label={t('dashboard.stats.totalIdeas')} value={ideas.length} description={t('dashboard.stats.totalIdeasDesc')} delay={0} />
+          <StatsCard label={t('dashboard.stats.evaluations')} value={evaluated.length} description={t('dashboard.stats.evaluationsDesc', { pct: ideas.length > 0 ? Math.round(evaluated.length/ideas.length*100) : 0 })} delay={0.1} />
+          <StatsCard label={t('dashboard.stats.avgScore')} value={avgScore} description={t('dashboard.stats.avgScoreDesc')} delay={0.2} />
+          <StatsCard label={t('dashboard.stats.successRate')} value={`${successRate}%`} description={t('dashboard.stats.successRateDesc')} delay={0.3} />
         </div>
 
         {/* Quick Action */}
@@ -115,10 +117,10 @@ const Dashboard = () => {
             flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
-                Ready to evaluate your next idea?
+                {t('dashboard.quickAction.title')}
               </h2>
               <p className="text-xs text-indigo-700/70 dark:text-indigo-400/70 mt-1">
-                Submit a business idea and get AI-powered analysis in minutes
+                {t('dashboard.quickAction.subtitle')}
               </p>
             </div>
             <Link to="/submit-idea" className="flex-shrink-0">
@@ -128,7 +130,7 @@ const Dashboard = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                New Idea
+                {t('dashboard.quickAction.button')}
               </button>
             </Link>
           </div>
@@ -136,21 +138,21 @@ const Dashboard = () => {
 
         {/* Ideas List */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Your Ideas</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">{t('dashboard.ideas.title')}</h2>
 
           {loading ? (
             <div className="flex justify-center py-12"><Spinner size="lg" /></div>
           ) : ideas.length === 0 ? (
             <Card className="text-center py-16">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No ideas yet</h3>
-              <p className="text-slate-500 dark:text-gray-500 mb-6 text-sm">Submit your first business idea to get started.</p>
-              <Link to="/submit-idea"><Button>Submit Your First Idea</Button></Link>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('dashboard.ideas.empty')}</h3>
+              <p className="text-slate-500 dark:text-gray-500 mb-6 text-sm">{t('dashboard.ideas.emptySub')}</p>
+              <Link to="/submit-idea"><Button>{t('dashboard.ideas.submitFirst')}</Button></Link>
               <div className="mt-3">
                 <button
                   onClick={() => setShowOnboarding(true)}
                   className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
-                  How does it work?
+                  {t('dashboard.ideas.howItWorks')}
                 </button>
               </div>
             </Card>
@@ -187,14 +189,14 @@ const Dashboard = () => {
                         {idea.evaluation ? (
                           <>
                             <Link to={`/evaluation/${idea.ideaId}`}>
-                              <Button variant="ghost" size="sm">View Results</Button>
+                              <Button variant="ghost" size="sm">{t('dashboard.ideas.viewResults')}</Button>
                             </Link>
                             <Link to={`/financial/${idea.ideaId}`}>
-                              <Button variant="secondary" size="sm">Financial Plan</Button>
+                              <Button variant="secondary" size="sm">{t('dashboard.ideas.financialPlan')}</Button>
                             </Link>
                           </>
                         ) : (
-                          <Button size="sm" onClick={() => handleEvaluate(idea.ideaId)}>Evaluate</Button>
+                          <Button size="sm" onClick={() => handleEvaluate(idea.ideaId)}>{t('dashboard.ideas.evaluate')}</Button>
                         )}
                         <button
                           onClick={() => setConfirmDeleteId(idea.ideaId)}
@@ -221,13 +223,13 @@ const Dashboard = () => {
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Delete this idea?</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('dashboard.delete.title')}</h3>
             <p className="text-sm text-slate-500 dark:text-gray-500 mb-6">
-              This will permanently delete the idea and all its evaluations. This cannot be undone.
+              {t('dashboard.delete.body')}
             </p>
             <div className="flex gap-3">
               <Button variant="ghost" className="flex-1" onClick={() => setConfirmDeleteId(null)}>
-                Cancel
+                {t('dashboard.delete.cancel')}
               </Button>
               <Button
                 variant="danger"
@@ -235,7 +237,7 @@ const Dashboard = () => {
                 loading={!!deletingId}
                 onClick={() => handleDelete(confirmDeleteId)}
               >
-                Delete
+                {t('dashboard.delete.confirm')}
               </Button>
             </div>
           </div>

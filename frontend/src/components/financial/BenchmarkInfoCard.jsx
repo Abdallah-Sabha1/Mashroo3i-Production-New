@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const confidenceStyle = {
   HIGH:   'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400',
@@ -7,11 +8,19 @@ const confidenceStyle = {
   LOW:    'bg-red-100   text-red-700   dark:bg-red-950   dark:text-red-400',
 }
 
-const confidenceLabel = { HIGH: 'عالية', MEDIUM: 'متوسطة', LOW: 'منخفضة' }
-
 const BenchmarkInfoCard = ({ benchmark }) => {
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   if (!benchmark) return null
+
+  const isArabic = i18n.language === 'ar'
+  const industryName = isArabic ? benchmark.industryNameAr : benchmark.industryNameEn
+
+  const confidenceLabel = {
+    HIGH:   t('financialWizard.benchmark.confidence.HIGH'),
+    MEDIUM: t('financialWizard.benchmark.confidence.MEDIUM'),
+    LOW:    t('financialWizard.benchmark.confidence.LOW'),
+  }
 
   let sources = []
   try { sources = JSON.parse(benchmark.dataSourcesJson || '[]') } catch { sources = [] }
@@ -22,19 +31,21 @@ const BenchmarkInfoCard = ({ benchmark }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              {benchmark.industryNameAr}
+              {industryName}
             </h3>
             <span className="text-xs text-slate-400 dark:text-gray-500">
-              · {benchmark.businessModel === 'B2B' ? 'للشركات' : 'للأفراد'}
+              · {benchmark.businessModel === 'B2B'
+                ? t('financialWizard.benchmark.forBusinesses')
+                : t('financialWizard.benchmark.forIndividuals')}
             </span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
               confidenceStyle[benchmark.confidenceLevel] ?? confidenceStyle.MEDIUM
             }`}>
-              دقة {confidenceLabel[benchmark.confidenceLevel] ?? 'متوسطة'}
+              {t('financialWizard.benchmark.accuracy')} {confidenceLabel[benchmark.confidenceLevel] ?? confidenceLabel.MEDIUM}
             </span>
           </div>
           {benchmark.notesAndContext && (
-            <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5 line-clamp-1" dir="rtl">
+            <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5 line-clamp-1">
               {benchmark.notesAndContext}
             </p>
           )}
@@ -43,53 +54,53 @@ const BenchmarkInfoCard = ({ benchmark }) => {
           onClick={() => setOpen(o => !o)}
           className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex-shrink-0"
         >
-          تفاصيل المرجع
+          {t('financialWizard.benchmark.details')}
           <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-100 dark:border-gray-800 px-5 py-4 space-y-4" dir="rtl">
+        <div className="border-t border-slate-100 dark:border-gray-800 px-5 py-4 space-y-4">
           {/* Cost ranges */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'تكلفة التأسيس', low: benchmark.startupCostLow, mid: benchmark.startupCostMid, high: benchmark.startupCostHigh },
-              { label: 'التكلفة الشهرية', low: benchmark.monthlyCostLow, mid: benchmark.monthlyCostTypical, high: benchmark.monthlyCostHigh },
+              { label: t('financialWizard.benchmark.startupCost'), low: benchmark.startupCostLow, mid: benchmark.startupCostMid, high: benchmark.startupCostHigh },
+              { label: t('financialWizard.benchmark.monthlyCost'), low: benchmark.monthlyCostLow, mid: benchmark.monthlyCostTypical, high: benchmark.monthlyCostHigh },
             ].map(({ label, low, mid, high }) => (
               <div key={label} className="col-span-3 sm:col-span-1">
                 <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{label}</p>
                 <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
                   {Math.round(low).toLocaleString()} – {Math.round(high).toLocaleString()} JOD
-                  <span className="text-xs text-slate-400 ml-1">(نموذجي: {Math.round(mid).toLocaleString()})</span>
+                  <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {Math.round(mid).toLocaleString()})</span>
                 </p>
               </div>
             ))}
             <div className="col-span-3 sm:col-span-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">هامش الربح الإجمالي</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.grossMargin')}</p>
               <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
                 {benchmark.grossMarginLow}% – {benchmark.grossMarginHigh}%
-                <span className="text-xs text-slate-400 ml-1">(نموذجي: {benchmark.grossMarginTypical}%)</span>
+                <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.grossMarginTypical}%)</span>
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">نقطة التعادل</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.breakEven')}</p>
               <p className="text-sm text-slate-700 dark:text-gray-300">
-                {benchmark.breakEvenMonthsLow}–{benchmark.breakEvenMonthsHigh} شهراً
-                <span className="text-xs text-slate-400 mr-1">(نموذجي: {benchmark.breakEvenMonthsTypical})</span>
+                {benchmark.breakEvenMonthsLow}–{benchmark.breakEvenMonthsHigh} {t('financialWizard.benchmark.months')}
+                <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.breakEvenMonthsTypical})</span>
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">معدل نمو شهري</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.monthlyGrowth')}</p>
               <p className="text-sm text-slate-700 dark:text-gray-300">{benchmark.monthlyGrowthRatePercent}%</p>
             </div>
           </div>
 
           {sources.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">مصادر البيانات</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.dataSources')}</p>
               <ul className="space-y-0.5">
                 {sources.map((s, i) => (
                   <li key={i} className="text-xs text-slate-500 dark:text-gray-400 flex items-start gap-1">

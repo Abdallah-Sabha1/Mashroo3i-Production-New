@@ -1,18 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RefreshCw, RotateCcw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import financialProjectionService from '../../services/financialProjectionService'
 import BenchmarkInfoCard from '../financial/BenchmarkInfoCard'
 import ScenarioCard from '../financial/ScenarioCard'
 import ProjectionChart from '../financial/ProjectionChart'
 import ProjectionTable from '../financial/ProjectionTable'
 import { Skeleton } from '../ui/Loading'
-
-const SCENARIO_TABS = [
-  { key: 'optimisticScenario',   label: 'متفائل',  en: 'Optimistic',  color: 'green'  },
-  { key: 'realisticScenario',    label: 'واقعي',   en: 'Realistic',   color: 'indigo' },
-  { key: 'pessimisticScenario',  label: 'متحفظ',   en: 'Pessimistic', color: 'red'    },
-]
 
 const tabStyle = {
   green:  { active: 'bg-green-600  text-white', inactive: 'text-green-600  dark:text-green-400  hover:bg-green-50  dark:hover:bg-green-950/20'  },
@@ -24,6 +19,14 @@ const fmtJOD = n =>
   typeof n === 'number' ? `${Math.round(n).toLocaleString()}` : '—'
 
 const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
+  const { t } = useTranslation()
+
+  const SCENARIO_TABS = [
+    { key: 'optimisticScenario',  label: t('financialWizard.projections.scenarios.optimistic'),  color: 'green'  },
+    { key: 'realisticScenario',   label: t('financialWizard.projections.scenarios.realistic'),   color: 'indigo' },
+    { key: 'pessimisticScenario', label: t('financialWizard.projections.scenarios.pessimistic'), color: 'red'    },
+  ]
+
   const [projection, setProjection] = useState(null)
   const [loading, setLoading]       = useState(true)
   const [recalculating, setRecalculating] = useState(false)
@@ -43,7 +46,6 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
     setLoading(true)
     setError(null)
 
-    // Try to get existing, else create
     financialProjectionService.getProjection(ideaId)
       .then(res => {
         if (!active) return
@@ -51,14 +53,13 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
         syncFormFromProjection(res.data)
       })
       .catch(() => {
-        // Create fresh projection
         financialProjectionService.createProjection(ideaId, { industryType, businessModel })
           .then(res => {
             if (!active) return
             setProjection(res.data)
             syncFormFromProjection(res.data)
           })
-          .catch(err => { if (active) setError('تعذّر حساب التوقعات. تحقق من اتصالك وحاول مرة أخرى.') })
+          .catch(() => { if (active) setError(t('financialWizard.projections.errorMsg')) })
       })
       .finally(() => { if (active) setLoading(false) })
 
@@ -84,7 +85,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       })
       setProjection(res.data)
     } catch {
-      setError('فشل إعادة الحساب. يرجى المحاولة مرة أخرى.')
+      setError(t('financialWizard.projections.recalcError'))
     } finally {
       setRecalculating(false)
     }
@@ -112,7 +113,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
         onClick={() => window.location.reload()}
         className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
       >
-        إعادة المحاولة
+        {t('financialWizard.projections.retry')}
       </button>
     </div>
   )
@@ -121,8 +122,15 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   const scene = projection?.[activeTab]
   const tab   = SCENARIO_TABS.find(t => t.key === activeTab)
 
+  const inputFields = [
+    { label: t('financialWizard.projections.inputs.investment'), value: investment, set: setInvestment, ph: bm ? Math.round(bm.startupCostMid) : '' },
+    { label: t('financialWizard.projections.inputs.revenue'),    value: revenue,    set: setRevenue,    ph: projection ? Math.round(projection.effectiveMonthlyRevenue) : '' },
+    { label: t('financialWizard.projections.inputs.margin'),     value: margin,     set: setMargin,     ph: bm ? bm.grossMarginTypical : '' },
+    { label: t('financialWizard.projections.inputs.growth'),     value: growth,     set: setGrowth,     ph: bm ? bm.monthlyGrowthRatePercent : '' },
+  ]
+
   return (
-    <div className="space-y-5" dir="rtl">
+    <div className="space-y-5">
 
       {/* 1 ── Benchmark banner */}
       {bm && <BenchmarkInfoCard benchmark={bm} />}
@@ -131,9 +139,9 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       <div className="rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">الافتراضات المالية</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{t('financialWizard.projections.assumptionsTitle')}</h3>
             <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
-              القيم الافتراضية من البيانات المرجعية — يمكنك تعديلها
+              {t('financialWizard.projections.assumptionsSubtitle')}
             </p>
           </div>
           <button
@@ -141,17 +149,12 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
             className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            إعادة تعيين
+            {t('financialWizard.projections.reset')}
           </button>
         </div>
 
         <div className="p-5 grid grid-cols-2 gap-4">
-          {[
-            { label: 'الاستثمار الأولي (JOD)', value: investment, set: setInvestment, ph: bm ? Math.round(bm.startupCostMid) : '' },
-            { label: 'الإيرادات الشهرية المتوقعة (JOD)', value: revenue, set: setRevenue, ph: projection ? Math.round(projection.effectiveMonthlyRevenue) : '' },
-            { label: 'هامش الربح الإجمالي (%)', value: margin, set: setMargin, ph: bm ? bm.grossMarginTypical : '' },
-            { label: 'معدل النمو الشهري (%)', value: growth, set: setGrowth, ph: bm ? bm.monthlyGrowthRatePercent : '' },
-          ].map(({ label, value, set, ph }) => (
+          {inputFields.map(({ label, value, set, ph }) => (
             <div key={label} className="col-span-2 sm:col-span-1">
               <label className="block text-xs font-medium text-slate-600 dark:text-gray-400 mb-1">{label}</label>
               <input
@@ -179,8 +182,8 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               text-white text-sm font-semibold transition-colors"
           >
             {recalculating
-              ? <><RefreshCw className="w-4 h-4 animate-spin" /> جاري الحساب...</>
-              : <><RefreshCw className="w-4 h-4" /> إعادة الحساب</>
+              ? <><RefreshCw className="w-4 h-4 animate-spin" /> {t('financialWizard.projections.calculating')}</>
+              : <><RefreshCw className="w-4 h-4" /> {t('financialWizard.projections.recalculate')}</>
             }
           </button>
         </div>
@@ -191,18 +194,17 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
 
         {/* Tab switcher */}
         <div className="flex gap-1 p-2 bg-slate-50 dark:bg-gray-800 border-b border-slate-100 dark:border-gray-800">
-          {SCENARIO_TABS.map(t => {
-            const s = tabStyle[t.color]
+          {SCENARIO_TABS.map(scenarioTab => {
+            const s = tabStyle[scenarioTab.color]
             return (
               <button
-                key={t.key}
-                onClick={() => setActiveTab(t.key)}
+                key={scenarioTab.key}
+                onClick={() => setActiveTab(scenarioTab.key)}
                 className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  activeTab === t.key ? s.active : `bg-transparent ${s.inactive}`
+                  activeTab === scenarioTab.key ? s.active : `bg-transparent ${s.inactive}`
                 }`}
               >
-                {t.label}
-                <span className="block text-[10px] font-normal opacity-70">{t.en}</span>
+                {scenarioTab.label}
               </button>
             )
           })}
@@ -221,24 +223,26 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               {/* Summary cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <ScenarioCard
-                  title="نقطة التعادل"
-                  value={scene.breakEvenMonth <= 12 ? `${scene.breakEvenMonth} شهر` : '> 12 شهر'}
+                  title={t('financialWizard.projections.cards.breakEven')}
+                  value={scene.breakEvenMonth <= 12
+                    ? `${scene.breakEvenMonth} ${t('financialWizard.projections.cards.month')}`
+                    : t('financialWizard.projections.cards.moreThan12')}
                   color={scene.breakEvenMonth <= 6 ? 'green' : scene.breakEvenMonth <= 12 ? 'amber' : 'red'}
                 />
                 <ScenarioCard
-                  title="العائد على الاستثمار (12 شهر)"
+                  title={t('financialWizard.projections.cards.roi')}
                   value={scene.roi?.toFixed(1)}
                   unit="%"
                   color={scene.roi > 50 ? 'green' : scene.roi > 0 ? 'indigo' : 'red'}
                 />
                 <ScenarioCard
-                  title="إجمالي الربح (12 شهر)"
+                  title={t('financialWizard.projections.cards.totalProfit')}
                   value={fmtJOD(scene.totalProfit)}
                   unit="JOD"
                   color={scene.totalProfit > 0 ? 'green' : 'red'}
                 />
                 <ScenarioCard
-                  title="التدفق النقدي النهائي"
+                  title={t('financialWizard.projections.cards.cashFlow')}
                   value={fmtJOD(scene.cumulativeCashFlow)}
                   unit="JOD"
                   color={scene.cumulativeCashFlow > 0 ? 'green' : 'red'}
@@ -249,9 +253,9 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               {scene.monthlyData?.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-                    التوقعات الشهرية — 12 شهراً
+                    {t('financialWizard.projections.chart.title')}
                   </p>
-                  <ProjectionChart monthlyData={scene.monthlyData} scenarioName={tab?.en} />
+                  <ProjectionChart monthlyData={scene.monthlyData} scenarioName={tab?.label} />
                 </div>
               )}
 
@@ -261,14 +265,16 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
                   onClick={() => setShowTable(s => !s)}
                   className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mb-2"
                 >
-                  {showTable ? 'إخفاء الجدول الشهري ↑' : 'عرض الجدول الشهري ↓'}
+                  {showTable
+                    ? t('financialWizard.projections.table.hideMonthly')
+                    : t('financialWizard.projections.table.showMonthly')}
                 </button>
                 {showTable && <ProjectionTable monthlyData={scene.monthlyData} />}
               </div>
             </motion.div>
           ) : (
             <div className="p-8 text-center text-sm text-slate-400 dark:text-gray-500">
-              لا توجد بيانات لهذا السيناريو
+              {t('financialWizard.projections.noData')}
             </div>
           )}
         </AnimatePresence>
@@ -276,7 +282,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
 
       {/* Disclaimer */}
       <p className="text-xs text-slate-300 dark:text-gray-600 text-center">
-        هذه التوقعات تقديرية مبنية على بيانات مرجعية من مشاريع مماثلة في عمّان ولا تُعدّ ضماناً للنتائج الفعلية
+        {t('financialWizard.projections.disclaimer')}
       </p>
     </div>
   )

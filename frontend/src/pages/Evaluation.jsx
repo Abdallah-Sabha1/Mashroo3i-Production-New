@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { evaluation as evalApi, ideas as ideasApi, getErrorMessage } from '../services/api'
 import Navbar from '../components/layout/Navbar'
 import ScoreCircle from '../components/shared/ScoreCircle'
@@ -10,32 +11,7 @@ import Button from '../components/ui/Button'
 import { Spinner } from '../components/ui/Loading'
 import { getSectorLabel } from '../utils/constants'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const AI_MESSAGES = [
-  'Reading your idea...',
-  'Thinking about the Amman market...',
-  'Analyzing competition...',
-  'Almost ready...',
-]
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function scoreDesc(score, type) {
-  if (type === 'novelty') {
-    if (score >= 80) return 'Very original for Amman'
-    if (score >= 60) return 'Somewhat unique — needs differentiation'
-    return 'Common idea — strong differentiator needed'
-  }
-  if (type === 'market') {
-    if (score >= 80) return 'Strong market demand in Amman'
-    if (score >= 60) return 'Moderate market — find your niche'
-    return 'Challenging market conditions'
-  }
-  if (score >= 80) return 'Strong potential'
-  if (score >= 60) return 'Needs significant work'
-  return 'Rethink before investing'
-}
 
 function parseSwot(raw) {
   if (!raw) return {}
@@ -84,6 +60,7 @@ function VerdictIcon({ score }) {
 const Evaluation = () => {
   const { ideaId }   = useParams()
   const navigate     = useNavigate()
+  const { t }        = useTranslation()
   const [evalData,   setEvalData]   = useState(null)
   const [idea,       setIdea]       = useState(null)
   const [loading,    setLoading]    = useState(true)
@@ -91,6 +68,8 @@ const Evaluation = () => {
   const [pageError,  setPageError]  = useState(null)
   const [msgIndex,   setMsgIndex]   = useState(0)
   const msgTimer = useRef(null)
+
+  const AI_MESSAGES = t('evaluation.aiMessages', { returnObjects: true })
 
   useEffect(() => { loadData() }, [ideaId])
 
@@ -128,7 +107,7 @@ const Evaluation = () => {
     } catch (err) {
       console.error('Error loading evaluation:', err)
       if (err.response?.status === 429) {
-        setPageError('Our AI is temporarily busy. Please wait a minute and try again.')
+        setPageError(t('evaluation.rateLimited'))
       } else {
         setPageError(getErrorMessage(err))
       }
@@ -139,9 +118,7 @@ const Evaluation = () => {
   }
 
   const handleReEvaluate = async () => {
-    if (!window.confirm(
-      'This will delete the current evaluation and generate a new one. Continue?'
-    )) return
+    if (!window.confirm(t('evaluation.actions.confirmReEval'))) return
     try {
       await evalApi.delete(ideaId)
       setEvalData(null)
@@ -153,6 +130,22 @@ const Evaluation = () => {
     } finally {
       setGenerating(false)
     }
+  }
+
+  const scoreDesc = (score, type) => {
+    if (type === 'novelty') {
+      if (score >= 80) return t('evaluation.scores.scoreDescs.noveltyHigh')
+      if (score >= 60) return t('evaluation.scores.scoreDescs.noveltyMid')
+      return t('evaluation.scores.scoreDescs.noveltyLow')
+    }
+    if (type === 'market') {
+      if (score >= 80) return t('evaluation.scores.scoreDescs.marketHigh')
+      if (score >= 60) return t('evaluation.scores.scoreDescs.marketMid')
+      return t('evaluation.scores.scoreDescs.marketLow')
+    }
+    if (score >= 80) return t('evaluation.scores.scoreDescs.overallHigh')
+    if (score >= 60) return t('evaluation.scores.scoreDescs.overallMid')
+    return t('evaluation.scores.scoreDescs.overallLow')
   }
 
   // Loading state
@@ -169,7 +162,7 @@ const Evaluation = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-slate-500 dark:text-gray-500 text-sm"
             >
-              {generating ? AI_MESSAGES[msgIndex] : 'Loading evaluation...'}
+              {generating ? AI_MESSAGES[msgIndex] : t('evaluation.loadingEval')}
             </motion.p>
           </div>
         </div>
@@ -183,8 +176,6 @@ const Evaluation = () => {
   const recommendations   = parseRecommendations(evalData?.recommendations)
   const overallScore      = evalData?.overallScore || 0
 
-  // A saved evaluation with score 0 means the AI call failed and stored a bad row.
-  // Treat it as a failure so we show the retry UI instead of fake "High Risk" data.
   const evalFailed = evalData && overallScore === 0
 
   const verdictBorderColor =
@@ -193,9 +184,9 @@ const Evaluation = () => {
                          'border-l-red-500'
 
   const verdictLabel =
-    overallScore >= 65 ? 'Promising' :
-    overallScore >= 40 ? 'Needs Refinement' :
-                         'High Risk'
+    overallScore >= 65 ? t('evaluation.verdicts.promising') :
+    overallScore >= 40 ? t('evaluation.verdicts.needsRefinement') :
+                         t('evaluation.verdicts.highRisk')
 
   const riskBadgeClass =
     evalData?.riskLevel === 'Low Risk'
@@ -220,13 +211,13 @@ const Evaluation = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Dashboard
+            {t('evaluation.backToDashboard')}
           </Link>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
             {idea?.title}
           </h1>
           <p className="text-sm text-slate-400 dark:text-gray-500 mt-1">
-            {getSectorLabel(idea?.sector)} · {idea?.businessType || 'B2C'} · Evaluation Results
+            {getSectorLabel(idea?.sector)} · {idea?.businessType || 'B2C'} · {t('evaluation.evaluationResults')}
           </p>
         </motion.div>
 
@@ -245,7 +236,7 @@ const Evaluation = () => {
                 onClick={loadData}
                 className="text-sm text-indigo-600 dark:text-indigo-400 mt-2 font-medium hover:underline"
               >
-                Try again
+                {t('evaluation.tryAgain')}
               </button>
             </div>
           </div>
@@ -266,11 +257,10 @@ const Evaluation = () => {
                   </svg>
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Evaluation did not complete
+                      {t('evaluation.evalFailed.title')}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 leading-relaxed">
-                      The AI analysis failed to generate a score. This can happen when the
-                      service is busy or the idea description is too short.
+                      {t('evaluation.evalFailed.body')}
                     </p>
                   </div>
                 </div>
@@ -279,7 +269,7 @@ const Evaluation = () => {
                   className="ml-8 text-sm font-medium text-indigo-600 dark:text-indigo-400
                     hover:underline"
                 >
-                  Try evaluating again →
+                  {t('evaluation.evalFailed.retry')}
                 </button>
               </div>
             </motion.div>
@@ -331,28 +321,28 @@ const Evaluation = () => {
 
               <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Evaluation Scores
+                  {t('evaluation.scores.title')}
                 </h2>
                 <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
-                  Based on Amman market conditions and your {idea?.businessType || 'B2C'} business type
+                  {t('evaluation.scores.subtitle', { type: idea?.businessType || 'B2C' })}
                 </p>
               </div>
 
               <div className="flex flex-col md:flex-row items-center justify-around gap-8 px-5 py-8">
                 <div className="flex flex-col items-center gap-2">
-                  <ScoreCircle score={evalData?.noveltyScore || 0} label="HOW ORIGINAL IS YOUR IDEA" />
+                  <ScoreCircle score={evalData?.noveltyScore || 0} label={t('evaluation.scores.novelty')} />
                   <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
                     {scoreDesc(evalData?.noveltyScore || 0, 'novelty')}
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <ScoreCircle score={evalData?.marketPotentialScore || 0} label="MARKET OPPORTUNITY" />
+                  <ScoreCircle score={evalData?.marketPotentialScore || 0} label={t('evaluation.scores.market')} />
                   <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
                     {scoreDesc(evalData?.marketPotentialScore || 0, 'market')}
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <ScoreCircle score={evalData?.overallScore || 0} label="OVERALL VIABILITY SCORE" size={160} />
+                  <ScoreCircle score={evalData?.overallScore || 0} label={t('evaluation.scores.overall')} size={160} />
                   <p className="text-xs text-center text-slate-400 dark:text-gray-500 max-w-[130px]">
                     {scoreDesc(evalData?.overallScore || 0, 'overall')}
                   </p>
@@ -363,7 +353,7 @@ const Evaluation = () => {
               <div className="px-5 py-3 border-t border-slate-100 dark:border-gray-800
                 flex items-center justify-between">
                 <p className="text-xs text-slate-500 dark:text-gray-400 font-medium">
-                  Risk Assessment
+                  {t('evaluation.scores.riskAssessment')}
                 </p>
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${riskBadgeClass}`}>
                   {evalData?.riskLevel || 'Medium Risk'}
@@ -377,10 +367,10 @@ const Evaluation = () => {
             <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  SWOT Analysis
+                  {t('evaluation.swot.title')}
                 </h2>
                 <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
-                  Strengths, weaknesses, opportunities, and threats specific to your idea in Amman
+                  {t('evaluation.swot.subtitle')}
                 </p>
               </div>
               <div className="p-5">
@@ -394,7 +384,7 @@ const Evaluation = () => {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl p-5">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">
-                  What to do next
+                  {t('evaluation.recommendations.title')}
                 </h2>
                 <div className="space-y-3">
                   {recommendations.map((rec, i) => (
@@ -421,19 +411,18 @@ const Evaluation = () => {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-3 pt-2"
           >
-            {/* New benchmark-driven projections */}
             <Button onClick={() => navigate(`/financial-projections/${ideaId}`)} className="flex-1">
-              Financial Projections
+              {t('evaluation.actions.financialProjections')}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/financial/${ideaId}`)} className="flex-1">
-              Classic Financial Plan
+              {t('evaluation.actions.classicPlan')}
             </Button>
             <Button variant="secondary" onClick={() => navigate(`/business-plan/${ideaId}`)} className="flex-1">
-              Download Business Plan
+              {t('evaluation.actions.downloadPlan')}
             </Button>
           </motion.div>
 
@@ -444,7 +433,7 @@ const Evaluation = () => {
               className="text-xs text-slate-400 dark:text-gray-600
                 hover:text-slate-600 dark:hover:text-gray-400 transition-colors"
             >
-              Re-evaluate this idea
+              {t('evaluation.actions.reEvaluate')}
             </button>
           </div>
 

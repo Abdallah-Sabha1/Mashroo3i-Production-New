@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { auth } from '../services/api'
 import useAuthStore from '../store/authStore'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 
 const Login = () => {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -23,7 +25,7 @@ const Login = () => {
       login(res.data, res.data.token)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password.')
+      setError(err.response?.data?.message || t('auth.login.errors.invalidCredentials'))
     } finally {
       setLoading(false)
     }
@@ -43,7 +45,7 @@ const Login = () => {
               Mashroo3i
             </h1>
           </Link>
-          <p className="text-slate-600 dark:text-gray-400">Sign in to your account</p>
+          <p className="text-slate-600 dark:text-gray-400">{t('auth.login.subtitle')}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
@@ -53,34 +55,34 @@ const Login = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Input
-              label="Email Address"
+              label={t('auth.login.email')}
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.login.emailPlaceholder')}
               required
               error={errors.email?.message}
               {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+                required: t('auth.login.errors.emailRequired'),
+                pattern: { value: /^\S+@\S+$/i, message: t('auth.login.errors.emailInvalid') }
               })}
             />
             <Input
-              label="Password"
+              label={t('auth.login.password')}
               type="password"
-              placeholder="Enter your password"
+              placeholder={t('auth.login.passwordPlaceholder')}
               required
               error={errors.password?.message}
-              {...register('password', { required: 'Password is required' })}
+              {...register('password', { required: t('auth.login.errors.passwordRequired') })}
             />
 
             <Button type="submit" loading={loading} className="w-full" size="lg">
-              Sign In
+              {t('auth.login.signIn')}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-gray-400">
-            Don't have an account?{' '}
+            {t('auth.login.noAccount')}{' '}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
-              Sign up
+              {t('auth.login.signUp')}
             </Link>
           </p>
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import useAuthStore from '../store/authStore'
 import { auth as authApi } from '../services/api'
 import Navbar from '../components/layout/Navbar'
@@ -10,6 +11,7 @@ import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 
 const Profile = () => {
+  const { t } = useTranslation()
   const { user, setUser, logout } = useAuthStore()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -36,7 +38,7 @@ const Profile = () => {
         businessInterest: data.businessInterest,
       })
       setUser({ ...user, ...data })
-      setSuccess('Profile updated successfully!')
+      setSuccess(t('profile.updateSuccess'))
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
       console.error('Update failed:', err)
@@ -55,8 +57,8 @@ const Profile = () => {
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Profile Settings</h1>
-          <p className="text-slate-600 dark:text-gray-400 mb-8">Manage your account information</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{t('profile.title')}</h1>
+          <p className="text-slate-600 dark:text-gray-400 mb-8">{t('profile.subtitle')}</p>
 
           {/* Avatar */}
           <Card className="mb-6">
@@ -73,27 +75,27 @@ const Profile = () => {
 
           {/* Form */}
           <Card className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">{t('profile.personalInfo')}</h3>
 
             {success && (
               <div className="mb-4 p-3 rounded-xl bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-400">{success}</div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <Input label="Full Name" required error={errors.fullName?.message}
-                {...register('fullName', { required: 'Name is required' })} />
-              <Input label="Email" type="email" disabled {...register('email')} className="opacity-60" />
-              <Input label="Education" placeholder="e.g., BS Computer Science" {...register('education')} />
-              <Input label="Experience" placeholder="e.g., 3 years in marketing" {...register('experience')} />
-              <Input label="Business Interest" placeholder="e.g., Technology, Healthcare" {...register('businessInterest')} />
-              <Button type="submit" loading={loading}>Update Profile</Button>
+              <Input label={t('profile.fullName')} required error={errors.fullName?.message}
+                {...register('fullName', { required: t('profile.nameRequired') })} />
+              <Input label={t('profile.email')} type="email" disabled {...register('email')} className="opacity-60" />
+              <Input label={t('profile.education')} placeholder={t('profile.educationPlaceholder')} {...register('education')} />
+              <Input label={t('profile.experience')} placeholder={t('profile.experiencePlaceholder')} {...register('experience')} />
+              <Input label={t('profile.businessInterest')} placeholder={t('profile.businessInterestPlaceholder')} {...register('businessInterest')} />
+              <Button type="submit" loading={loading}>{t('profile.updateProfile')}</Button>
             </form>
           </Card>
 
           {/* Sign Out */}
           <Card className="!border-red-200 dark:!border-red-800">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Account</h3>
-            <Button variant="danger" onClick={handleLogout}>Sign Out</Button>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t('profile.account')}</h3>
+            <Button variant="danger" onClick={handleLogout}>{t('profile.signOut')}</Button>
           </Card>
         </motion.div>
       </div>

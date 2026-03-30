@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
-import { auth } from '../services/api'  
+import { useTranslation } from 'react-i18next'
+import { auth } from '../services/api'
 import useAuthStore from '../store/authStore'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 
 const Register = () => {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -23,7 +25,7 @@ const Register = () => {
       login(res.data, res.data.token)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.')
+      setError(err.response?.data?.message || t('auth.register.errors.failed'))
     } finally {
       setLoading(false)
     }
@@ -43,7 +45,7 @@ const Register = () => {
               Mashroo3i
             </h1>
           </Link>
-          <p className="text-slate-600 dark:text-gray-400">Create your account</p>
+          <p className="text-slate-600 dark:text-gray-400">{t('auth.register.subtitle')}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
@@ -53,59 +55,59 @@ const Register = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <Input
-              label="Full Name"
-              placeholder="Enter your full name"
+              label={t('auth.register.fullName')}
+              placeholder={t('auth.register.fullNamePlaceholder')}
               required
               error={errors.fullName?.message}
-              {...register('fullName', { required: 'Full name is required' })}
+              {...register('fullName', { required: t('auth.register.errors.nameRequired') })}
             />
             <Input
-              label="Email Address"
+              label={t('auth.register.email')}
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.register.emailPlaceholder')}
               required
               error={errors.email?.message}
               {...register('email', {
-                required: 'Email is required',
-                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+                required: t('auth.register.errors.emailRequired'),
+                pattern: { value: /^\S+@\S+$/i, message: t('auth.register.errors.emailInvalid') }
               })}
             />
             <Input
-              label="Password"
+              label={t('auth.register.password')}
               type="password"
-              placeholder="Min 8 characters"
+              placeholder={t('auth.register.passwordPlaceholder')}
               required
               error={errors.password?.message}
               {...register('password', {
-                required: 'Password is required',
-                minLength: { value: 8, message: 'Password must be at least 8 characters' }
+                required: t('auth.register.errors.passwordRequired'),
+                minLength: { value: 8, message: t('auth.register.errors.passwordMin') }
               })}
             />
             <Input
-              label="Education"
-              placeholder="e.g., BS Computer Science"
+              label={t('auth.register.education')}
+              placeholder={t('auth.register.educationPlaceholder')}
               {...register('education')}
             />
             <Input
-              label="Experience"
-              placeholder="e.g., 3 years in marketing"
+              label={t('auth.register.experience')}
+              placeholder={t('auth.register.experiencePlaceholder')}
               {...register('experience')}
             />
             <Input
-              label="Business Interest"
-              placeholder="e.g., Technology, Food & Beverage"
+              label={t('auth.register.businessInterest')}
+              placeholder={t('auth.register.businessInterestPlaceholder')}
               {...register('businessInterest')}
             />
 
             <Button type="submit" loading={loading} className="w-full" size="lg">
-              Create Account
+              {t('auth.register.createAccount')}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-gray-400">
-            Already have an account?{' '}
+            {t('auth.register.hasAccount')}{' '}
             <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
-              Sign in
+              {t('auth.register.signIn')}
             </Link>
           </p>
         </div>

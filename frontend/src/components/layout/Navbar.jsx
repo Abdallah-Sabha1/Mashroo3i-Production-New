@@ -2,12 +2,16 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sun, Moon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import useAuthStore from '../../store/authStore'
+import useLanguageStore from '../../store/languageStore'
 import { useDarkMode } from '../../utils/darkMode'
 import Button from '../ui/Button'
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuthStore()
+  const { language, toggleLanguage } = useLanguageStore()
+  const { t } = useTranslation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [isDark, toggleDark] = useDarkMode()
@@ -19,6 +23,8 @@ const Navbar = () => {
     navigate('/login')
     setProfileOpen(false)
   }
+
+  const isRtl = language === 'ar'
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-slate-200 dark:border-gray-800">
@@ -33,9 +39,9 @@ const Navbar = () => {
           {isAuthenticated ? (
             <div className="hidden md:flex items-center gap-1">
               {[
-                { to: '/dashboard', label: 'Dashboard' },
-                { to: '/submit-idea', label: 'New Idea' },
-                { to: '/profile', label: 'Profile' },
+                { to: '/dashboard',   label: t('nav.dashboard') },
+                { to: '/submit-idea', label: t('nav.newIdea')   },
+                { to: '/profile',     label: t('nav.profile')   },
               ].map(link => (
                 <Link
                   key={link.to}
@@ -52,19 +58,32 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-1">
-              {['Features', 'About'].map(item => (
-                <a key={item} href={`#${item.toLowerCase()}`} className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors">
-                  {item}
+              {[
+                { href: '#features', label: t('nav.features') },
+                { href: '#about',    label: t('nav.about')    },
+              ].map(item => (
+                <a key={item.href} href={item.href} className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors">
+                  {item.label}
                 </a>
               ))}
             </div>
           )}
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
+            {/* Language toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+              title={isRtl ? 'Switch to English' : 'التبديل للعربية'}
+            >
+              {isRtl ? '🇬🇧 EN' : '🇯🇴 AR'}
+            </button>
+
+            {/* Dark mode toggle */}
             <button
               onClick={toggleDark}
               className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -90,21 +109,21 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 5, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
+                      className="absolute end-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
                     >
                       <div className="px-4 py-2 border-b border-slate-100 dark:border-gray-800">
                         <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.fullName}</p>
                         <p className="text-xs text-slate-500 dark:text-gray-400">{user?.email}</p>
                       </div>
                       <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
-                        Profile
+                        {t('nav.profile')}
                       </Link>
                       <Link to="/dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Link>
                       <div className="border-t border-slate-100 dark:border-gray-800 mt-1 pt-1">
                         <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 w-full transition-colors">
-                          Sign out
+                          {t('nav.signOut')}
                         </button>
                       </div>
                     </motion.div>
@@ -114,20 +133,27 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">Sign in</Button>
+                  <Button variant="ghost" size="sm">{t('nav.signIn')}</Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm">Get Started</Button>
+                  <Button size="sm">{t('nav.getStarted')}</Button>
                 </Link>
               </>
             )}
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
+            {/* Language toggle (mobile) */}
+            <button
+              onClick={toggleLanguage}
+              className="px-2 py-1 rounded-lg border border-slate-200 dark:border-gray-700 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              {isRtl ? 'EN' : 'AR'}
+            </button>
             <button
               onClick={toggleDark}
               className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
@@ -155,16 +181,16 @@ const Navbar = () => {
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated ? (
                 <>
-                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Dashboard</Link>
-                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">New Idea</Link>
-                  <Link to="/profile" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Profile</Link>
-                  <button onClick={() => { handleLogout(); setMobileOpen(false) }} className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">Sign out</button>
+                  <Link to="/dashboard"   onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.dashboard')}</Link>
+                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.newIdea')}</Link>
+                  <Link to="/profile"     onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.profile')}</Link>
+                  <button onClick={() => { handleLogout(); setMobileOpen(false) }} className="block w-full text-start px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">{t('nav.signOut')}</button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">Sign in</Link>
+                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.signIn')}</Link>
                   <Link to="/register" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full" size="sm">Get Started</Button>
+                    <Button className="w-full" size="sm">{t('nav.getStarted')}</Button>
                   </Link>
                 </>
               )}

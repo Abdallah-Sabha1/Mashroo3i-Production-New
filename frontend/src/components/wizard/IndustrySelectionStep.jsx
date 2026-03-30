@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '../ui/Loading'
 import financialProjectionService from '../../services/financialProjectionService'
 
-const INDUSTRY_META = {
-  food_and_beverage:     { icon: '🍕', label: 'الأغذية والمشروبات',        en: 'Food & Beverage'        },
-  retail_ecommerce:      { icon: '🛒', label: 'التجارة الإلكترونية والتجزئة', en: 'Retail & E-commerce'  },
-  professional_services: { icon: '💼', label: 'الخدمات المهنية',             en: 'Professional Services'  },
-  technology:            { icon: '💻', label: 'التكنولوجيا والبرمجيات',       en: 'Technology'             },
-  health_wellness:       { icon: '🏥', label: 'الصحة والعافية',               en: 'Health & Wellness'      },
-  education:             { icon: '📚', label: 'التعليم والتدريب',              en: 'Education & Training'   },
+const INDUSTRY_ICONS = {
+  food_and_beverage:     '🍕',
+  retail_ecommerce:      '🛒',
+  professional_services: '💼',
+  technology:            '💻',
+  health_wellness:       '🏥',
+  education:             '📚',
 }
 
 const IndustrySelectionStep = ({ selected, onSelect }) => {
+  const { t, i18n } = useTranslation()
   const [industries, setIndustries] = useState([])
   const [loading, setLoading]       = useState(true)
+  const isArabic = i18n.language === 'ar'
 
   useEffect(() => {
     let active = true
@@ -23,10 +26,10 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
       .catch(() => {
         // Fallback to static list if API unavailable
         if (active) setIndustries(
-          Object.entries(INDUSTRY_META).map(([type, m]) => ({
+          Object.entries(INDUSTRY_ICONS).map(([type]) => ({
             industryType:   type,
-            industryNameAr: m.label,
-            industryNameEn: m.en,
+            industryNameAr: type,
+            industryNameEn: type,
             availableModels: ['B2C'],
           }))
         )
@@ -46,8 +49,10 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {industries.map((ind, idx) => {
-        const meta    = INDUSTRY_META[ind.industryType] ?? { icon: '🏢' }
+        const icon    = INDUSTRY_ICONS[ind.industryType] ?? '🏢'
         const isActive = selected === ind.industryType
+        const primaryName   = isArabic ? ind.industryNameAr : ind.industryNameEn
+        const secondaryName = isArabic ? ind.industryNameEn : ind.industryNameAr
         return (
           <motion.button
             key={ind.industryType}
@@ -56,7 +61,6 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
             onClick={() => onSelect(ind.industryType)}
-            dir="rtl"
             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center
               transition-all duration-200 cursor-pointer
               ${isActive
@@ -64,13 +68,13 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
                 : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-gray-800'
               }`}
           >
-            <span className="text-3xl">{meta.icon}</span>
+            <span className="text-3xl">{icon}</span>
             <span className={`text-sm font-semibold leading-tight ${
               isActive ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-gray-200'
             }`}>
-              {ind.industryNameAr}
+              {primaryName}
             </span>
-            <span className="text-xs text-slate-400 dark:text-gray-500">{ind.industryNameEn}</span>
+            <span className="text-xs text-slate-400 dark:text-gray-500">{secondaryName}</span>
             {ind.availableModels?.length > 0 && (
               <div className="flex gap-1 flex-wrap justify-center mt-1">
                 {ind.availableModels.map(m => (

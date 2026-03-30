@@ -1,26 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '../ui/Loading'
 import financialProjectionService from '../../services/financialProjectionService'
-
-const MODELS = [
-  {
-    key: 'B2C',
-    title: 'B2C',
-    titleAr: 'تجزئة — للمستهلكين الأفراد',
-    desc: 'أنت تبيع مباشرةً للعملاء الأفراد، مثل المطاعم والمتاجر والتطبيقات الاستهلاكية.',
-    examples: ['مطعم أو مقهى', 'متجر إلكتروني', 'تطبيق للمستهلكين'],
-    color: 'indigo',
-  },
-  {
-    key: 'B2B',
-    title: 'B2B',
-    titleAr: 'للشركات والمؤسسات',
-    desc: 'تقدّم خدماتك أو منتجاتك للشركات الأخرى، مثل خدمات الاستشارات أو البرمجيات المؤسسية.',
-    examples: ['استشارات وتدريب', 'برمجيات للشركات', 'خدمات تسويق وعلاقات'],
-    color: 'emerald',
-  },
-]
 
 const colorMap = {
   indigo:  { border: 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 shadow-indigo-100 dark:shadow-indigo-950/30', badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300', title: 'text-indigo-700 dark:text-indigo-300' },
@@ -28,8 +10,28 @@ const colorMap = {
 }
 
 const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
+  const { t } = useTranslation()
   const [benchmarkPreviews, setBenchmarkPreviews] = useState({})
   const [loadingBm, setLoadingBm] = useState(false)
+
+  const MODELS = [
+    {
+      key: 'B2C',
+      title: t('financialWizard.businessModel.b2c.title'),
+      subtitle: t('financialWizard.businessModel.b2c.titleAr'),
+      desc: t('financialWizard.businessModel.b2c.desc'),
+      examples: t('financialWizard.businessModel.b2c.examples', { returnObjects: true }),
+      color: 'indigo',
+    },
+    {
+      key: 'B2B',
+      title: t('financialWizard.businessModel.b2b.title'),
+      subtitle: t('financialWizard.businessModel.b2b.titleAr'),
+      desc: t('financialWizard.businessModel.b2b.desc'),
+      examples: t('financialWizard.businessModel.b2b.examples', { returnObjects: true }),
+      color: 'emerald',
+    },
+  ]
 
   useEffect(() => {
     if (!industryType) return
@@ -66,8 +68,7 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.08 }}
             onClick={() => onSelect(model.key)}
-            dir="rtl"
-            className={`text-right p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer
+            className={`text-start p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer
               ${isActive
                 ? `${c.border} border-2 shadow-md`
                 : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-indigo-200 dark:hover:border-indigo-800 hover:bg-slate-50 dark:hover:bg-gray-800'
@@ -82,7 +83,7 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
               <span className={`font-semibold text-sm ${
                 isActive ? c.title : 'text-slate-800 dark:text-gray-200'
               }`}>
-                {model.titleAr}
+                {model.subtitle}
               </span>
             </div>
 
@@ -107,27 +108,27 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
             ) : bm ? (
               <div className="pt-2 border-t border-slate-100 dark:border-gray-800 space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">تكلفة التأسيس</span>
+                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.startupCost')}</span>
                   <span className="text-slate-700 dark:text-gray-300 font-medium">
                     {bm.startupCostLow?.toLocaleString()} – {bm.startupCostHigh?.toLocaleString()} JOD
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">هامش الربح</span>
+                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.grossMargin')}</span>
                   <span className="text-slate-700 dark:text-gray-300 font-medium">
                     {bm.grossMarginLow}% – {bm.grossMarginHigh}%
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">نقطة التعادل</span>
+                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.breakEven')}</span>
                   <span className="text-slate-700 dark:text-gray-300 font-medium">
-                    {bm.breakEvenMonthsLow}–{bm.breakEvenMonthsHigh} شهراً
+                    {bm.breakEvenMonthsLow}–{bm.breakEvenMonthsHigh} {t('financialWizard.businessModel.benchmark.months')}
                   </span>
                 </div>
               </div>
             ) : (
               <p className="text-xs text-slate-300 dark:text-gray-600 pt-2 border-t border-slate-100 dark:border-gray-800">
-                لا توجد بيانات مرجعية لهذا النموذج
+                {t('financialWizard.businessModel.benchmark.noData')}
               </p>
             )}
           </motion.button>

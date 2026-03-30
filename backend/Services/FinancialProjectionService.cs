@@ -67,11 +67,15 @@ namespace backend.Services
                 ?? throw new InvalidOperationException(
                     $"No benchmark found for {request.IndustryType} / {request.BusinessModel}");
 
-            // Delete existing projection if any
+            // Delete existing projection if any (commit separately to avoid unique-constraint conflict)
             var existing = await _db.FinancialProjections
                 .Include(p => p.Scenarios)
                 .FirstOrDefaultAsync(p => p.BusinessIdeaId == ideaId);
-            if (existing != null) _db.FinancialProjections.Remove(existing);
+            if (existing != null)
+            {
+                _db.FinancialProjections.Remove(existing);
+                await _db.SaveChangesAsync();
+            }
 
             // Compute effective values
             decimal effectiveInvestment  = request.InitialInvestment  ?? benchmark.StartupCostMid;
