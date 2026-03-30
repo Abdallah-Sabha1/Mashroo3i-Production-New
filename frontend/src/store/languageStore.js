@@ -6,7 +6,6 @@ const applyLanguage = (lang) => {
   i18n.changeLanguage(lang)
   document.documentElement.lang = lang
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
-  localStorage.setItem('mashroo3i_lang', lang)
 }
 
 const useLanguageStore = create(
@@ -26,7 +25,7 @@ const useLanguageStore = create(
       },
     }),
     {
-      name: 'mashroo3i-language',
+      name: 'mashroo3i_lang', // Match App.jsx localStorage key
       partialize: (state) => ({ language: state.language }),
     }
   )

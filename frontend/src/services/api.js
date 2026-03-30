@@ -1,4 +1,5 @@
 import axios from 'axios'
+import i18n from '../i18n'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
@@ -27,21 +28,19 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // Attach a human-readable message to every error
+    // Attach a translated human-readable message to every error
+    const t = i18n.t.bind(i18n)
     if (error.response?.status === 429) {
-      error.userMessage =
-        'Too many requests. Please wait a minute and try again.'
+      error.userMessage = t('common.errors.tooManyRequests')
     } else if (error.response?.status >= 500) {
-      error.userMessage =
-        'Something went wrong on our end. Please try again in a moment.'
+      error.userMessage = t('common.errors.serverError')
     } else if (!error.response) {
-      error.userMessage =
-        'Cannot reach the server. Please check your internet connection.'
+      error.userMessage = t('common.errors.networkError')
     } else {
       error.userMessage =
         error.response?.data?.message ||
         error.response?.data?.title ||
-        'Something went wrong. Please try again.'
+        t('common.errors.defaultError')
     }
 
     return Promise.reject(error)

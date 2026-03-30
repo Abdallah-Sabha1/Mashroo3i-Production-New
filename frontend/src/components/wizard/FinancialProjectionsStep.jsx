@@ -49,13 +49,14 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
 
     financialProjectionService.getProjection(ideaId)
       .then(res => {
-        if (active) return
+        if (!active) return
         setProjection(res.data)
       })
       .catch(() => {
         financialProjectionService.createProjection(ideaId, { industryType, businessModel })
           .then(res => {
-            if (active) setProjection(res.data)
+            if (!active) return
+            setProjection(res.data)
           })
           .catch(() => { if (active) setError(t('financialWizard.projections.errorMsg')) })
       })
@@ -116,13 +117,29 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
     }
   }
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setInvestmentAdj(0)
     setRevenueAdj(0)
     setMarginAdj(0)
     setGrowthAdj(0)
     setUseBenchmark(true)
-    if (projection) handleRecalculate()
+
+    // Reset to benchmark by sending undefined values (don't use stale handleRecalculate)
+    setRecalculating(true)
+    setError(null)
+    try {
+      const res = await financialProjectionService.updateProjection(ideaId, {
+        initialInvestment: undefined,
+        monthlyRevenue:    undefined,
+        profitMargin:      undefined,
+        growthRate:        undefined,
+      })
+      setProjection(res.data)
+    } catch {
+      setError(t('financialWizard.projections.recalcError'))
+    } finally {
+      setRecalculating(false)
+    }
   }
 
   if (loading) return (
