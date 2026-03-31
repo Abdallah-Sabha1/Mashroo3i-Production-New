@@ -108,13 +108,26 @@ namespace backend.Services
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var jsonResponse = JsonDocument.Parse(responseContent);
 
-                var text = jsonResponse
+                // Gemini 2.5 Flash thinking mode: parts[0] may be a thinking block,
+                // the actual response is in the last part where thought != true.
+                var parts = jsonResponse
                     .RootElement
                     .GetProperty("candidates")[0]
                     .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
-                    .GetString();
+                    .GetProperty("parts");
+
+                string? text = null;
+                foreach (var part in parts.EnumerateArray())
+                {
+                    // Skip thinking parts (thought == true)
+                    if (part.TryGetProperty("thought", out var thoughtProp) && thoughtProp.GetBoolean())
+                        continue;
+                    text = part.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
+                }
+                // Fallback: last part text (original behaviour)
+                text ??= parts[parts.GetArrayLength() - 1].TryGetProperty("text", out var lastText)
+                    ? lastText.GetString()
+                    : null;
 
                 return text ?? string.Empty;
             }
@@ -346,14 +359,32 @@ Return ONLY valid JSON, no markdown:
             }
         }
 
+        // Strip <think>...</think> blocks and markdown fences, then extract first JSON object
+        private static string CleanJsonResponse(string response)
+        {
+            // Remove <think>...</think> blocks (Gemini 2.5 Flash thinking leakage)
+            var cleaned = System.Text.RegularExpressions.Regex.Replace(
+                response, @"<think>[\s\S]*?</think>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            cleaned = cleaned
+                .Replace("```json", "")
+                .Replace("```", "")
+                .Trim();
+
+            // Extract only the JSON object (first { to last })
+            var start = cleaned.IndexOf('{');
+            var end   = cleaned.LastIndexOf('}');
+            if (start >= 0 && end > start)
+                cleaned = cleaned[start..(end + 1)];
+
+            return cleaned;
+        }
+
         private IdeaInsightsDto ParseInsightsResponse(string response)
         {
             try
             {
-                var cleanJson = response
-                    .Replace("```json", "")
-                    .Replace("```", "")
-                    .Trim();
+                var cleanJson = CleanJsonResponse(response);
 
                 using var doc = JsonDocument.Parse(cleanJson);
                 var root = doc.RootElement;
@@ -388,10 +419,7 @@ Return ONLY valid JSON, no markdown:
         {
             try
             {
-                var cleanJson = response
-                    .Replace("```json", "")
-                    .Replace("```", "")
-                    .Trim();
+                var cleanJson = CleanJsonResponse(response);
 
                 using var doc = JsonDocument.Parse(cleanJson);
                 var root = doc.RootElement;
