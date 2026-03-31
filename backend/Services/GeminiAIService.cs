@@ -11,14 +11,17 @@ namespace backend.Services
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
         private readonly ILogger<GeminiAIService> _logger;
-        private readonly string _geminiApiKey;
+        private readonly string _apiKey;
+
+        private const string GroqUrl   = "https://api.groq.com/openai/v1/chat/completions";
+        private const string GroqModel = "llama-3.3-70b-versatile";
 
         public GeminiAIService(HttpClient httpClient, IConfiguration config, ILogger<GeminiAIService> logger)
         {
             _httpClient = httpClient;
-            _config = config;
-            _logger = logger;
-            _geminiApiKey = config["GeminiAI:ApiKey"] ?? throw new InvalidOperationException("Gemini API Key not configured");
+            _config     = config;
+            _logger     = logger;
+            _apiKey     = config["GroqAI:ApiKey"] ?? throw new InvalidOperationException("Groq API Key not configured");
         }
 
         public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description, string sector)
@@ -26,12 +29,12 @@ namespace backend.Services
             try
             {
                 _logger.LogInformation("Generating insights for idea: {Title}", title);
-                var prompt = BuildInsightGenerationPrompt(title, description, sector);
-                var response = await CallGeminiApiAsync(prompt);
+                var prompt   = BuildInsightGenerationPrompt(title, description, sector);
+                var response = await CallGroqAsync(prompt);
 
                 if (string.IsNullOrEmpty(response))
                 {
-                    _logger.LogWarning("Empty response from Gemini API for insights");
+                    _logger.LogWarning("Empty response from Groq for insights");
                     return GetDefaultInsights();
                 }
 
@@ -39,7 +42,7 @@ namespace backend.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating insights from Gemini API");
+                _logger.LogError(ex, "Error generating insights from Groq");
                 return GetDefaultInsights();
             }
         }
@@ -48,13 +51,13 @@ namespace backend.Services
         {
             try
             {
-                _logger.LogInformation("Evaluating business idea: {Title} (ID: {IdeaId}) in language: {Language}", idea.Title, idea.IdeaId, language);
-                var prompt = BuildEvaluationPrompt(idea, language);
-                var response = await CallGeminiApiAsync(prompt);
+                _logger.LogInformation("Evaluating idea: {Title} (ID: {IdeaId}) in {Language}", idea.Title, idea.IdeaId, language);
+                var prompt   = BuildEvaluationPrompt(idea, language);
+                var response = await CallGroqAsync(prompt);
 
                 if (string.IsNullOrEmpty(response))
                 {
-                    _logger.LogWarning("Empty response from Gemini API for evaluation");
+                    _logger.LogWarning("Empty response from Groq for evaluation");
                     return GetDefaultEvaluation(idea);
                 }
 
@@ -62,90 +65,63 @@ namespace backend.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error evaluating business idea with Gemini API");
+                _logger.LogError(ex, "Error evaluating business idea with Groq");
                 return GetDefaultEvaluation(idea);
             }
         }
 
-        private async Task<string> CallGeminiApiAsync(string prompt)
+        // ── Groq API call ─────────────────────────────────────────────────────
+
+        private async Task<string> CallGroqAsync(string prompt)
         {
             try
             {
-                var geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-
                 var requestBody = new
                 {
-                    contents = new[]
+                    model    = GroqModel,
+                    messages = new[]
                     {
-                        new { parts = new[] { new { text = prompt } } }
+                        new { role = "user", content = prompt }
                     },
-                    generationConfig = new
-                    {
-                        temperature = 0.7,
-                        topK = 40,
-                        topP = 0.95,
-                        maxOutputTokens = 2048
-                    }
+                    temperature    = 0.7,
+                    max_tokens     = 2048,
+                    response_format = new { type = "json_object" }
                 };
 
-                var jsonContent = new StringContent(
+                var request = new HttpRequestMessage(HttpMethod.Post, GroqUrl);
+                request.Headers.Add("Authorization", $"Bearer {_apiKey}");
+                request.Content = new StringContent(
                     JsonSerializer.Serialize(requestBody),
                     Encoding.UTF8,
-                    "application/json"
-                );
+                    "application/json");
 
-                var requestUrl = $"{geminiUrl}?key={_geminiApiKey}";
-                var response = await _httpClient.PostAsync(requestUrl, jsonContent);
+                var response = await _httpClient.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Gemini API error: Status={StatusCode}, Response={Response}", response.StatusCode, errorContent);
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Groq API error: {Status} — {Error}", response.StatusCode, error);
                     return string.Empty;
                 }
 
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var jsonResponse = JsonDocument.Parse(responseContent);
-
-                // Gemini 2.5 Flash thinking mode: parts[0] may be a thinking block,
-                // the actual response is in the last part where thought != true.
-                var parts = jsonResponse
-                    .RootElement
-                    .GetProperty("candidates")[0]
+                var json     = await response.Content.ReadAsStringAsync();
+                var doc      = JsonDocument.Parse(json);
+                var content  = doc.RootElement
+                    .GetProperty("choices")[0]
+                    .GetProperty("message")
                     .GetProperty("content")
-                    .GetProperty("parts");
+                    .GetString();
 
-                string? text = null;
-                foreach (var part in parts.EnumerateArray())
-                {
-                    // Skip thinking parts (thought == true)
-                    if (part.TryGetProperty("thought", out var thoughtProp) && thoughtProp.GetBoolean())
-                        continue;
-                    text = part.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
-                }
-                // Fallback: last part text (original behaviour)
-                text ??= parts[parts.GetArrayLength() - 1].TryGetProperty("text", out var lastText)
-                    ? lastText.GetString()
-                    : null;
-
-                return text ?? string.Empty;
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP request error calling Gemini API");
-                return string.Empty;
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "JSON parsing error in Gemini response");
-                return string.Empty;
+                return content ?? string.Empty;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error calling Gemini API");
+                _logger.LogError(ex, "Error calling Groq API");
                 return string.Empty;
             }
         }
+
+        // ── Prompt builders ───────────────────────────────────────────────────
 
         private string BuildInsightGenerationPrompt(string title, string description, string sector)
         {
@@ -160,9 +136,9 @@ namespace backend.Services
                 _                        => "General Business"
             };
 
-            return $@"You are a senior business consultant who specializes in the Amman, Jordan startup market.
+            return $@"You are a senior business consultant specializing in the Amman, Jordan startup market.
 
-BUSINESS IDEA SUBMITTED:
+BUSINESS IDEA:
 Title: {title}
 Description: {description}
 Sector: {sectorLabel}
@@ -170,161 +146,97 @@ Market: Amman, Jordan
 
 YOUR TASK:
 Analyze this business idea for an entrepreneur in Amman who has NOT started yet.
-They want to know if their idea is viable and how to think about it.
 
-IMPORTANT RULES:
-1. All analysis must be specific to Amman's market — not generic global advice
-2. Be honest — if the idea has weaknesses, mention them clearly but constructively
-3. Use simple language — the user may not have a business education
-4. For businessType classification: B2C = sells to individual people, B2B = sells to other businesses
-5. For suggestedMonthlySalesRange: be realistic for Amman — most new businesses start very small
+RULES:
+1. All analysis must be specific to Amman's market
+2. Be honest — mention weaknesses clearly but constructively
+3. Use simple language
+4. For businessType: B2C = sells to individuals, B2B = sells to businesses
+5. For suggestedMonthlySalesRange: be realistic for Amman — new businesses start small
 
-Return ONLY a valid JSON object. No markdown, no explanation, just JSON:
+Return ONLY a valid JSON object with these exact keys:
 {{
-  ""problemStatement"": ""What specific problem does this solve for people or businesses in Amman? (2-3 sentences, specific to Jordan context)"",
-  ""uniqueSellingPoint"": ""What would make this business stand out from existing alternatives in Amman? (2-3 sentences)"",
-  ""targetAudience"": ""Who exactly would buy this in Amman? Describe their age, lifestyle, location in Amman, and specific need."",
+  ""problemStatement"": ""What specific problem does this solve for people in Amman? (2-3 sentences)"",
+  ""uniqueSellingPoint"": ""What would make this stand out from existing alternatives in Amman? (2-3 sentences)"",
+  ""targetAudience"": ""Who exactly would buy this in Amman? Describe age, lifestyle, location, specific need."",
   ""suggestedBusinessType"": ""B2C"" or ""B2B"",
   ""businessTypeConfidence"": ""HIGH"" or ""MEDIUM"" or ""LOW"",
-  ""businessTypeReason"": ""One sentence explaining clearly why this is B2C or B2B in plain language"",
-  ""suggestedMonthlySalesRange"": ""<pick EXACTLY ONE value with no extra text. If B2C: choose from 1_10, 10_50, 50_200, 200_plus. If B2B: choose from 1_3, 4_10, 11_30, 30_plus. Base your choice on how many customers/clients a brand-new business in this sector in Amman could realistically reach in month 1.>""
+  ""businessTypeReason"": ""One sentence explaining why B2C or B2B"",
+  ""suggestedMonthlySalesRange"": ""pick EXACTLY ONE: for B2C: 1_10, 10_50, 50_200, or 200_plus. For B2B: 1_3, 4_10, 11_30, or 30_plus""
 }}";
         }
 
         private string BuildEvaluationPrompt(BusinessIdea idea, string language = "en")
         {
-            var isArabic = language.ToLower() == "ar" || language.ToLower() == "ar-jo";
+            var isArabic = language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
 
             var scoringCriteria = idea.BusinessType == "B2B"
-                ? (isArabic ? @"أوزان التصنيف لأفكار B2B:
-- شدة المشكلة (هل هي ضرورية للشركات؟): 25 نقطة
-- وضوح المشتري (هل متخذ القرار واضح؟): 20 نقطة
-- العائد على الاستثمار المقاس للشركة: 20 نقطة
-- الحصانة التنافسية أو تكلفة التبديل: 20 نقطة
-- جدوى دورة المبيعات للمؤسس الجديد: 10 نقاط
-- القابلية للتوسع في سوق عمّان: 5 نقاط"
-                : @"SCORING WEIGHTS FOR B2B IDEAS:
-- Problem severity (is it a must-have for businesses?): 25 points
-- Buyer clarity (is the decision maker clear?): 20 points
-- Measurable ROI for the buying company: 20 points
-- Competitive moat or switching cost: 20 points
-- Sales cycle feasibility for a new founder: 10 points
-- Scalability in Amman market: 5 points")
-                : (isArabic ? @"أوزان التصنيف لأفكار B2C:
-- حجم السوق في عمّان (هل يوجد طلب كافٍ؟): 25 نقطة
-- وضوح مشكلة المستهلك (هل المشكلة حقيقية وعاجلة؟): 20 نقطة
-- سهولة الحصول على العملاء (هل يمكن الوصول بتكاليف منخفضة؟): 20 نقطة
-- التمييز التنافسي في عمّان: 15 نقطة
-- إمكانية الشراء المتكرر: 15 نقطة
-- الأصالة والتوقيت: 5 نقاط"
-                : @"SCORING WEIGHTS FOR B2C IDEAS:
-- Market size in Amman (is there enough demand?): 25 points
-- Consumer pain clarity (is the problem real and urgent?): 20 points
-- Acquisition ease (can they get customers at low cost?): 20 points
-- Competitive differentiation in Amman: 15 points
-- Repeat purchase potential: 15 points
-- Novelty and timing: 5 points");
+                ? (isArabic
+                    ? "أوزان التصنيف لأفكار B2B: شدة المشكلة (25)، وضوح المشتري (20)، العائد على الاستثمار (20)، الحصانة التنافسية (20)، جدوى دورة المبيعات (10)، القابلية للتوسع في عمّان (5)"
+                    : "SCORING FOR B2B: Problem severity (25pts), Buyer clarity (20pts), Measurable ROI (20pts), Competitive moat (20pts), Sales cycle feasibility (10pts), Amman scalability (5pts)")
+                : (isArabic
+                    ? "أوزان التصنيف لأفكار B2C: حجم السوق في عمّان (25)، وضوح المشكلة (20)، سهولة الحصول على العملاء (20)، التمييز التنافسي (15)، إمكانية الشراء المتكرر (15)، الأصالة والتوقيت (5)"
+                    : "SCORING FOR B2C: Market size in Amman (25pts), Consumer pain clarity (20pts), Acquisition ease (20pts), Competitive differentiation (15pts), Repeat purchase potential (15pts), Novelty and timing (5pts)");
 
             var sectorContext = (isArabic, idea.Sector) switch
             {
-                (true, "food_and_beverage") => "عمّان لديها ثقافة قوية في المقاهي والطعام. المنافسة عالية في غرب عمّان. تنمو نماذج المطابخ السحابية والتسليم الأول. الهوامش: 25-50%.",
-                (false, "food_and_beverage") => "Amman has a strong café and food culture. Competition is high in West Amman. Cloud kitchens and delivery-first models are growing. Margins: 25-50%.",
-
-                (true, "retail_ecommerce") => "التجارة الإلكترونية في الأردن تنمو بمعدل 9.4% سنوياً. إنستغرام هو القناة المبيعات السائدة. تكاليف التسليم 2-5 دنانير لكل طلب. الهوامش: 30-55%.",
-                (false, "retail_ecommerce") => "E-commerce in Jordan growing at 9.4% CAGR. Instagram is the dominant sales channel. Delivery costs 2-5 JOD per order. Margins: 30-55%.",
-
-                (true, "tech_and_software") => "الأردن جمعت 300 مليون دولار في تمويل الشركات الناشئة في 2024. المواهب التقنية متاحة. تسعير البرامج B2B أقل من دول الخليج. الهوامش: 55-80%.",
-                (false, "tech_and_software") => "Jordan raised $300M in startup funding in 2024. Tech talent available. B2B software pricing is lower than GCC. Margins: 55-80%.",
-
-                (true, "education_and_training") => "طلب قوي على البرامج STEM والإنجليزية وتحضيرات التوجيهي في عمّان. الكلام الشفهي يهيمن على الحصول على العملاء. مناطق الجامعات بها طلب قوي. الهوامش: 50-80%.",
-                (false, "education_and_training") => "Strong demand for STEM, English, Tawjihi prep in Amman. Word of mouth dominates acquisition. University areas have strong demand. Margins: 50-80%.",
-
-                (true, "health_and_wellness") => "الوعي الصحي ما بعد COVID زاد في الأردن. غالباً ما تكون المرافق المنفصلة حسب الجنس مطلوبة. الطبقة الوسطى المتنامية تستثمر في اللياقة. الهوامش: 40-70%.",
-                (false, "health_and_wellness") => "Post-COVID wellness awareness increased in Jordan. Gender-segregated facilities often required. Growing middle class investing in fitness. Margins: 40-70%.",
-
-                (true, "professional_services") => "أسرع قطاع للوصول إلى نقطة التعادل في عمّان. المبيعات القائمة على العلاقات. شروط الدفع 30-60 يوماً شائعة في B2B. الهوامش: 50-75%.",
-                (false, "professional_services") => "Fastest sector to break even in Amman. Relationship-driven sales. Payment terms 30-60 days common in B2B. Margins: 50-75%.",
-
-                (true, _) => "ينطبق سياق سوق عمّان العام. تحقق من الفكرة مع البحث عن السوق المحلي.",
-                (false, _) => "General Amman market context applies. Validate idea with local market research."
+                (true,  "food_and_beverage")      => "عمّان لديها ثقافة قوية في المقاهي والطعام. المنافسة عالية في غرب عمّان. الهوامش: 25-50%.",
+                (false, "food_and_beverage")      => "Amman has a strong café/food culture. High competition in West Amman. Margins: 25-50%.",
+                (true,  "retail_ecommerce")       => "التجارة الإلكترونية في الأردن تنمو 9.4% سنوياً. إنستغرام القناة المبيعات السائدة. الهوامش: 30-55%.",
+                (false, "retail_ecommerce")       => "Jordan e-commerce growing 9.4% CAGR. Instagram dominant sales channel. Margins: 30-55%.",
+                (true,  "tech_and_software")      => "الأردن جمعت 300 مليون دولار في تمويل الشركات الناشئة في 2024. المواهب التقنية متاحة. الهوامش: 55-80%.",
+                (false, "tech_and_software")      => "Jordan raised $300M startup funding in 2024. Tech talent available. Margins: 55-80%.",
+                (true,  "education_and_training") => "طلب قوي على برامج STEM والإنجليزية في عمّان. الكلام الشفهي يهيمن على الحصول على العملاء. الهوامش: 50-80%.",
+                (false, "education_and_training") => "Strong demand for STEM and English programs in Amman. Word of mouth dominates. Margins: 50-80%.",
+                (true,  "health_and_wellness")    => "الوعي الصحي زاد بعد COVID. الطبقة الوسطى المتنامية تستثمر في اللياقة. الهوامش: 40-70%.",
+                (false, "health_and_wellness")    => "Post-COVID wellness awareness increased. Growing middle class investing in fitness. Margins: 40-70%.",
+                (true,  "professional_services")  => "أسرع قطاع للوصول إلى نقطة التعادل في عمّان. المبيعات القائمة على العلاقات. الهوامش: 50-75%.",
+                (false, "professional_services")  => "Fastest sector to break even in Amman. Relationship-driven sales. Margins: 50-75%.",
+                (true,  _)                        => "سياق سوق عمّان العام. تحقق من الفكرة مع البحث عن السوق المحلي.",
+                (false, _)                        => "General Amman market context. Validate with local market research."
             };
-
-            var jsonTemplate = @"{{
-  ""noveltyScore"": <integer 1-100>,
-  ""marketPotentialScore"": <integer 1-100>,
-  ""overallScore"": <integer 1-100>,
-  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
-  ""verdict"": ""One honest sentence: is this idea Promising / Needs Refinement / High Risk — and the single most important reason why"",
-  ""redFlags"": [""Specific warning 1 if any"", ""Specific warning 2 if any""],
-  ""recommendations"": ""3-4 specific next steps for THIS idea in Amman. Not generic advice."",
-  ""swotAnalysis"": {{
-    ""strengths"": [""Specific to this idea"", ""Specific to Amman market""],
-    ""weaknesses"": [""Specific to this idea"", ""Honest weakness""],
-    ""opportunities"": [""Specific Amman market opportunity"", ""Specific growth path""],
-    ""threats"": [""Specific threat in Amman"", ""Specific competitive threat""]
-  }}
-}}";
-
-            // Use same clean template as English — only the instructions above are in Arabic
-            // Arabic text inside JSON placeholders confuses Gemini and causes parse failures
-            var arabicJsonTemplate = @"{{
-  ""noveltyScore"": <integer 1-100>,
-  ""marketPotentialScore"": <integer 1-100>,
-  ""overallScore"": <integer 1-100>,
-  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
-  ""verdict"": ""<ARABIC TEXT: one honest sentence about the idea>"",
-  ""redFlags"": [""<ARABIC TEXT: specific warning>"", ""<ARABIC TEXT: specific warning>""],
-  ""recommendations"": ""<ARABIC TEXT: 3-4 specific actionable next steps>"",
-  ""swotAnalysis"": {{
-    ""strengths"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
-    ""weaknesses"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
-    ""opportunities"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
-    ""threats"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""]
-  }}
-}}";
 
             if (isArabic)
             {
-                return $@"أنت خبير متخصص جداً في تقييم الشركات الناشئة وتطوير الأعمال في سوق عمّان، الأردن.
+                return $@"أنت خبير متخصص في تقييم الشركات الناشئة في سوق عمّان، الأردن.
 
-⚠️⚠️⚠️ قاعدة ذهبية - MUST OUTPUT IN ARABIC ONLY ⚠️⚠️⚠️
-CRITICAL: يجب أن تكون إجابتك بالعربية 100% — لا إنجليزية، لا مزج لغات، لا كلمات إنجليزية حتى واحدة.
-OUTPUT LANGUAGE: العربية فقط. جميع النصوص تماماً بالعربية.
-RESPONSE LANGUAGE: اكتب باللغة العربية الفصحى مع الدارجة الأردنية المفهومة.
+⚠️ مطلوب: أجب بالعربية 100% — كل النصوص بالعربية فقط.
 
 فكرة العمل:
 العنوان: {idea.Title}
 الوصف: {idea.Description}
 نوع العمل: {idea.BusinessType}
 القطاع: {idea.Sector}
-المشكلة التي يتم حلها: {idea.ProblemStatement}
+المشكلة: {idea.ProblemStatement}
 نقطة البيع الفريدة: {idea.Usp}
 الجمهور المستهدف: {idea.TargetAudience}
-الميزانية المقدرة: دنانير أردنية {idea.EstimatedBudget}
+الميزانية: {idea.EstimatedBudget} دينار أردني
 
-سياق سوق عمّان لهذا القطاع:
-{sectorContext}
-
+سياق السوق: {sectorContext}
 {scoringCriteria}
 
 قواعد التقييم:
-1. قيّم بناءً على واقع سوق عمّان - وليس نظري أو عام
-2. تحليل SWOT يجب أن يكون محدداً لهذه الفكرة في عمّان - لا تكتب نقاط SWOT عامة
-3. يجب أن يكون الحكم (Verdict) جملة واحدة صادقة باللغة العربية - لا تتجاهل المشاكل
-4. إذا كانت الميزانية تبدو غير كافية للقطاع، قل ذلك بوضوح باللغة العربية
-5. التوصيات (Recommendations) يجب أن تكون 3-4 خطوات محددة قابلة للتنفيذ باللغة العربية، وليس نصائح عامة
-6. RedFlags: اسرد أي مشاكل خطيرة وجدتها باللغة العربية. مصفوفة فارغة [] إذا لم تكن هناك مشاكل.
+1. قيّم بناءً على واقع سوق عمّان
+2. تحليل SWOT محدد لهذه الفكرة في عمّان
+3. الحكم جملة واحدة صادقة بالعربية
+4. التوصيات: 3-4 خطوات محددة قابلة للتنفيذ بالعربية
 
-مثال على الحكم بالعربية:
-""واعد جداً، لأن هناك طلب واضح في عمّان على خدمات حلاقة عالية الجودة، لكن المنافسة شديدة جداً""
-
-مثال على التوصية بالعربية:
-""أجر بحث سوق مفصل في مناطق غرب عمّان لتحديد أفضل موقع""
-
-⚠️ MANDATORY: كل نص في الـ JSON يجب أن يكون بالعربية بنسبة 100% - الحكم، التوصيات، SWOT، التحذيرات.
-
-أرجع JSON صحيح فقط، بدون markdown ولا أي شرح إضافي:
-{arabicJsonTemplate}";
+أرجع JSON صحيح فقط:
+{{
+  ""noveltyScore"": <رقم صحيح 1-100>,
+  ""marketPotentialScore"": <رقم صحيح 1-100>,
+  ""overallScore"": <رقم صحيح 1-100>,
+  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
+  ""verdict"": ""<جملة واحدة صادقة بالعربية عن الفكرة>"",
+  ""redFlags"": [""<تحذير محدد بالعربية>""],
+  ""recommendations"": ""<3-4 خطوات محددة بالعربية>"",
+  ""swotAnalysis"": {{
+    ""strengths"": [""<نقطة قوة بالعربية>"", ""<نقطة قوة بالعربية>""],
+    ""weaknesses"": [""<نقطة ضعف بالعربية>"", ""<نقطة ضعف بالعربية>""],
+    ""opportunities"": [""<فرصة بالعربية>"", ""<فرصة بالعربية>""],
+    ""threats"": [""<تهديد بالعربية>"", ""<تهديد بالعربية>""]
+  }}
+}}";
             }
             else
             {
@@ -338,39 +250,47 @@ Sector: {idea.Sector}
 Problem Being Solved: {idea.ProblemStatement}
 Unique Selling Point: {idea.Usp}
 Target Audience: {idea.TargetAudience}
-Estimated Starting Budget: JOD {idea.EstimatedBudget}
+Estimated Budget: JOD {idea.EstimatedBudget}
 
-AMMAN MARKET CONTEXT FOR THIS SECTOR:
-{sectorContext}
-
+AMMAN MARKET CONTEXT: {sectorContext}
 {scoringCriteria}
 
-EVALUATION RULES:
-1. Score based on Amman market reality — not global or theoretical
-2. SWOT must be specific to THIS idea in Amman — never write generic SWOT points
-3. Verdict must be one honest sentence — do not sugarcoat
-4. If budget seems insufficient for the sector, say so clearly
+RULES:
+1. Score based on Amman market reality
+2. SWOT must be specific to THIS idea in Amman
+3. Verdict must be one honest sentence
+4. If budget seems insufficient, say so
 5. Recommendations must be actionable next steps, not generic advice
-6. RedFlags: list any serious problems found. Empty array if none.
+6. RedFlags: list serious problems. Empty array if none.
 
-Return ONLY valid JSON, no markdown:
-{jsonTemplate}";
+Return ONLY valid JSON:
+{{
+  ""noveltyScore"": <integer 1-100>,
+  ""marketPotentialScore"": <integer 1-100>,
+  ""overallScore"": <integer 1-100>,
+  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
+  ""verdict"": ""One honest sentence about this idea"",
+  ""redFlags"": [""Specific warning if any""],
+  ""recommendations"": ""3-4 specific actionable next steps for this idea in Amman"",
+  ""swotAnalysis"": {{
+    ""strengths"": [""Specific strength"", ""Specific strength""],
+    ""weaknesses"": [""Specific weakness"", ""Specific weakness""],
+    ""opportunities"": [""Specific Amman opportunity"", ""Specific growth path""],
+    ""threats"": [""Specific threat in Amman"", ""Specific competitive threat""]
+  }}
+}}";
             }
         }
 
-        // Strip <think>...</think> blocks and markdown fences, then extract first JSON object
+        // ── Response parsers ──────────────────────────────────────────────────
+
         private static string CleanJsonResponse(string response)
         {
-            // Remove <think>...</think> blocks (Gemini 2.5 Flash thinking leakage)
             var cleaned = System.Text.RegularExpressions.Regex.Replace(
                 response, @"<think>[\s\S]*?</think>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-            cleaned = cleaned
-                .Replace("```json", "")
-                .Replace("```", "")
-                .Trim();
+            cleaned = cleaned.Replace("```json", "").Replace("```", "").Trim();
 
-            // Extract only the JSON object (first { to last })
             var start = cleaned.IndexOf('{');
             var end   = cleaned.LastIndexOf('}');
             if (start >= 0 && end > start)
@@ -383,33 +303,28 @@ Return ONLY valid JSON, no markdown:
         {
             try
             {
-                var cleanJson = CleanJsonResponse(response);
+                using var doc  = JsonDocument.Parse(CleanJsonResponse(response));
+                var root       = doc.RootElement;
 
-                using var doc = JsonDocument.Parse(cleanJson);
-                var root = doc.RootElement;
-
-                var rawRange = ExtractString(root, "suggestedMonthlySalesRange", "1_10");
+                var rawRange   = ExtractString(root, "suggestedMonthlySalesRange", "1_10");
                 var validRanges = new HashSet<string>
-                {
-                    "1_10","10_50","50_200","200_plus",
-                    "1_3","4_10","11_30","30_plus"
-                };
-                var safeRange = validRanges.Contains(rawRange) ? rawRange : "1_10";
+                    { "1_10","10_50","50_200","200_plus","1_3","4_10","11_30","30_plus" };
+                var safeRange  = validRanges.Contains(rawRange) ? rawRange : "1_10";
 
                 return new IdeaInsightsDto
                 {
-                    ProblemStatement       = ExtractString(root, "problemStatement"),
-                    UniqueSellingPoint     = ExtractString(root, "uniqueSellingPoint"),
-                    TargetAudience         = ExtractString(root, "targetAudience"),
-                    SuggestedBusinessType  = ExtractString(root, "suggestedBusinessType", "B2C"),
-                    BusinessTypeConfidence = ExtractString(root, "businessTypeConfidence", "LOW"),
-                    BusinessTypeReason     = ExtractString(root, "businessTypeReason"),
+                    ProblemStatement           = ExtractString(root, "problemStatement"),
+                    UniqueSellingPoint         = ExtractString(root, "uniqueSellingPoint"),
+                    TargetAudience             = ExtractString(root, "targetAudience"),
+                    SuggestedBusinessType      = ExtractString(root, "suggestedBusinessType", "B2C"),
+                    BusinessTypeConfidence     = ExtractString(root, "businessTypeConfidence", "LOW"),
+                    BusinessTypeReason         = ExtractString(root, "businessTypeReason"),
                     SuggestedMonthlySalesRange = safeRange
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error parsing insights response from Gemini");
+                _logger.LogError(ex, "Error parsing insights response from Groq");
                 return GetDefaultInsights();
             }
         }
@@ -418,25 +333,22 @@ Return ONLY valid JSON, no markdown:
         {
             try
             {
-                var cleanJson = CleanJsonResponse(response);
+                using var doc    = JsonDocument.Parse(CleanJsonResponse(response));
+                var root         = doc.RootElement;
 
-                using var doc = JsonDocument.Parse(cleanJson);
-                var root = doc.RootElement;
-
-                var noveltyScore  = ExtractInt(root, "noveltyScore", 50);
-                var marketScore   = ExtractInt(root, "marketPotentialScore", 50);
-                var overallScore  = ExtractInt(root, "overallScore", (noveltyScore + marketScore) / 2);
-                var riskLevel     = ExtractString(root, "riskLevel", "Medium Risk");
+                var noveltyScore = ExtractInt(root, "noveltyScore", 50);
+                var marketScore  = ExtractInt(root, "marketPotentialScore", 50);
+                var overallScore = ExtractInt(root, "overallScore", (noveltyScore + marketScore) / 2);
+                var riskLevel    = ExtractString(root, "riskLevel", "Medium Risk");
                 var recommendations = ExtractString(root, "recommendations");
-                var verdict       = ExtractString(root, "verdict");
+                var verdict      = ExtractString(root, "verdict");
 
                 var swotJson = root.TryGetProperty("swotAnalysis", out var swot)
-                    ? swot.GetRawText()
-                    : "{}";
+                    ? swot.GetRawText() : "{}";
 
                 var redFlagsJson = "[]";
-                if (root.TryGetProperty("redFlags", out var redFlagsEl) && redFlagsEl.ValueKind == JsonValueKind.Array)
-                    redFlagsJson = redFlagsEl.GetRawText();
+                if (root.TryGetProperty("redFlags", out var rf) && rf.ValueKind == JsonValueKind.Array)
+                    redFlagsJson = rf.GetRawText();
 
                 return new Evaluation
                 {
@@ -454,20 +366,18 @@ Return ONLY valid JSON, no markdown:
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error parsing evaluation response from Gemini");
+                _logger.LogError(ex, "Error parsing evaluation response from Groq");
                 return GetDefaultEvaluation(idea);
             }
         }
 
+        // ── Helpers ───────────────────────────────────────────────────────────
+
         private static string ExtractString(JsonElement root, string key, string defaultValue = "")
-        {
-            return root.TryGetProperty(key, out var prop) ? (prop.GetString() ?? defaultValue) : defaultValue;
-        }
+            => root.TryGetProperty(key, out var p) ? (p.GetString() ?? defaultValue) : defaultValue;
 
         private static int ExtractInt(JsonElement root, string key, int defaultValue)
-        {
-            return root.TryGetProperty(key, out var prop) && prop.TryGetInt32(out var val) ? val : defaultValue;
-        }
+            => root.TryGetProperty(key, out var p) && p.TryGetInt32(out var v) ? v : defaultValue;
 
         private static IdeaInsightsDto GetDefaultInsights() => new()
         {
