@@ -18,21 +18,28 @@ const FinancialProjections = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    // ✅ FIX #7: Add AbortController to cancel requests on unmount
+    const abortCtrl = new AbortController()
     let active = true
     setLoading(true)
     setError(null)
 
-    ideasApi.getById(parseInt(ideaId))
+    ideasApi.getById(parseInt(ideaId), { signal: abortCtrl.signal })
       .then(res => {
         if (active) setIdea(res.data)
       })
-      .catch(() => {
+      .catch(err => {
+        // ✅ Ignore abort errors - request was cancelled
+        if (err.name === 'AbortError') return
         if (active) setError(t('common.errorLoadingData'))
       })
       .finally(() => { if (active) setLoading(false) })
 
-    return () => { active = false }
-  }, [ideaId])
+    return () => {
+      abortCtrl.abort()  // ✅ Cancel request on unmount
+      active = false
+    }
+  }, [ideaId, t])
 
   if (loading) {
     return (
@@ -45,6 +52,7 @@ const FinancialProjections = () => {
     )
   }
 
+  // ✅ FIX #2: Validate all required props exist before rendering child component
   if (error || !idea) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
@@ -52,6 +60,28 @@ const FinancialProjections = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <Link
+              to={`/evaluation/${ideaId}`}
+              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              {t('financialWizard.backToAnalysis')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ✅ FIX #2: Ensure required fields exist before passing to child
+  if (!idea.sector || !idea.businessModel) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+              {t('common.errorLoadingData')}
+            </p>
             <Link
               to={`/evaluation/${ideaId}`}
               className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"

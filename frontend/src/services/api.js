@@ -54,18 +54,19 @@ export const auth = {
   updateProfile: (data) => api.put('/auth/profile', data),
 }
 
+// ✅ FIX #7: Add optional config parameter to support AbortController signal
 export const ideas = {
-  create: (data) => api.post('/ideas', data),
-  getAll: () => api.get('/ideas/user/me'),
-  getById: (id) => api.get(`/ideas/${id}`),
-  update: (id, data) => api.put(`/ideas/${id}`, data),
-  delete: (id) => api.delete(`/ideas/${id}`),
+  create: (data, config) => api.post('/ideas', data, config),
+  getAll: (config) => api.get('/ideas/user/me', config),
+  getById: (id, config) => api.get(`/ideas/${id}`, config),
+  update: (id, data, config) => api.put(`/ideas/${id}`, data, config),
+  delete: (id, config) => api.delete(`/ideas/${id}`, config),
 }
 
 export const evaluation = {
-  generate: (ideaId) => api.post(`/evaluation/${ideaId}`),
-  get: (ideaId) => api.get(`/evaluation/${ideaId}`),
-  delete: (ideaId) => api.delete(`/evaluation/${ideaId}`),
+  generate: (ideaId, config) => api.post(`/evaluation/${ideaId}`, {}, config),
+  get: (ideaId, config) => api.get(`/evaluation/${ideaId}`, config),
+  delete: (ideaId, config) => api.delete(`/evaluation/${ideaId}`, config),
 }
 
 export const financial = {

@@ -65,7 +65,8 @@ const Dashboard = () => {
     setDeletingId(ideaId)
     try {
       await ideasApi.delete(ideaId)
-      setIdeas(ideas.filter(i => i.ideaId !== ideaId))
+      // ✅ FIX #6: Use functional update to avoid stale state closure
+      setIdeas(prevIdeas => prevIdeas.filter(i => i.ideaId !== ideaId))
     } catch (err) {
       console.error('Failed to delete idea:', err)
     } finally {

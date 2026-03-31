@@ -1,5 +1,5 @@
 // pages/Evaluation.jsx — Clean document-style results
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -69,21 +69,28 @@ const Evaluation = () => {
   const [msgIndex,   setMsgIndex]   = useState(0)
   const msgTimer = useRef(null)
 
-  const AI_MESSAGES = t('evaluation.aiMessages', { returnObjects: true })
+  // ✅ FIX #5: Memoize AI_MESSAGES to prevent new array on every render
+  const AI_MESSAGES = useMemo(
+    () => t('evaluation.aiMessages', { returnObjects: true }),
+    [t]
+  )
 
   useEffect(() => { loadData() }, [ideaId])
 
   // Rotate AI loading messages
+  // ✅ FIX #5: Include AI_MESSAGES dependency and guard against empty array
   useEffect(() => {
-    if (generating) {
-      msgTimer.current = setInterval(() =>
-        setMsgIndex(i => (i + 1) % AI_MESSAGES.length), 1500)
-    } else {
+    if (!generating || !AI_MESSAGES || AI_MESSAGES.length === 0) {
       clearInterval(msgTimer.current)
       setMsgIndex(0)
+      return
     }
+
+    msgTimer.current = setInterval(() =>
+      setMsgIndex(i => (i + 1) % AI_MESSAGES.length), 1500)
+
     return () => clearInterval(msgTimer.current)
-  }, [generating])
+  }, [generating, AI_MESSAGES])
 
   const loadData = async () => {
     setPageError(null)

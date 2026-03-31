@@ -1,5 +1,5 @@
 // pages/SubmitIdea.jsx — 4-Step Business Wizard
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -175,11 +175,17 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
   const [editingField, setEditingField] = useState(null)
   const [editValue, setEditValue]       = useState('')
 
+  // ✅ FIX #8: Create stable array with unique IDs
+  const LOADING_MSGS_WITH_IDS = useMemo(
+    () => (LOADING_MSGS || []).map((msg, idx) => ({ id: `msg-${idx}`, text: msg })),
+    [LOADING_MSGS]
+  )
+
   useEffect(() => {
-    if (!aiLoading) return
-    const timer = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS.length), 1500)
+    if (!aiLoading || !LOADING_MSGS_WITH_IDS || LOADING_MSGS_WITH_IDS.length === 0) return
+    const timer = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MSGS_WITH_IDS.length), 1500)
     return () => clearInterval(timer)
-  }, [aiLoading])
+  }, [aiLoading, LOADING_MSGS_WITH_IDS])
 
   const cards = [
     { key: 'problemStatement',   label: t('submitIdea.step1.cards.problemStatement') },
@@ -205,19 +211,20 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         </div>
         <AnimatePresence mode="wait">
           <motion.p
-            key={msgIdx}
+            key={LOADING_MSGS_WITH_IDS[msgIdx]?.id || 'loading'}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
             className="text-lg font-medium text-slate-700 dark:text-gray-300 text-center"
           >
-            {LOADING_MSGS[msgIdx]}
+            {LOADING_MSGS_WITH_IDS[msgIdx]?.text || ''}
           </motion.p>
         </AnimatePresence>
         <div className="flex gap-1.5">
-          {LOADING_MSGS.map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-indigo-600 w-4' : 'bg-slate-200 dark:bg-gray-700'}`} />
+          {/* ✅ FIX #8: Use unique IDs instead of array index */}
+          {LOADING_MSGS_WITH_IDS.map((msg, i) => (
+            <div key={msg.id} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-indigo-600 w-4' : 'bg-slate-200 dark:bg-gray-700'}`} />
           ))}
         </div>
       </motion.div>

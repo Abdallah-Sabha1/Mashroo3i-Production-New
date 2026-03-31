@@ -44,6 +44,12 @@ function statusLabel(status) {
   return                           { text: 'Risk',  cls: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400' }
 }
 
+// ✅ FIX #10: Validate numeric inputs to ensure non-negative, finite values
+function validatePrice(value) {
+  const num = parseFloat(value)
+  return !isNaN(num) && isFinite(num) && num >= 0
+}
+
 const CustomChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
@@ -299,9 +305,11 @@ const Financial = () => {
                           placeholder="e.g. 3"
                           value={product.price}
                           onChange={e => {
-                            const updated = [...products]
-                            updated[idx] = { ...updated[idx], price: e.target.value }
-                            setProducts(updated)
+                            if (validatePrice(e.target.value) || e.target.value === '') {
+                              const updated = [...products]
+                              updated[idx] = { ...updated[idx], price: e.target.value }
+                              setProducts(updated)
+                            }
                           }}
                         />
                         <input
@@ -310,9 +318,11 @@ const Financial = () => {
                           placeholder="e.g. 1"
                           value={product.cost}
                           onChange={e => {
-                            const updated = [...products]
-                            updated[idx] = { ...updated[idx], cost: e.target.value }
-                            setProducts(updated)
+                            if (validatePrice(e.target.value) || e.target.value === '') {
+                              const updated = [...products]
+                              updated[idx] = { ...updated[idx], cost: e.target.value }
+                              setProducts(updated)
+                            }
                           }}
                         />
                         <button

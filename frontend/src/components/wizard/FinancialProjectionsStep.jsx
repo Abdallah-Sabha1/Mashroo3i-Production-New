@@ -41,8 +41,19 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   const [growthAdj, setGrowthAdj]         = useState(0)    // ±% from benchmark
   const [useBenchmark, setUseBenchmark]   = useState(true) // Use benchmark defaults
 
+  // ✅ FIX #4: Add retry tracking to prevent infinite loops
+  const [createRetries, setCreateRetries] = useState(0)
+  const MAX_RETRIES = 3
+
   // Initial load — create projection from benchmark
   useEffect(() => {
+    // ✅ FIX #4: Validate inputs first
+    if (!industryType || !businessModel) {
+      setError(t('common.errorLoadingData'))
+      setLoading(false)
+      return
+    }
+
     let active = true
     setLoading(true)
     setError(null)
@@ -51,19 +62,34 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       .then(res => {
         if (!active) return
         setProjection(res.data)
+        setCreateRetries(0)
       })
       .catch(() => {
+        // ✅ FIX #4: Check retry limit before creating
+        if (createRetries >= MAX_RETRIES) {
+          if (active) setError(t('financialWizard.projections.errorMsg'))
+          if (active) setLoading(false)
+          return
+        }
+
         financialProjectionService.createProjection(ideaId, { industryType, businessModel })
           .then(res => {
             if (!active) return
             setProjection(res.data)
+            setCreateRetries(0)
           })
-          .catch(() => { if (active) setError(t('financialWizard.projections.errorMsg')) })
+          .catch(() => {
+            if (active) {
+              setError(t('financialWizard.projections.errorMsg'))
+              // ✅ FIX #4: Increment retry count on failure
+              setCreateRetries(prev => prev + 1)
+            }
+          })
       })
       .finally(() => { if (active) setLoading(false) })
 
     return () => { active = false }
-  }, [ideaId, industryType, businessModel])
+  }, [ideaId, industryType, businessModel, createRetries, t])
 
   const handleRecalculate = async () => {
     if (useBenchmark && investmentAdj === 0 && revenueAdj === 0 && marginAdj === 0 && growthAdj === 0) {
@@ -88,7 +114,11 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
 
     // Calculate adjusted values from benchmark
     const bm = projection?.benchmark
-    if (!bm || !projection) return
+    // ✅ FIX #1: Don't silently return - always set error state
+    if (!bm || !projection) {
+      setError(t('financialWizard.projections.errorMsg'))
+      return
+    }
 
     const benchInvest = projection.effectiveInitialInvestment || bm.startupCostMid || 0
     const benchRevenue = projection.effectiveMonthlyRevenue || 0
@@ -118,15 +148,10 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
   }
 
   const handleReset = async () => {
-    setInvestmentAdj(0)
-    setRevenueAdj(0)
-    setMarginAdj(0)
-    setGrowthAdj(0)
-    setUseBenchmark(true)
-
-    // Reset to benchmark by sending undefined values (don't use stale handleRecalculate)
+    // ✅ FIX #3: Only reset UI state AFTER successful API call
     setRecalculating(true)
     setError(null)
+
     try {
       const res = await financialProjectionService.updateProjection(ideaId, {
         initialInvestment: undefined,
@@ -135,8 +160,15 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
         growthRate:        undefined,
       })
       setProjection(res.data)
+      // ✅ Reset UI state AFTER API succeeds (keeps UI and backend in sync)
+      setInvestmentAdj(0)
+      setRevenueAdj(0)
+      setMarginAdj(0)
+      setGrowthAdj(0)
+      setUseBenchmark(true)
     } catch {
       setError(t('financialWizard.projections.recalcError'))
+      // ✅ Don't reset UI if API failed - keeps in sync
     } finally {
       setRecalculating(false)
     }
