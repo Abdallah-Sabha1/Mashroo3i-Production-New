@@ -26,7 +26,7 @@ namespace backend.Controllers
 
         [HttpPost("{ideaId}")]
         [EnableRateLimiting("ai_endpoints")]
-        public async Task<ActionResult<EvaluationResponseDto>> Generate(int ideaId)
+        public async Task<ActionResult<EvaluationResponseDto>> Generate(int ideaId, [FromQuery] string language = "en")
         {
             var idea = await _context.BusinessIdeas
                 .Include(i => i.Evaluation)
@@ -45,7 +45,7 @@ namespace backend.Controllers
 
             try
             {
-                var evaluation = await _aiService.EvaluateBusinessIdeaAsync(idea);
+                var evaluation = await _aiService.EvaluateBusinessIdeaAsync(idea, language);
                 _context.Evaluations.Add(evaluation);
                 idea.Status = Models.BusinessIdea.StatusCompleted;
                 await _context.SaveChangesAsync();

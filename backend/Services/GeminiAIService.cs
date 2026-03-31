@@ -44,12 +44,12 @@ namespace backend.Services
             }
         }
 
-        public async Task<Evaluation> EvaluateBusinessIdeaAsync(BusinessIdea idea)
+        public async Task<Evaluation> EvaluateBusinessIdeaAsync(BusinessIdea idea, string language = "en")
         {
             try
             {
-                _logger.LogInformation("Evaluating business idea: {Title} (ID: {IdeaId})", idea.Title, idea.IdeaId);
-                var prompt = BuildEvaluationPrompt(idea);
+                _logger.LogInformation("Evaluating business idea: {Title} (ID: {IdeaId}) in language: {Language}", idea.Title, idea.IdeaId, language);
+                var prompt = BuildEvaluationPrompt(idea, language);
                 var response = await CallGeminiApiAsync(prompt);
 
                 if (string.IsNullOrEmpty(response))
@@ -179,36 +179,113 @@ Return ONLY a valid JSON object. No markdown, no explanation, just JSON:
 }}";
         }
 
-        private string BuildEvaluationPrompt(BusinessIdea idea)
+        private string BuildEvaluationPrompt(BusinessIdea idea, string language = "en")
         {
+            var isArabic = language.ToLower() == "ar" || language.ToLower() == "ar-jo";
+
             var scoringCriteria = idea.BusinessType == "B2B"
-                ? @"SCORING WEIGHTS FOR B2B IDEAS:
+                ? (isArabic ? @"أوزان التصنيف لأفكار B2B:
+- شدة المشكلة (هل هي ضرورية للشركات؟): 25 نقطة
+- وضوح المشتري (هل متخذ القرار واضح؟): 20 نقطة
+- العائد على الاستثمار المقاس للشركة: 20 نقطة
+- الحصانة التنافسية أو تكلفة التبديل: 20 نقطة
+- جدوى دورة المبيعات للمؤسس الجديد: 10 نقاط
+- القابلية للتوسع في سوق عمّان: 5 نقاط"
+                : @"SCORING WEIGHTS FOR B2B IDEAS:
 - Problem severity (is it a must-have for businesses?): 25 points
 - Buyer clarity (is the decision maker clear?): 20 points
 - Measurable ROI for the buying company: 20 points
 - Competitive moat or switching cost: 20 points
 - Sales cycle feasibility for a new founder: 10 points
-- Scalability in Amman market: 5 points"
+- Scalability in Amman market: 5 points")
+                : (isArabic ? @"أوزان التصنيف لأفكار B2C:
+- حجم السوق في عمّان (هل يوجد طلب كافٍ؟): 25 نقطة
+- وضوح مشكلة المستهلك (هل المشكلة حقيقية وعاجلة؟): 20 نقطة
+- سهولة الحصول على العملاء (هل يمكن الوصول بتكاليف منخفضة؟): 20 نقطة
+- التمييز التنافسي في عمّان: 15 نقطة
+- إمكانية الشراء المتكرر: 15 نقطة
+- الأصالة والتوقيت: 5 نقاط"
                 : @"SCORING WEIGHTS FOR B2C IDEAS:
 - Market size in Amman (is there enough demand?): 25 points
 - Consumer pain clarity (is the problem real and urgent?): 20 points
 - Acquisition ease (can they get customers at low cost?): 20 points
 - Competitive differentiation in Amman: 15 points
 - Repeat purchase potential: 15 points
-- Novelty and timing: 5 points";
+- Novelty and timing: 5 points");
 
-            var sectorContext = idea.Sector switch
+            var sectorContext = (isArabic, idea.Sector) switch
             {
-                "food_and_beverage"      => "Amman has a strong café and food culture. Competition is high in West Amman. Cloud kitchens and delivery-first models are growing. Margins: 25-50%.",
-                "retail_ecommerce"       => "E-commerce in Jordan growing at 9.4% CAGR. Instagram is the dominant sales channel. Delivery costs 2-5 JOD per order. Margins: 30-55%.",
-                "tech_and_software"      => "Jordan raised $300M in startup funding in 2024. Tech talent available. B2B software pricing is lower than GCC. Margins: 55-80%.",
-                "education_and_training" => "Strong demand for STEM, English, Tawjihi prep in Amman. Word of mouth dominates acquisition. University areas have strong demand. Margins: 50-80%.",
-                "health_and_wellness"    => "Post-COVID wellness awareness increased in Jordan. Gender-segregated facilities often required. Growing middle class investing in fitness. Margins: 40-70%.",
-                "professional_services"  => "Fastest sector to break even in Amman. Relationship-driven sales. Payment terms 30-60 days common in B2B. Margins: 50-75%.",
-                _                        => "General Amman market context applies. Validate idea with local market research."
+                (true, "food_and_beverage") => "عمّان لديها ثقافة قوية في المقاهي والطعام. المنافسة عالية في غرب عمّان. تنمو نماذج المطابخ السحابية والتسليم الأول. الهوامش: 25-50%.",
+                (false, "food_and_beverage") => "Amman has a strong café and food culture. Competition is high in West Amman. Cloud kitchens and delivery-first models are growing. Margins: 25-50%.",
+
+                (true, "retail_ecommerce") => "التجارة الإلكترونية في الأردن تنمو بمعدل 9.4% سنوياً. إنستغرام هو القناة المبيعات السائدة. تكاليف التسليم 2-5 دنانير لكل طلب. الهوامش: 30-55%.",
+                (false, "retail_ecommerce") => "E-commerce in Jordan growing at 9.4% CAGR. Instagram is the dominant sales channel. Delivery costs 2-5 JOD per order. Margins: 30-55%.",
+
+                (true, "tech_and_software") => "الأردن جمعت 300 مليون دولار في تمويل الشركات الناشئة في 2024. المواهب التقنية متاحة. تسعير البرامج B2B أقل من دول الخليج. الهوامش: 55-80%.",
+                (false, "tech_and_software") => "Jordan raised $300M in startup funding in 2024. Tech talent available. B2B software pricing is lower than GCC. Margins: 55-80%.",
+
+                (true, "education_and_training") => "طلب قوي على البرامج STEM والإنجليزية وتحضيرات التوجيهي في عمّان. الكلام الشفهي يهيمن على الحصول على العملاء. مناطق الجامعات بها طلب قوي. الهوامش: 50-80%.",
+                (false, "education_and_training") => "Strong demand for STEM, English, Tawjihi prep in Amman. Word of mouth dominates acquisition. University areas have strong demand. Margins: 50-80%.",
+
+                (true, "health_and_wellness") => "الوعي الصحي ما بعد COVID زاد في الأردن. غالباً ما تكون المرافق المنفصلة حسب الجنس مطلوبة. الطبقة الوسطى المتنامية تستثمر في اللياقة. الهوامش: 40-70%.",
+                (false, "health_and_wellness") => "Post-COVID wellness awareness increased in Jordan. Gender-segregated facilities often required. Growing middle class investing in fitness. Margins: 40-70%.",
+
+                (true, "professional_services") => "أسرع قطاع للوصول إلى نقطة التعادل في عمّان. المبيعات القائمة على العلاقات. شروط الدفع 30-60 يوماً شائعة في B2B. الهوامش: 50-75%.",
+                (false, "professional_services") => "Fastest sector to break even in Amman. Relationship-driven sales. Payment terms 30-60 days common in B2B. Margins: 50-75%.",
+
+                (true, _) => "ينطبق سياق سوق عمّان العام. تحقق من الفكرة مع البحث عن السوق المحلي.",
+                (false, _) => "General Amman market context applies. Validate idea with local market research."
             };
 
-            return $@"You are an expert startup evaluator with deep knowledge of the Amman, Jordan market.
+            var jsonTemplate = @"{{
+  ""noveltyScore"": <integer 1-100>,
+  ""marketPotentialScore"": <integer 1-100>,
+  ""overallScore"": <integer 1-100>,
+  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
+  ""verdict"": ""One honest sentence: is this idea Promising / Needs Refinement / High Risk — and the single most important reason why"",
+  ""redFlags"": [""Specific warning 1 if any"", ""Specific warning 2 if any""],
+  ""recommendations"": ""3-4 specific next steps for THIS idea in Amman. Not generic advice."",
+  ""swotAnalysis"": {{
+    ""strengths"": [""Specific to this idea"", ""Specific to Amman market""],
+    ""weaknesses"": [""Specific to this idea"", ""Honest weakness""],
+    ""opportunities"": [""Specific Amman market opportunity"", ""Specific growth path""],
+    ""threats"": [""Specific threat in Amman"", ""Specific competitive threat""]
+  }}
+}}";
+
+            if (isArabic)
+            {
+                return $@"أنت خبير في تقييم الشركات الناشئة لديه معرفة عميقة بسوق عمّان، الأردن.
+
+فكرة العمل:
+العنوان: {idea.Title}
+الوصف: {idea.Description}
+نوع العمل: {idea.BusinessType}
+القطاع: {idea.Sector}
+المشكلة التي يتم حلها: {idea.ProblemStatement}
+نقطة البيع الفريدة: {idea.Usp}
+الجمهور المستهدف: {idea.TargetAudience}
+الميزانية المقدرة: دنانير أردنية {idea.EstimatedBudget}
+
+سياق سوق عمّان لهذا القطاع:
+{sectorContext}
+
+{scoringCriteria}
+
+قواعد التقييم:
+1. قيّم بناءً على واقع سوق عمّان - وليس نظري أو عام
+2. تحليل SWOT يجب أن يكون محدداً لهذه الفكرة في عمّان - لا تكتب نقاط SWOT عامة
+3. يجب أن يكون الحكم جملة واحدة صادقة - لا تتجاهل المشاكل
+4. إذا كانت الميزانية تبدو غير كافية للقطاع، قل ذلك بوضوح
+5. التوصيات يجب أن تكون خطوات قابلة للتنفيذ، وليس نصائح عامة
+6. RedFlags: اسرد أي مشاكل خطيرة وجدتها. مصفوفة فارغة إذا لم تكن هناك مشاكل.
+
+أرجع JSON صحيح فقط، بدون markdown:
+{jsonTemplate}";
+            }
+            else
+            {
+                return $@"You are an expert startup evaluator with deep knowledge of the Amman, Jordan market.
 
 BUSINESS IDEA:
 Title: {idea.Title}
@@ -234,21 +311,8 @@ EVALUATION RULES:
 6. RedFlags: list any serious problems found. Empty array if none.
 
 Return ONLY valid JSON, no markdown:
-{{
-  ""noveltyScore"": <integer 1-100>,
-  ""marketPotentialScore"": <integer 1-100>,
-  ""overallScore"": <integer 1-100>,
-  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
-  ""verdict"": ""One honest sentence: is this idea Promising / Needs Refinement / High Risk — and the single most important reason why"",
-  ""redFlags"": [""Specific warning 1 if any"", ""Specific warning 2 if any""],
-  ""recommendations"": ""3-4 specific next steps for THIS idea in Amman. Not generic advice."",
-  ""swotAnalysis"": {{
-    ""strengths"": [""Specific to this idea"", ""Specific to Amman market""],
-    ""weaknesses"": [""Specific to this idea"", ""Honest weakness""],
-    ""opportunities"": [""Specific Amman market opportunity"", ""Specific growth path""],
-    ""threats"": [""Specific threat in Amman"", ""Specific competitive threat""]
-  }}
-}}";
+{jsonTemplate}";
+            }
         }
 
         private IdeaInsightsDto ParseInsightsResponse(string response)

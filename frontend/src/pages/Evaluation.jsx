@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { evaluation as evalApi, ideas as ideasApi, getErrorMessage } from '../services/api'
+import useLanguageStore from '../store/languageStore'
 import Navbar from '../components/layout/Navbar'
 import ScoreCircle from '../components/shared/ScoreCircle'
 import SwotGrid from '../components/shared/SwotGrid'
@@ -61,6 +62,7 @@ const Evaluation = () => {
   const { ideaId }   = useParams()
   const navigate     = useNavigate()
   const { t }        = useTranslation()
+  const { language } = useLanguageStore()
   const [evalData,   setEvalData]   = useState(null)
   const [idea,       setIdea]       = useState(null)
   const [loading,    setLoading]    = useState(true)
@@ -104,7 +106,7 @@ const Evaluation = () => {
       } catch (err) {
         if (err.response?.status === 404) {
           setGenerating(true)
-          const genRes = await evalApi.generate(ideaId)
+          const genRes = await evalApi.generate(ideaId, { params: { language } })
           setEvalData(genRes.data)
           setGenerating(false)
         } else {
@@ -130,7 +132,7 @@ const Evaluation = () => {
       await evalApi.delete(ideaId)
       setEvalData(null)
       setGenerating(true)
-      const genRes = await evalApi.generate(ideaId)
+      const genRes = await evalApi.generate(ideaId, { params: { language } })
       setEvalData(genRes.data)
     } catch (err) {
       console.error('Re-evaluate failed:', err)
