@@ -107,7 +107,20 @@ namespace backend.Services
             }
 
             _db.FinancialProjections.Add(projection);
-            await _db.SaveChangesAsync();  // need Id before creating scenarios
+            try
+            {
+                await _db.SaveChangesAsync();  // need Id before creating scenarios
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("23505") == true)
+            {
+                // Race condition: another request already inserted — detach and return existing
+                foreach (var entry in _db.ChangeTracker.Entries<FinancialProjection>()
+                    .Where(e => e.State == EntityState.Added).ToList())
+                    entry.State = EntityState.Detached;
+
+                return await GetProjectionResponseAsync(ideaId)
+                    ?? throw new InvalidOperationException("Failed to load existing projection after conflict.");
+            }
 
             // Create the three scenarios
             foreach (var (name, nameAr, desc, revMult, costMult) in Scenarios)
