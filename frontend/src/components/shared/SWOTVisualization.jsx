@@ -8,7 +8,7 @@ export default function SWOTVisualization({ swotData }) {
     {
       key: 'strengths',
       title: 'Strengths',
-      iconPath: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+      iconPath: 'M13 7h8m0 0v8m`0-8l-8 8-4-4-6 6',
       items: swotData.strengths || [],
       color: 'green',
       bg: 'bg-green-50',

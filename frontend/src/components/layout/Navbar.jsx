@@ -27,11 +27,11 @@ const Navbar = () => {
   const isRtl = language === 'ar'
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-slate-200 dark:border-gray-800">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-slate-200 dark:border-gray-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2">
-            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent" dir="ltr">
               Mashroo3i
             </span>
           </Link>
@@ -73,8 +73,9 @@ const Navbar = () => {
             {/* Language toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
               title={isRtl ? 'Switch to English' : 'التبديل للعربية'}
+              dir="ltr"
             >
               {isRtl ? '🇬🇧 EN' : '🇯🇴 AR'}
             </button>
@@ -109,7 +110,7 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 5, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute end-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
+                      className="absolute end-0 mt-2 w-56 bg-white dark:bg-gray-950 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
                     >
                       <div className="px-4 py-2 border-b border-slate-100 dark:border-gray-800">
                         <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.fullName}</p>
@@ -147,6 +148,7 @@ const Navbar = () => {
             <button
               onClick={toggleLanguage}
               className="px-2 py-1 rounded-lg border border-slate-200 dark:border-gray-700 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+              dir="ltr"
             >
               {isRtl ? 'EN' : 'AR'}
             </button>
@@ -176,7 +178,7 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden border-t border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
+            className="md:hidden border-t border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated ? (
