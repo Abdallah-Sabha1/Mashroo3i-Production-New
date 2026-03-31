@@ -101,7 +101,8 @@ const Evaluation = () => {
       const ideaRes = await ideasApi.getById(ideaId)
       setIdea(ideaRes.data)
       try {
-        const evalRes = await evalApi.get(ideaId)
+        // ✅ Pass language parameter to GET so it knows what language user wants
+        const evalRes = await evalApi.get(ideaId, { params: { language } })
         setEvalData(evalRes.data)
       } catch (err) {
         if (err.response?.status === 404) {

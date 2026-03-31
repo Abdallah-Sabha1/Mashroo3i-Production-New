@@ -111,7 +111,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{ideaId}")]
-        public async Task<ActionResult<EvaluationResponseDto>> Get(int ideaId)
+        public async Task<ActionResult<EvaluationResponseDto>> Get(int ideaId, [FromQuery] string language = "en")
         {
             var idea = await _context.BusinessIdeas
                 .Include(i => i.Evaluation)
@@ -119,6 +119,16 @@ namespace backend.Controllers
 
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
+
+            // ✅ FIX: If evaluation exists but user is requesting a different language,
+            // delete the old one and trigger regeneration (by returning 404)
+            if (idea.Evaluation != null && language != "en")
+            {
+                _context.Evaluations.Remove(idea.Evaluation);
+                await _context.SaveChangesAsync();
+                idea.Evaluation = null;
+            }
+
             if (idea.Evaluation == null) return NotFound(new { message = "No evaluation found." });
 
             return Ok(MapToResponse(idea.Evaluation));
