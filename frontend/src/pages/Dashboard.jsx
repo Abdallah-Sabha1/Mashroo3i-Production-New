@@ -10,7 +10,7 @@ import OnboardingModal from '../components/shared/OnboardingModal'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Card from '../components/ui/Card'
-import { Spinner } from '../components/ui/Loading'
+import { DashboardSkeleton } from '../components/ui/Loading'
 import { formatDate, formatCurrency, getScoreColor, getSectorLabel } from '../utils/helpers'
 
 const Dashboard = () => {
@@ -87,7 +87,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome */}
@@ -142,7 +142,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">{t('dashboard.ideas.title')}</h2>
 
           {loading ? (
-            <div className="flex justify-center py-12"><Spinner size="lg" /></div>
+            <DashboardSkeleton />
           ) : ideas.length === 0 ? (
             <Card className="text-center py-16">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('dashboard.ideas.empty')}</h3>

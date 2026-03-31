@@ -9,14 +9,63 @@ export const Spinner = ({ size = 'md', className = '' }) => {
 }
 
 export const Skeleton = ({ className = '' }) => (
-  <div className={`animate-pulse bg-slate-200 dark:bg-gray-700 rounded-lg ${className}`} />
+  <div className={`skeleton ${className}`} />
+)
+
+/* Layout-matching skeleton for Dashboard ideas list */
+export const DashboardSkeleton = () => (
+  <div className="space-y-3">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="skeleton h-5 w-48 rounded-md" />
+              <div className="skeleton h-5 w-16 rounded-full" />
+            </div>
+            <div className="skeleton h-4 w-32 rounded-md" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="skeleton h-8 w-24 rounded-lg" />
+            <div className="skeleton h-8 w-28 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)
+
+/* Layout-matching skeleton for Evaluation page */
+export const EvaluationSkeleton = () => (
+  <div className="space-y-6">
+    {/* Score row */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-6 flex flex-col items-center gap-3">
+          <div className="skeleton h-4 w-24 rounded-md" />
+          <div className="skeleton h-16 w-16 rounded-full" />
+          <div className="skeleton h-3 w-16 rounded-md" />
+        </div>
+      ))}
+    </div>
+    {/* SWOT grid */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-6 space-y-3">
+          <div className="skeleton h-5 w-28 rounded-md" />
+          <div className="skeleton h-4 w-full rounded-md" />
+          <div className="skeleton h-4 w-5/6 rounded-md" />
+          <div className="skeleton h-4 w-4/5 rounded-md" />
+        </div>
+      ))}
+    </div>
+  </div>
 )
 
 export const PageLoading = () => (
-  <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
+  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950">
     <div className="text-center space-y-4">
       <Spinner size="lg" />
-      <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">Loading...</p>
     </div>
   </div>
 )

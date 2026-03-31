@@ -76,12 +76,41 @@ export default {
           700: '#334155',
           800: '#1e293b',
           900: '#111827',
-          950: '#0f172a', // Replaces pitch black with a rich, soft slate
+          950: '#0f172a',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif']
-      }
+        // English: Inter  |  Arabic: IBM Plex Sans Arabic
+        sans: ['Inter', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
+        arabic: ['IBM Plex Sans Arabic', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      lineHeight: {
+        // +15% optical balance for Arabic diacritics
+        relaxed: '1.75',
+        arabic: '1.9',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      boxShadow: {
+        // Subtle glass elevation — no heavy dark shadows
+        card: '0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05)',
+        'card-hover': '0 4px 12px 0 rgb(0 0 0 / 0.08), 0 1px 3px -1px rgb(0 0 0 / 0.06)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-out',
+        shimmer: 'shimmer 2s linear infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          from: { opacity: '0', transform: 'translateY(6px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%':   { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+      },
     }
   },
   plugins: []
