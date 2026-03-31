@@ -205,8 +205,21 @@ const Evaluation = () => {
       ? 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
       : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
 
+  // Translate backend's English riskLevel key to current UI language
+  const riskLevelKeyMap = {
+    'Low Risk':    'evaluation.riskLevels.low',
+    'Medium Risk': 'evaluation.riskLevels.medium',
+    'High Risk':   'evaluation.riskLevels.high',
+  }
+  const translatedRiskLevel = t(
+    riskLevelKeyMap[evalData?.riskLevel] ?? 'evaluation.riskLevels.medium'
+  )
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
+    <div
+      className="min-h-screen bg-slate-50 dark:bg-gray-950"
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
+    >
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -276,7 +289,7 @@ const Evaluation = () => {
                 </div>
                 <button
                   onClick={handleReEvaluate}
-                  className="ml-8 text-sm font-medium text-indigo-600 dark:text-indigo-400
+                  className="ms-8 text-sm font-medium text-indigo-600 dark:text-indigo-400
                     hover:underline"
                 >
                   {t('evaluation.evalFailed.retry')}
@@ -366,7 +379,7 @@ const Evaluation = () => {
                   {t('evaluation.scores.riskAssessment')}
                 </p>
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${riskBadgeClass}`}>
-                  {evalData?.riskLevel || 'Medium Risk'}
+                  {translatedRiskLevel}
                 </span>
               </div>
             </div>

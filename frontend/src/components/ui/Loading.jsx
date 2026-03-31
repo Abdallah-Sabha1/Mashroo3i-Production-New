@@ -35,29 +35,44 @@ export const DashboardSkeleton = () => (
   </div>
 )
 
-/* Layout-matching skeleton for Evaluation page */
+/* Layout-matching skeleton for Evaluation page — mirrors strategic split-view */
 export const EvaluationSkeleton = () => (
   <div className="space-y-6">
     {/* Score row */}
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-6 flex flex-col items-center gap-3">
-          <div className="skeleton h-4 w-24 rounded-md" />
-          <div className="skeleton h-16 w-16 rounded-full" />
-          <div className="skeleton h-3 w-16 rounded-md" />
-        </div>
-      ))}
+    <div className="rounded-xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+        <div className="skeleton h-4 w-32 rounded-md" />
+      </div>
+      <div className="flex flex-col md:flex-row items-center justify-around gap-8 px-5 py-8">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-3">
+            <div className="skeleton h-3 w-24 rounded-md" />
+            <div className="skeleton h-16 w-16 rounded-full" />
+            <div className="skeleton h-3 w-16 rounded-md" />
+          </div>
+        ))}
+      </div>
     </div>
-    {/* SWOT grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-6 space-y-3">
-          <div className="skeleton h-5 w-28 rounded-md" />
-          <div className="skeleton h-4 w-full rounded-md" />
-          <div className="skeleton h-4 w-5/6 rounded-md" />
-          <div className="skeleton h-4 w-4/5 rounded-md" />
-        </div>
-      ))}
+    {/* Strategic SWOT split-view */}
+    <div className="rounded-xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+        <div className="skeleton h-4 w-28 rounded-md" />
+      </div>
+      <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[...Array(2)].map((_, col) => (
+          <div key={col} className="space-y-4">
+            <div className="skeleton h-3 w-24 rounded-md" />
+            {[...Array(2)].map((_, card) => (
+              <div key={card} className="border border-slate-200/80 dark:border-gray-800 border-s-4 border-s-slate-200 dark:border-s-gray-700 rounded-xl p-5 space-y-2">
+                <div className="skeleton h-3 w-20 rounded-md" />
+                <div className="skeleton h-4 w-full rounded-md" />
+                <div className="skeleton h-4 w-5/6 rounded-md" />
+                <div className="skeleton h-4 w-4/5 rounded-md" />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 )

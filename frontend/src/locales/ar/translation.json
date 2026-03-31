@@ -290,6 +290,12 @@
         "overallLow": "أعد التفكير قبل الاستثمار"
       }
     },
+    "strengths": "نقاط القوة",
+    "weaknesses": "نقاط الضعف",
+    "opportunities": "الفرص",
+    "threats": "التهديدات",
+    "internalFactors": "العوامل الداخلية",
+    "externalFactors": "العوامل الخارجية",
     "swot": {
       "title": "تحليل SWOT",
       "subtitle": "نقاط القوة والضعف والفرص والتهديدات الخاصة بفكرتك في عمّان"

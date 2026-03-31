@@ -290,6 +290,12 @@
         "overallLow": "Rethink before investing"
       }
     },
+    "strengths": "Strengths",
+    "weaknesses": "Weaknesses",
+    "opportunities": "Opportunities",
+    "threats": "Threats",
+    "internalFactors": "Internal Factors",
+    "externalFactors": "External Factors",
     "swot": {
       "title": "SWOT Analysis",
       "subtitle": "Strengths, weaknesses, opportunities, and threats specific to your idea in Amman"
