@@ -38,6 +38,16 @@ namespace backend.Controllers
             // Check DB directly — nav property may be null even if a row exists
             var existing = idea.Evaluation
                 ?? await _context.Evaluations.FirstOrDefaultAsync(e => e.IdeaId == ideaId);
+
+            // ✅ FIX: If evaluation exists but user is requesting a different language,
+            // delete the old one and regenerate in the requested language
+            if (existing != null && language != "en")
+            {
+                _context.Evaluations.Remove(existing);
+                await _context.SaveChangesAsync();
+                existing = null;
+            }
+
             if (existing != null) return Ok(MapToResponse(existing));
 
             idea.Status = Models.BusinessIdea.StatusAnalyzing;
