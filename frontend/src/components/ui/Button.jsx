@@ -1,12 +1,12 @@
 import { forwardRef } from 'react'
 
 const variants = {
-  primary: 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:shadow-md hover:shadow-blue-500/20',
+  primary:   'btn-glow',
   secondary: 'border border-slate-300 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800',
-  outline: 'border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950',
-  ghost: 'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white',
-  success: 'bg-green-600 text-white hover:bg-green-700 hover:shadow-md hover:shadow-green-500/20',
-  danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md hover:shadow-red-500/20',
+  outline:   'border border-primary-600 dark:border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20',
+  ghost:     'text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white',
+  success:   'bg-green-600 text-white hover:bg-green-700 hover:shadow-md hover:shadow-green-500/20',
+  danger:    'bg-red-600 text-white hover:bg-red-700 hover:shadow-md hover:shadow-red-500/20',
 }
 
 const sizes = {

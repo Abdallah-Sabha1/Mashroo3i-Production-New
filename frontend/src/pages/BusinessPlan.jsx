@@ -8,13 +8,26 @@ import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Loading'
-import { formatCurrency, formatDate } from '../utils/helpers'
+import SwotGrid from '../components/shared/SwotGrid'
+import { formatCurrency, formatDate, getSectorLabel } from '../utils/helpers'
 import useAuthStore from '../store/authStore'
+import useLanguageStore from '../store/languageStore'
+
+const riskLevelKeyMap = {
+  'Low Risk':    'evaluation.riskLevels.low',
+  'Medium Risk': 'evaluation.riskLevels.medium',
+  'High Risk':   'evaluation.riskLevels.high',
+}
+
+const SectionNumber = ({ n, color = 'bg-primary-600' }) => (
+  <span className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center text-white font-semibold text-sm flex-shrink-0`}>{n}</span>
+)
 
 const BusinessPlan = () => {
   const { t } = useTranslation()
   const { ideaId } = useParams()
   const { user } = useAuthStore()
+  const { language } = useLanguageStore()
   const [idea, setIdea] = useState(null)
   const [evalData, setEvalData] = useState(null)
   const [finData, setFinData] = useState(null)
@@ -27,18 +40,12 @@ const BusinessPlan = () => {
 
   const loadAll = async () => {
     try {
-      const [ideaRes] = await Promise.all([ideasApi.getById(ideaId)])
+      const ideaRes = await ideasApi.getById(ideaId)
       setIdea(ideaRes.data)
-      try {
-        const evalRes = await evalApi.get(ideaId)
-        setEvalData(evalRes.data)
-      } catch (e) {}
-      try {
-        const finRes = await finApi.get(ideaId)
-        setFinData(finRes.data)
-      } catch (e) {}
+      try { const evalRes = await evalApi.get(ideaId); setEvalData(evalRes.data) } catch (e) {}
+      try { const finRes  = await finApi.get(ideaId);  setFinData(finRes.data)   } catch (e) {}
     } catch (err) {
-      console.error('Error:', err)
+      console.error('Error loading business plan:', err)
     } finally {
       setLoading(false)
     }
@@ -63,8 +70,6 @@ const BusinessPlan = () => {
     }
   }
 
-  const handlePrint = () => window.print()
-
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
@@ -74,43 +79,59 @@ const BusinessPlan = () => {
     )
   }
 
-  const swot = evalData?.swotAnalysis ? (typeof evalData.swotAnalysis === 'string' ? JSON.parse(evalData.swotAnalysis) : evalData.swotAnalysis) : {}
-  const finSummary = finData?.financialSummary ? (typeof finData.financialSummary === 'string' ? JSON.parse(finData.financialSummary) : finData.financialSummary) : null
+  const swotData = evalData?.swotAnalysis
+    ? (typeof evalData.swotAnalysis === 'string' ? JSON.parse(evalData.swotAnalysis) : evalData.swotAnalysis)
+    : {}
+
+  const sectorLabel    = getSectorLabel(idea?.sector, t)
+  const regionLabel    = idea?.ammanRegion
+    ? t(`submitIdea.step2.regions.${idea.ammanRegion}.label`, { defaultValue: idea.ammanRegion })
+    : null
+  const translatedRisk = t(riskLevelKeyMap[evalData?.riskLevel] ?? 'evaluation.riskLevels.medium')
+
+  // Determine section numbers dynamically (Market Analysis section removed)
+  let sectionNum = 0
+  const sn = () => ++sectionNum
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between mb-8">
             <div>
               <Link to="/dashboard" className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-gray-500 hover:text-slate-700 dark:hover:text-gray-300 mb-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                <svg className="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
                 {t('businessPlan.backToDashboard')}
               </Link>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('businessPlan.title')}</h1>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handlePrint} variant="outline" size="sm">{t('businessPlan.print')}</Button>
+              <Button onClick={() => window.print()} variant="outline" size="sm">{t('businessPlan.print')}</Button>
               <Button onClick={handleDownload} loading={downloading} size="sm">{t('businessPlan.downloadPdf')}</Button>
             </div>
           </div>
         </motion.div>
 
-        {/* Document */}
         <div className="space-y-6 print:space-y-4" id="business-plan">
+
           {/* Cover Page */}
           <Card className="text-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-purple-600 flex items-center justify-center mx-auto mb-6">
-              <span className="text-white font-bold text-2xl">M</span>
+            {/* Clean icon instead of "M" logo */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/40 dark:to-primary-800/30 border border-primary-200 dark:border-primary-700 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
-            <p className="text-sm font-medium text-primary-600 uppercase tracking-widest mb-4">{t('businessPlan.title')}</p>
+            <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-widest mb-3">{t('businessPlan.title')}</p>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">{idea?.title}</h2>
-            <Badge color="purple" size="lg">{idea?.sector}</Badge>
+            {sectorLabel && <Badge color="purple" size="lg">{sectorLabel}</Badge>}
             <div className="mt-8 text-sm text-slate-500 dark:text-gray-500 space-y-1">
               <p>{t('businessPlan.preparedBy')} {user?.fullName}</p>
               <p>{t('businessPlan.date')} {formatDate(new Date().toISOString())}</p>
-              <p>{t('businessPlan.market')} Amman, Jordan</p>
+              <p>{t('businessPlan.market')} {regionLabel ? `${regionLabel}, ` : ''}Amman, Jordan</p>
             </div>
           </Card>
 
@@ -120,7 +141,7 @@ const BusinessPlan = () => {
             <ol className="space-y-2 text-sm">
               {t('businessPlan.tocItems', { returnObjects: true }).map((s, i) => (
                 <li key={s} className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-gray-800 last:border-0">
-                  <span className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center text-primary-600 font-semibold text-sm">{i + 1}</span>
+                  <span className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 font-semibold text-sm flex-shrink-0">{i + 1}</span>
                   <span className="text-slate-700 dark:text-gray-300">{s}</span>
                 </li>
               ))}
@@ -129,20 +150,20 @@ const BusinessPlan = () => {
 
           {/* 1. Executive Summary */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">1</span>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
+              <SectionNumber n={sn()} />
               {t('businessPlan.sections.execSummary')}
             </h2>
-            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none space-y-3">
+            <div className="space-y-4 text-sm">
               <p className="text-slate-700 dark:text-gray-300 leading-relaxed">{idea?.description}</p>
               {idea?.problemStatement && (
-                <div>
+                <div className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 border-s-4 border-s-amber-400">
                   <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{t('businessPlan.sections.problemStatement')}</h4>
                   <p className="text-slate-700 dark:text-gray-300">{idea.problemStatement}</p>
                 </div>
               )}
               {idea?.usp && (
-                <div>
+                <div className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 border-s-4 border-s-primary-500">
                   <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{t('businessPlan.sections.usp')}</h4>
                   <p className="text-slate-700 dark:text-gray-300">{idea.usp}</p>
                 </div>
@@ -152,20 +173,18 @@ const BusinessPlan = () => {
 
           {/* 2. Business Description */}
           <Card>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">2</span>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
+              <SectionNumber n={sn()} />
               {t('businessPlan.sections.businessDesc')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                [t('businessPlan.sections.sector'), idea?.sector],
-                [t('businessPlan.sections.region'), (idea?.ammanRegion || '') + ' Amman'],
-                [t('businessPlan.sections.budget'), formatCurrency(idea?.estimatedBudget || 0)],
-                [t('businessPlan.sections.competition'), idea?.competitionLevel],
-                [t('businessPlan.sections.targetAudience'), idea?.targetAudience],
-                [t('businessPlan.sections.marketSize'), idea?.marketSize],
-              ].map(([label, val]) => (
-                <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4">
+                [t('businessPlan.sections.sector'),         sectorLabel],
+                regionLabel && [t('businessPlan.sections.region'), `${regionLabel}, Amman`],
+                [t('businessPlan.sections.budget'),         formatCurrency(idea?.estimatedBudget || 0)],
+                idea?.targetAudience && [t('businessPlan.sections.targetAudience'), idea.targetAudience],
+              ].filter(Boolean).map(([label, val]) => (
+                <div key={label} className="bg-slate-50 dark:bg-gray-900/60 rounded-xl p-4">
                   <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">{val || t('common.na')}</p>
                 </div>
@@ -176,112 +195,93 @@ const BusinessPlan = () => {
           {/* 3. AI Evaluation */}
           {evalData && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">3</span>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
+                <SectionNumber n={sn()} />
                 {t('businessPlan.sections.aiVerdict')}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  [t('businessPlan.sections.howOriginal'), evalData.noveltyScore],
-                  [t('businessPlan.sections.marketOpportunity'), evalData.marketPotentialScore],
-                  [t('businessPlan.sections.overallScore'), evalData.overallScore],
-                  [t('businessPlan.sections.riskAssessment'), evalData.riskLevel],
-                ].map(([label, val]) => (
-                  <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 text-center">
-                    <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white">{val}</p>
+                  { label: t('businessPlan.sections.howOriginal'),        val: evalData.noveltyScore,        unit: '/10', color: 'text-purple-600 dark:text-purple-400' },
+                  { label: t('businessPlan.sections.marketOpportunity'),  val: evalData.marketPotentialScore, unit: '/10', color: 'text-blue-600 dark:text-blue-400' },
+                  { label: t('businessPlan.sections.overallScore'),       val: evalData.overallScore,         unit: '/10', color: 'text-primary-600 dark:text-primary-400' },
+                  { label: t('businessPlan.sections.riskAssessment'),     val: translatedRisk,                unit: '',    color: 'text-slate-900 dark:text-white' },
+                ].map(({ label, val, unit, color }) => (
+                  <div key={label} className="bg-slate-50 dark:bg-gray-900/60 rounded-xl p-4 text-center">
+                    <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-2 leading-tight">{label}</p>
+                    <p className={`text-xl font-bold ${color}`}>
+                      {val}<span className="text-sm font-normal text-slate-400">{unit}</span>
+                    </p>
                   </div>
                 ))}
               </div>
+              {evalData.summary && (
+                <p className="mt-4 text-sm text-slate-700 dark:text-gray-300 leading-relaxed border-t border-slate-100 dark:border-gray-800 pt-4">
+                  {evalData.summary}
+                </p>
+              )}
             </Card>
           )}
 
-          {/* 4. SWOT */}
-          {evalData && (
+          {/* 4. SWOT Analysis */}
+          {evalData && Object.keys(swotData).length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">4</span>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 text-start">
+                <SectionNumber n={sn()} />
                 {t('businessPlan.sections.swot')}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { key: 'strengths', title: t('businessPlan.sections.strengths'), bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-                  { key: 'weaknesses', title: t('businessPlan.sections.weaknesses'), bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
-                  { key: 'opportunities', title: t('businessPlan.sections.opportunities'), bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
-                  { key: 'threats', title: t('businessPlan.sections.threats'), bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500' },
-                ].map(q => (
-                  <div key={q.key} className={`${q.bg} rounded-xl p-4`}>
-                    <h4 className={`font-semibold ${q.text} mb-2`}>{q.title}</h4>
-                    <ul className="space-y-1">
-                      {(swot[q.key] || []).map((item, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-gray-300">
-                          <span className={`w-1.5 h-1.5 rounded-full ${q.dot} mt-1.5 flex-shrink-0`} />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
+              <SwotGrid swotData={swotData} />
             </Card>
           )}
 
-          {/* 5. Market Analysis */}
-          <Card>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">5</span>
-              {t('businessPlan.sections.marketAnalysis')}
-            </h2>
-            <div className="space-y-4 text-sm text-slate-700 dark:text-gray-300">
-              <div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{t('businessPlan.sections.targetMarket')}</h4>
-                <p>{idea?.targetAudience || t('common.notSpecified')}</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{t('businessPlan.sections.marketSize')}</h4>
-                <p>{idea?.marketSize || t('common.notSpecified')}</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{t('businessPlan.sections.competitionLevel')}</h4>
-                <p>{idea?.competitionLevel || t('businessPlan.sections.notAssessed')}</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* 6. Financial Projections */}
+          {/* 5. Financial Projections */}
           {finData && (
             <Card>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">6</span>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
+                <SectionNumber n={sn()} />
                 {t('businessPlan.sections.financialProjections')}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  [t('businessPlan.sections.startingBudget'), formatCurrency(finData.initialInvestment)],
-                  [t('businessPlan.sections.monthlyIncome'), formatCurrency(finData.monthlyRevenue)],
-                  [t('businessPlan.sections.monthlyExpenses'), formatCurrency(finData.monthlyCosts)],
-                  [t('businessPlan.sections.breakEven'), finData.breakEvenMonths > 0 ? `${finData.breakEvenMonths} ${t('common.months')}` : t('common.na')],
-                  [t('businessPlan.sections.roi'), `${finData.roiPercentage?.toFixed(1)}%`],
-                ].map(([label, val]) => (
-                  <div key={label} className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4">
+                  { label: t('businessPlan.sections.startingBudget'),  val: formatCurrency(finData.initialInvestment),  good: null },
+                  { label: t('businessPlan.sections.monthlyIncome'),   val: formatCurrency(finData.monthlyRevenue),     good: true },
+                  { label: t('businessPlan.sections.monthlyExpenses'), val: formatCurrency(finData.monthlyCosts),       good: false },
+                  {
+                    label: t('businessPlan.sections.breakEven'),
+                    val: finData.breakEvenMonths > 0 && finData.breakEvenMonths < 9999
+                      ? `${finData.breakEvenMonths} ${t('common.months')}`
+                      : t('common.na'),
+                    good: finData.breakEvenMonths > 0 && finData.breakEvenMonths <= 18,
+                  },
+                  finData.roiPercentage != null && {
+                    label: t('businessPlan.sections.roi'),
+                    val: `${finData.roiPercentage?.toFixed(1)}%`,
+                    good: finData.roiPercentage > 0,
+                  },
+                ].filter(Boolean).map(({ label, val, good }) => (
+                  <div key={label} className="bg-slate-50 dark:bg-gray-900/60 rounded-xl p-4">
                     <p className="text-xs font-medium text-slate-500 dark:text-gray-500 mb-1">{label}</p>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">{val}</p>
+                    <p className={`text-sm font-bold ${
+                      good === true  ? 'text-emerald-600 dark:text-emerald-400' :
+                      good === false ? 'text-red-500 dark:text-red-400' :
+                      'text-slate-900 dark:text-white'
+                    }`}>{val}</p>
                   </div>
                 ))}
               </div>
             </Card>
           )}
 
-          {/* 7. Recommendations */}
+          {/* 6. Recommendations */}
           {evalData?.recommendations && (
-            <Card className="!bg-blue-50 dark:!bg-blue-950 !border-blue-200 dark:!border-blue-800">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">7</span>
+            <Card className="!bg-blue-50 dark:!bg-blue-950/40 !border-blue-200 dark:!border-blue-800">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
+                <SectionNumber n={sn()} color="bg-blue-600" />
                 {t('businessPlan.sections.whatNext')}
               </h2>
               <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{evalData.recommendations}</p>
             </Card>
           )}
+
         </div>
 
         {/* Bottom Actions */}
@@ -289,7 +289,7 @@ const BusinessPlan = () => {
           <Button onClick={handleDownload} loading={downloading} className="flex-1" size="lg">
             {t('businessPlan.downloadPdf')}
           </Button>
-          <Button onClick={handlePrint} variant="outline" className="flex-1" size="lg">
+          <Button onClick={() => window.print()} variant="outline" className="flex-1" size="lg">
             {t('businessPlan.print')}
           </Button>
         </div>

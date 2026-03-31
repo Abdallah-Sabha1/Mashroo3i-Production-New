@@ -5,10 +5,10 @@ const Card = ({ children, className = '', hover = false, padding = true, glass =
   return (
     <div
       className={`
-        rounded-2xl transition-all duration-200
+        rounded-2xl transition-all duration-300
         ${base}
         ${padding ? 'p-6' : ''}
-        ${hover ? 'hover:shadow-card-hover hover:border-slate-300/80 dark:hover:border-gray-700 cursor-pointer hover:-translate-y-px' : ''}
+        ${hover ? 'floating-card cursor-pointer' : ''}
         ${className}
       `}
     >

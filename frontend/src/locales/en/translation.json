@@ -58,9 +58,12 @@
     "builtFor": "Built for entrepreneurs in",
     "ammanJordan": "Amman, Jordan",
     "stats": {
-      "time": "Get your full analysis",
-      "sectors": "Amman market coverage",
-      "free": "Always free to start"
+      "timeValue": "< 5 min",
+      "time": "From idea to full business analysis",
+      "sectorsValue": "7 Sectors",
+      "sectors": "Covering Amman's key industries",
+      "freeValue": "100% Free",
+      "free": "No credit card. No hidden fees."
     },
     "features": {
       "label": "Features",

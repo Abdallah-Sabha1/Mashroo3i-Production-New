@@ -25,13 +25,18 @@ const Navbar = () => {
   }
 
   const isRtl = language === 'ar'
+  const isLanding = location.pathname === '/'
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-slate-200 dark:border-gray-800 transition-colors duration-300">
+    <nav className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+      isLanding
+        ? 'bg-transparent border-white/10'
+        : 'bg-white dark:bg-gray-950 border-slate-200 dark:border-gray-800'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2">
-            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent" dir="ltr">
+            <span className="text-2xl font-bold text-gradient-primary" dir="ltr">
               Mashroo3i
             </span>
           </Link>
@@ -48,7 +53,7 @@ const Navbar = () => {
                   to={link.to}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     location.pathname === link.to
-                      ? 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-950'
+                      ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
                   }`}
                 >
@@ -62,7 +67,11 @@ const Navbar = () => {
                 { href: '#features', label: t('nav.features') },
                 { href: '#about',    label: t('nav.about')    },
               ].map(item => (
-                <a key={item.href} href={item.href} className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors">
+                <a key={item.href} href={item.href} className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isLanding
+                    ? 'text-hero-muted hover:text-white hover:bg-white/10'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                }`}>
                   {item.label}
                 </a>
               ))}
@@ -73,17 +82,25 @@ const Navbar = () => {
             {/* Language toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-gray-700 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
+                isLanding
+                  ? 'border-white/20 text-white/80 hover:bg-white/10'
+                  : 'border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800'
+              }`}
               title={isRtl ? 'Switch to English' : 'التبديل للعربية'}
               dir="ltr"
             >
-              {isRtl ? '🇬🇧 EN' : '🇯🇴 AR'}
+              {isRtl ? 'EN' : 'AR'}
             </button>
 
             {/* Dark mode toggle */}
             <button
               onClick={toggleDark}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                isLanding
+                  ? 'text-white/70 hover:bg-white/10 hover:text-white'
+                  : 'text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800'
+              }`}
               aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -95,7 +112,7 @@ const Navbar = () => {
                   onClick={() => setProfileOpen(!profileOpen)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                     <span className="text-white text-sm font-semibold">{user?.fullName?.charAt(0) || 'U'}</span>
                   </div>
                   <span className="text-sm font-medium text-slate-700 dark:text-gray-300">{user?.fullName?.split(' ')[0]}</span>
