@@ -264,6 +264,13 @@
       "needsRefinement": "Needs Refinement",
       "highRisk": "High Risk"
     },
+    "riskLevels": {
+      "low": "Low Risk",
+      "mediumLow": "Medium-Low Risk",
+      "medium": "Medium Risk",
+      "mediumHigh": "Medium-High Risk",
+      "high": "High Risk"
+    },
     "scores": {
       "title": "Evaluation Scores",
       "subtitle": "Based on Amman market conditions and your {{type}} business type",

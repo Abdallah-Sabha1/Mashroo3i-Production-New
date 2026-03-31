@@ -248,6 +248,13 @@
     }
   },
   "evaluation": {
+    "riskLevels": {
+      "low": "مخاطر منخفضة",
+      "mediumLow": "مخاطر متوسطة-منخفضة",
+      "medium": "مخاطر متوسطة",
+      "mediumHigh": "مخاطر متوسطة-عالية",
+      "high": "مخاطر عالية"
+    },
     "backToDashboard": "العودة للوحة التحكم",
     "evaluationResults": "نتائج التقييم",
     "loadingEval": "جاري تحميل التقييم...",

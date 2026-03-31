@@ -30,34 +30,28 @@ const PublicRoute = ({ children }) => {
 }
 
 const App = () => {
-  const { language, setLanguage } = useLanguageStore()
-
-  useEffect(() => {
-    const saved = localStorage.getItem('mashroo3i_lang') || 'ar'
-    document.documentElement.lang = saved
-    document.documentElement.dir = saved === 'ar' ? 'rtl' : 'ltr'
-    i18n.changeLanguage(saved)
-    if (saved !== language) setLanguage(saved)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const { language, direction } = useLanguageStore()
 
   return (
-    <ToastProvider>
-      <Suspense fallback={<PageLoading />}>
-        <Routes>
-          <Route path="/"                             element={<PublicRoute><Landing /></PublicRoute>} />
-          <Route path="/register"                     element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/login"                        element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/dashboard"                    element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/submit-idea"                  element={<ProtectedRoute><SubmitIdea /></ProtectedRoute>} />
-          <Route path="/evaluation/:ideaId"           element={<ProtectedRoute><Evaluation /></ProtectedRoute>} />
-          <Route path="/financial/:ideaId"            element={<ProtectedRoute><Financial /></ProtectedRoute>} />
-          <Route path="/financial-projections/:ideaId" element={<ProtectedRoute><FinancialProjections /></ProtectedRoute>} />
-          <Route path="/business-plan/:ideaId"        element={<ProtectedRoute><BusinessPlan /></ProtectedRoute>} />
-          <Route path="/profile"                      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="*"                             element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </ToastProvider>
+    <div key={language} dir={direction} className="min-h-screen">
+      <ToastProvider>
+        <Suspense fallback={<PageLoading />}>
+          <Routes>
+            <Route path="/"                             element={<PublicRoute><Landing /></PublicRoute>} />
+            <Route path="/register"                     element={<PublicRoute><Register /></PublicRoute>} />
+            <Route path="/login"                        element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/dashboard"                    element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/submit-idea"                  element={<ProtectedRoute><SubmitIdea /></ProtectedRoute>} />
+            <Route path="/evaluation/:ideaId"           element={<ProtectedRoute><Evaluation /></ProtectedRoute>} />
+            <Route path="/financial/:ideaId"            element={<ProtectedRoute><Financial /></ProtectedRoute>} />
+            <Route path="/financial-projections/:ideaId" element={<ProtectedRoute><FinancialProjections /></ProtectedRoute>} />
+            <Route path="/business-plan/:ideaId"        element={<ProtectedRoute><BusinessPlan /></ProtectedRoute>} />
+            <Route path="/profile"                      element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="*"                             element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </ToastProvider>
+    </div>
   )
 }
 

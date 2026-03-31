@@ -1,37 +1,37 @@
 export const SECTORS = [
-  { value: 'food_and_beverage',      label: 'Food & Beverage',       desc: 'Restaurants, cafés, catering, food delivery' },
-  { value: 'retail_ecommerce',       label: 'Retail & E-commerce',   desc: 'Online or physical store, products, reselling' },
-  { value: 'tech_and_software',      label: 'Tech & Software',       desc: 'Apps, websites, digital tools, software' },
-  { value: 'education_and_training', label: 'Education & Training',  desc: 'Tutoring, courses, coaching, training' },
-  { value: 'health_and_wellness',    label: 'Health & Wellness',     desc: 'Gym, clinic, nutrition, beauty, personal care' },
-  { value: 'professional_services',  label: 'Professional Services', desc: 'Consulting, marketing, accounting, design, IT' },
-  { value: 'other',                  label: 'Other',                 desc: "Doesn't fit the above categories" },
+  { value: 'food_and_beverage',      labelKey: 'submitIdea.step0.sectors.food_and_beverage.label' },
+  { value: 'retail_ecommerce',       labelKey: 'submitIdea.step0.sectors.retail_ecommerce.label' },
+  { value: 'tech_and_software',      labelKey: 'submitIdea.step0.sectors.tech_and_software.label' },
+  { value: 'education_and_training', labelKey: 'submitIdea.step0.sectors.education_and_training.label' },
+  { value: 'health_and_wellness',    labelKey: 'submitIdea.step0.sectors.health_and_wellness.label' },
+  { value: 'professional_services',  labelKey: 'submitIdea.step0.sectors.professional_services.label' },
+  { value: 'other',                  labelKey: 'submitIdea.step0.sectors.other.label' },
 ]
 
-export const getSectorLabel = (value) => {
+export const getSectorLabel = (value, t) => {
   const s = SECTORS.find(s => s.value === value)
-  return s ? s.label : value
+  return s && t ? t(s.labelKey) : value
 }
 
 export const AMMAN_REGIONS = [
-  { value: 'west',    label: 'West Amman',    desc: 'Abdoun, Sweifieh, Shmeisani — premium customers, higher costs' },
-  { value: 'central', label: 'Central Amman', desc: 'Downtown, Jabal Amman, Lweibdeh — mixed, medium pricing' },
-  { value: 'east',    label: 'East Amman',    desc: 'Zarqa Road, Marka, Qweismeh — price-sensitive market, lower costs' },
+  { value: 'west',    labelKey: 'submitIdea.step2.regions.west.label',    descKey: 'submitIdea.step2.regions.west.sub' },
+  { value: 'central', labelKey: 'submitIdea.step2.regions.central.label', descKey: 'submitIdea.step2.regions.central.sub' },
+  { value: 'east',    labelKey: 'submitIdea.step2.regions.east.label',    descKey: 'submitIdea.step2.regions.east.sub' },
 ]
 
 export const ACQUISITION_CHANNELS = [
-  { value: 'word_of_mouth',        label: 'Word of mouth / personal network', desc: 'Tell friends and family, ask for referrals' },
-  { value: 'social_media_organic', label: 'Social media (organic)',            desc: 'Post on Instagram, TikTok — no paid ads' },
-  { value: 'paid_ads',             label: 'Paid ads',                          desc: 'Run ads on Instagram, Google, or TikTok' },
-  { value: 'partnerships',         label: 'Partnerships or referrals',         desc: 'Partner with other businesses' },
-  { value: 'direct_sales',         label: 'Direct sales / cold outreach',      desc: 'Call or message potential clients directly (B2B)' },
-  { value: 'seo',                  label: 'SEO / search engine',               desc: 'Get found on Google when people search' },
+  { value: 'word_of_mouth',        label: 'Word of mouth / personal network' },
+  { value: 'social_media_organic', label: 'Social media (organic)' },
+  { value: 'paid_ads',             label: 'Paid ads' },
+  { value: 'partnerships',         label: 'Partnerships or referrals' },
+  { value: 'direct_sales',         label: 'Direct sales / cold outreach' },
+  { value: 'seo',                  label: 'SEO / search engine' },
 ]
 
-export const RISK_COLORS = {
-  'Low Risk':         { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', badge: 'success' },
-  'Medium-Low Risk':  { bg: 'bg-green-50',   text: 'text-green-700',   border: 'border-green-200',   badge: 'success' },
-  'Medium Risk':      { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   badge: 'warning' },
-  'Medium-High Risk': { bg: 'bg-orange-50',  text: 'text-orange-700',  border: 'border-orange-200',  badge: 'warning' },
-  'High Risk':        { bg: 'bg-red-50',     text: 'text-red-700',     border: 'border-red-200',     badge: 'danger'  },
+export const RISK_LEVELS = {
+  'Low Risk':         { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', labelKey: 'evaluation.riskLevels.low' },
+  'Medium-Low Risk':  { bg: 'bg-green-50',   text: 'text-green-700',   border: 'border-green-200',   labelKey: 'evaluation.riskLevels.mediumLow' },
+  'Medium Risk':      { bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200',   labelKey: 'evaluation.riskLevels.medium' },
+  'Medium-High Risk': { bg: 'bg-orange-50',  text: 'text-orange-700',  border: 'border-orange-200',  labelKey: 'evaluation.riskLevels.mediumHigh' },
+  'High Risk':        { bg: 'bg-red-50',     text: 'text-red-700',     border: 'border-red-200',     labelKey: 'evaluation.riskLevels.high' },
 }
