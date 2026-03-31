@@ -15,7 +15,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("ai_endpoints", opt =>
     {
-        opt.PermitLimit = 5;
+        opt.PermitLimit = 10;
         opt.Window = TimeSpan.FromMinutes(1);
         opt.QueueProcessingOrder =
             System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;

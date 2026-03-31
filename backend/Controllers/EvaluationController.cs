@@ -24,6 +24,16 @@ namespace backend.Controllers
             _aiService = aiService;
         }
 
+        // Returns true if the stored evaluation text matches the requested language.
+        // Uses Arabic Unicode range detection to avoid a DB schema change.
+        private static bool EvaluationMatchesLanguage(Models.Evaluation eval, string language)
+        {
+            var isArabicRequested = language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+            var textToCheck = eval.Verdict ?? eval.Recommendations ?? string.Empty;
+            var containsArabic = textToCheck.Any(c => c >= '\u0600' && c <= '\u06FF');
+            return isArabicRequested == containsArabic;
+        }
+
         [HttpPost("{ideaId}")]
         [EnableRateLimiting("ai_endpoints")]
         public async Task<ActionResult<EvaluationResponseDto>> Generate(int ideaId, [FromQuery] string language = "en")
@@ -39,9 +49,8 @@ namespace backend.Controllers
             var existing = idea.Evaluation
                 ?? await _context.Evaluations.FirstOrDefaultAsync(e => e.IdeaId == ideaId);
 
-            // ✅ FIX: If evaluation exists but user is requesting a different language,
-            // delete the old one and regenerate in the requested language
-            if (existing != null && language != "en")
+            // Only delete & regenerate if the stored evaluation is in the wrong language
+            if (existing != null && !EvaluationMatchesLanguage(existing, language))
             {
                 _context.Evaluations.Remove(existing);
                 await _context.SaveChangesAsync();
@@ -120,9 +129,8 @@ namespace backend.Controllers
             if (idea == null) return NotFound(new { message = "Idea not found." });
             if (idea.UserId != GetUserId()) return Forbid();
 
-            // ✅ FIX: If evaluation exists but user is requesting a different language,
-            // delete the old one and trigger regeneration (by returning 404)
-            if (idea.Evaluation != null && language != "en")
+            // Only delete if the stored evaluation is in the wrong language
+            if (idea.Evaluation != null && !EvaluationMatchesLanguage(idea.Evaluation, language))
             {
                 _context.Evaluations.Remove(idea.Evaluation);
                 await _context.SaveChangesAsync();
