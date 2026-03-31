@@ -73,7 +73,7 @@ const FinancialProjections = () => {
   }
 
   // ✅ FIX #2: Ensure required fields exist before passing to child
-  if (!idea.sector || !idea.businessModel) {
+  if (!idea.sector || !idea.businessType) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
         <Navbar />
@@ -133,7 +133,7 @@ const FinancialProjections = () => {
           <FinancialProjectionsStep
             ideaId={parseInt(ideaId)}
             industryType={idea.sector}
-            businessModel={idea.businessModel}
+            businessModel={idea.businessType}
           />
         </motion.div>
       </div>

@@ -253,19 +253,21 @@ Return ONLY a valid JSON object. No markdown, no explanation, just JSON:
   }}
 }}";
 
+            // Use same clean template as English — only the instructions above are in Arabic
+            // Arabic text inside JSON placeholders confuses Gemini and causes parse failures
             var arabicJsonTemplate = @"{{
-  ""noveltyScore"": <عدد صحيح 1-100>,
-  ""marketPotentialScore"": <عدد صحيح 1-100>,
-  ""overallScore"": <عدد صحيح 1-100>,
-  ""riskLevel"": ""Low Risk"" أو ""Medium Risk"" أو ""High Risk"" (اترك كما هو في الإنجليزية - سيتم ترجمته في التطبيق),
-  ""verdict"": ""جملة واحدة صادقة باللغة العربية: هل هذه الفكرة واعدة / تحتاج تحسين / مخاطر عالية — والسبب الأساسي الوحيد"",
-  ""redFlags"": [""تحذير محدد 1 باللغة العربية إن وجد"", ""تحذير محدد 2 باللغة العربية إن وجد""],
-  ""recommendations"": ""3-4 خطوات محددة قابلة للتنفيذ لهذه الفكرة في عمّان باللغة العربية. لا نصائح عامة."",
+  ""noveltyScore"": <integer 1-100>,
+  ""marketPotentialScore"": <integer 1-100>,
+  ""overallScore"": <integer 1-100>,
+  ""riskLevel"": ""Low Risk"" or ""Medium Risk"" or ""High Risk"",
+  ""verdict"": ""<ARABIC TEXT: one honest sentence about the idea>"",
+  ""redFlags"": [""<ARABIC TEXT: specific warning>"", ""<ARABIC TEXT: specific warning>""],
+  ""recommendations"": ""<ARABIC TEXT: 3-4 specific actionable next steps>"",
   ""swotAnalysis"": {{
-    ""strengths"": [""نقطة قوة محددة لهذه الفكرة باللغة العربية"", ""نقطة قوة محددة لسوق عمّان باللغة العربية""],
-    ""weaknesses"": [""ضعف محدد لهذه الفكرة باللغة العربية"", ""ضعف حقيقي باللغة العربية""],
-    ""opportunities"": [""فرصة محددة في سوق عمّان باللغة العربية"", ""مسار نمو محدد باللغة العربية""],
-    ""threats"": [""تهديد محدد في عمّان باللغة العربية"", ""تهديد تنافسي محدد باللغة العربية""]
+    ""strengths"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
+    ""weaknesses"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
+    ""opportunities"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""],
+    ""threats"": [""<ARABIC TEXT>"", ""<ARABIC TEXT>""]
   }}
 }}";
 
