@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import useLanguageStore from '../store/languageStore'
 import api, { ideas as ideasApi, getErrorMessage } from '../services/api'
 import { useToast } from '../components/ui/Toast'
 import Navbar from '../components/layout/Navbar'
@@ -496,6 +497,7 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
 
 const SubmitIdea = () => {
   const { t } = useTranslation()
+  const { language } = useLanguageStore()
   const [step,                   setStep]                   = useState(0)
   const [title,                  setTitle]                  = useState('')
   const [description,            setDescription]            = useState('')
@@ -524,7 +526,7 @@ const SubmitIdea = () => {
     setAiLoading(true)
     setStep(1)
     try {
-      const res = await api.post('/ideas/analyze', {
+      const res = await api.post(`/ideas/analyze?language=${language}`, {
         title,
         description,
         sector: selectedSector,

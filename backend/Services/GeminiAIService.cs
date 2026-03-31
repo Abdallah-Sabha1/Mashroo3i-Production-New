@@ -24,12 +24,12 @@ namespace backend.Services
             _apiKey     = config["GroqAI:ApiKey"] ?? throw new InvalidOperationException("Groq API Key not configured");
         }
 
-        public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description, string sector)
+        public async Task<IdeaInsightsDto> GenerateIdeaInsightsAsync(string title, string description, string sector, string language = "en")
         {
             try
             {
-                _logger.LogInformation("Generating insights for idea: {Title}", title);
-                var prompt   = BuildInsightGenerationPrompt(title, description, sector);
+                _logger.LogInformation("Generating insights for idea: {Title} in {Language}", title, language);
+                var prompt   = BuildInsightGenerationPrompt(title, description, sector, language);
                 var response = await CallGroqAsync(prompt);
 
                 if (string.IsNullOrEmpty(response))
@@ -123,18 +123,50 @@ namespace backend.Services
 
         // ── Prompt builders ───────────────────────────────────────────────────
 
-        private string BuildInsightGenerationPrompt(string title, string description, string sector)
+        private string BuildInsightGenerationPrompt(string title, string description, string sector, string language = "en")
         {
+            var isArabic = language.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+
             var sectorLabel = sector switch
             {
-                "food_and_beverage"      => "Food & Beverage",
-                "retail_ecommerce"       => "Retail & E-commerce",
-                "tech_and_software"      => "Tech & Software",
-                "education_and_training" => "Education & Training",
-                "health_and_wellness"    => "Health & Wellness",
-                "professional_services"  => "Professional Services",
-                _                        => "General Business"
+                "food_and_beverage"      => isArabic ? "الطعام والمشروبات"    : "Food & Beverage",
+                "retail_ecommerce"       => isArabic ? "البيع بالتجزئة والتجارة الإلكترونية" : "Retail & E-commerce",
+                "tech_and_software"      => isArabic ? "التكنولوجيا والبرمجيات" : "Tech & Software",
+                "education_and_training" => isArabic ? "التعليم والتدريب"     : "Education & Training",
+                "health_and_wellness"    => isArabic ? "الصحة واللياقة"       : "Health & Wellness",
+                "professional_services"  => isArabic ? "الخدمات المهنية"      : "Professional Services",
+                _                        => isArabic ? "أعمال عامة"           : "General Business"
             };
+
+            if (isArabic)
+            {
+                return $@"أنت مستشار أعمال متخصص في سوق الشركات الناشئة في عمّان، الأردن.
+
+⚠️ مطلوب: أجب بالعربية 100% في جميع الحقول النصية.
+
+فكرة العمل:
+العنوان: {title}
+الوصف: {description}
+القطاع: {sectorLabel}
+السوق: عمّان، الأردن
+
+قواعد:
+1. جميع التحليلات يجب أن تكون محددة لسوق عمّان
+2. كن صادقاً — اذكر نقاط الضعف بوضوح
+3. استخدم لغة بسيطة ومفهومة
+4. نوع العمل: B2C = يبيع للأفراد، B2B = يبيع للشركات
+5. نطاق المبيعات: كن واقعياً لعمّان — الشركات الجديدة تبدأ صغيرة
+
+أرجع JSON صحيح فقط بهذه المفاتيح بالضبط:
+{{
+  ""problemStatement"": ""ما المشكلة التي تحلها هذه الفكرة للناس في عمّان؟ (2-3 جمل بالعربية)"",
+  ""uniqueSellingPoint"": ""ما الذي يجعل هذا المشروع مختلفاً عن البدائل الموجودة في عمّان؟ (2-3 جمل بالعربية)"",
+  ""targetAudience"": ""من سيشتري هذا في عمّان؟ صف العمر ونمط الحياة والموقع والحاجة المحددة بالعربية."",
+  ""suggestedBusinessType"": ""B2C"" or ""B2B"",
+  ""businessTypeConfidence"": ""HIGH"" or ""MEDIUM"" or ""LOW"",
+  ""businessTypeReason"": ""جملة واحدة بالعربية تشرح لماذا B2C أو B2B"",
+  ""suggestedMonthlySalesRange"": ""اختر واحداً فقط: لـ B2C: 1_10 أو 10_50 أو 50_200 أو 200_plus. لـ B2B: 1_3 أو 4_10 أو 11_30 أو 30_plus""
+}}";}
 
             return $@"You are a senior business consultant specializing in the Amman, Jordan startup market.
 
@@ -143,9 +175,6 @@ Title: {title}
 Description: {description}
 Sector: {sectorLabel}
 Market: Amman, Jordan
-
-YOUR TASK:
-Analyze this business idea for an entrepreneur in Amman who has NOT started yet.
 
 RULES:
 1. All analysis must be specific to Amman's market

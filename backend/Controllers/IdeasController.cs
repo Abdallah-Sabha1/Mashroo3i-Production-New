@@ -29,15 +29,15 @@ namespace backend.Controllers
         [HttpPost("analyze")]
         [AllowAnonymous]
         [EnableRateLimiting("ai_endpoints")]
-        public async Task<ActionResult<IdeaInsightsDto>> AnalyzeIdea(AnalyzeIdeaDto dto)
+        public async Task<ActionResult<IdeaInsightsDto>> AnalyzeIdea(AnalyzeIdeaDto dto, [FromQuery] string language = "en")
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid input", errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)) });
 
             try
             {
-                _logger.LogInformation("Analyzing idea: {Title}", dto.Title);
-                var insights = await _analysisService.AnalyzeIdeaAsync(dto.Title, dto.Description, dto.Sector);
+                _logger.LogInformation("Analyzing idea: {Title} in {Language}", dto.Title, language);
+                var insights = await _analysisService.AnalyzeIdeaAsync(dto.Title, dto.Description, dto.Sector, language);
                 return Ok(insights);
             }
             catch (Exception ex)

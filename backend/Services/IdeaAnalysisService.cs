@@ -14,12 +14,12 @@ namespace backend.Services
             _logger = logger;
         }
 
-        public async Task<IdeaInsightsDto> AnalyzeIdeaAsync(string title, string description, string sector)
+        public async Task<IdeaInsightsDto> AnalyzeIdeaAsync(string title, string description, string sector, string language = "en")
         {
             try
             {
-                _logger.LogInformation("Analyzing business idea: {Title}", title);
-                var insights = await _geminiAI.GenerateIdeaInsightsAsync(title, description, sector);
+                _logger.LogInformation("Analyzing business idea: {Title} in {Language}", title, language);
+                var insights = await _geminiAI.GenerateIdeaInsightsAsync(title, description, sector, language);
                 _logger.LogInformation("Successfully generated insights for: {Title}", title);
                 return insights;
             }
