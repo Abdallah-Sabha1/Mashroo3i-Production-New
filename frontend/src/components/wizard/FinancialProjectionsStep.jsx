@@ -10,9 +10,9 @@ import ProjectionTable from '../financial/ProjectionTable'
 import { Skeleton } from '../ui/Loading'
 
 const tabStyle = {
-  green:  { active: 'bg-green-600  text-white', inactive: 'text-green-600  dark:text-green-400  hover:bg-green-50  dark:hover:bg-green-950/20'  },
-  indigo: { active: 'bg-primary-600 text-white', inactive: 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20' },
-  red:    { active: 'bg-red-500    text-white', inactive: 'text-red-500    dark:text-red-400    hover:bg-red-50    dark:hover:bg-red-950/20'    },
+  green:  { active: 'bg-green-600  text-gray-50', inactive: 'text-green-600  dark:text-green-400  hover:bg-green-50  dark:hover:bg-green-950/20'  },
+  indigo: { active: 'bg-primary-600 text-gray-50', inactive: 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20' },
+  red:    { active: 'bg-red-500    text-gray-50', inactive: 'text-red-500    dark:text-red-400    hover:bg-red-50    dark:hover:bg-red-950/20'    },
 }
 
 const fmtJOD = n =>
@@ -246,17 +246,17 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       {bm && <BenchmarkInfoCard benchmark={bm} />}
 
       {/* 2 ── Benchmark-based assumptions */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800 flex items-center justify-between gap-3">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{t('financialWizard.projections.assumptionsTitle')}</h3>
-            <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('financialWizard.projections.assumptionsTitle')}</h3>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               {t('financialWizard.projections.assumptionsSubtitle')}
             </p>
           </div>
           <button
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             {t('financialWizard.projections.reset')}
@@ -271,11 +271,11 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
             return (
               <div key={label}>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-slate-700 dark:text-gray-300">{label}</label>
-                  <div className="text-xs text-slate-500 dark:text-gray-400">
-                    <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.projections.benchmark')}:</span>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
+                  <div className="text-xs text-gray-500 dark:text-gray-300">
+                    <span className="text-gray-400 dark:text-gray-500">{t('financialWizard.projections.benchmark')}:</span>
                     {' '}
-                    <span className="font-semibold text-slate-700 dark:text-gray-300">
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">
                       {benchmark.toLocaleString()}{isPercent ? '%' : ' JOD'}
                     </span>
                     {value !== 0 && (
@@ -288,7 +288,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 dark:text-gray-500 mb-2">{help}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">{help}</p>
                 <div className="flex items-center gap-3">
                   <input
                     type="range"
@@ -297,13 +297,13 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
                     step="5"
                     value={value}
                     onChange={e => set(parseInt(e.target.value))}
-                    className="flex-1 h-2 bg-slate-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer
+                    className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer
                       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
                       [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
                       [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-primary-600
                       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
                   />
-                  <span className="text-sm font-medium text-slate-700 dark:text-gray-300 min-w-[3.5rem] text-right">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[3.5rem] text-right">
                     {value > 0 ? '+' : ''}{value}%
                   </span>
                 </div>
@@ -318,7 +318,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
             disabled={recalculating}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl
               bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed
-              text-white text-sm font-semibold transition-colors"
+              text-gray-50 text-sm font-semibold transition-colors"
           >
             {recalculating
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> {t('financialWizard.projections.calculating')}</>
@@ -329,10 +329,10 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       </div>
 
       {/* 3 ── Scenario tabs */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
 
         {/* Tab switcher */}
-        <div className="flex gap-1 p-2 bg-slate-50 dark:bg-gray-800 border-b border-slate-100 dark:border-gray-800">
+        <div className="flex gap-1 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
           {SCENARIO_TABS.map(scenarioTab => {
             const s = tabStyle[scenarioTab.color]
             return (
@@ -391,7 +391,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               {/* Chart */}
               {scene.monthlyData?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3">
                     {t('financialWizard.projections.chart.title')}
                   </p>
                   <ProjectionChart monthlyData={scene.monthlyData} scenarioName={tab?.label} />
@@ -412,7 +412,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               </div>
             </motion.div>
           ) : (
-            <div className="p-8 text-center text-sm text-slate-400 dark:text-gray-500">
+            <div className="p-8 text-center text-sm text-gray-400 dark:text-gray-500">
               {t('financialWizard.projections.noData')}
             </div>
           )}
@@ -420,7 +420,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       </div>
 
       {/* Disclaimer */}
-      <p className="text-xs text-slate-300 dark:text-gray-600 text-center">
+      <p className="text-xs text-gray-300 dark:text-gray-600 text-center">
         {t('financialWizard.projections.disclaimer')}
       </p>
     </div>

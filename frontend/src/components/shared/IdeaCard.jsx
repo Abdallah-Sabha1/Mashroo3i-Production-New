@@ -32,10 +32,10 @@ export default function IdeaCard({ idea, delay = 0 }) {
           {/* Header with title and status */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-2">
+              <h3 className="font-bold text-gray-900 dark:text-gray-50 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-2">
                 {idea.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">{idea.sector}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{idea.sector}</p>
             </div>
             <Badge color={status.color} size="sm" className="flex-shrink-0 whitespace-nowrap ml-2">
               {status.label}
@@ -43,32 +43,32 @@ export default function IdeaCard({ idea, delay = 0 }) {
           </div>
 
           {/* Description preview */}
-          <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-2 mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">
             {idea.description}
           </p>
 
           {/* Budget and evaluation details */}
-          <div className="space-y-3 mb-4 pt-4 border-t border-slate-100 dark:border-gray-800">
+          <div className="space-y-3 mb-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600 dark:text-gray-400">Budget</span>
-              <span className="font-semibold text-slate-900 dark:text-white">
+              <span className="text-gray-600 dark:text-gray-300">Budget</span>
+              <span className="font-semibold text-gray-900 dark:text-gray-50">
                 {Number(idea.estimatedBudget).toLocaleString()} JOD
               </span>
             </div>
 
             {idea.evaluation && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-gray-400">Score</span>
+                <span className="text-gray-600 dark:text-gray-300">Score</span>
                 <span className={`font-bold text-lg ${getScoreColor(idea.evaluation.overallScore)}`}>
                   {idea.evaluation.overallScore}
-                  <span className="text-slate-400 dark:text-gray-500 text-sm font-normal">/100</span>
+                  <span className="text-gray-400 dark:text-gray-500 text-sm font-normal">/100</span>
                 </span>
               </div>
             )}
 
             {idea.evaluation && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-gray-400">Risk</span>
+                <span className="text-gray-600 dark:text-gray-300">Risk</span>
                 <Badge 
                   color={
                     idea.evaluation.riskLevel === 'Low Risk' ? 'green' :
@@ -84,7 +84,7 @@ export default function IdeaCard({ idea, delay = 0 }) {
           </div>
 
           {/* Footer with action buttons */}
-          <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-gray-800">
+          <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <Button 
               variant="ghost" 
               size="sm"

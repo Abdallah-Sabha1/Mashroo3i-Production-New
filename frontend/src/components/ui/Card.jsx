@@ -1,7 +1,7 @@
 const Card = ({ children, className = '', hover = false, padding = true, glass = false }) => {
   const base = glass
     ? 'card-glass'
-    : 'bg-white dark:bg-gray-900 border border-slate-200/70 dark:border-gray-800 shadow-card'
+    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-card'
   return (
     <div
       className={`

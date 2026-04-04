@@ -68,19 +68,19 @@ export default {
           800: '#92400e',
           900: '#78350f',
         },
-        // ── Gray: Deep navy dark mode ──
+        // ── Gray: Standard dark mode ──
         gray: {
-          50:  '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f1524',  // dark navy card bg
-          950: '#080c16',  // darkest navy page bg
+          50:  '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',  // dark card bg
+          900: '#111827',  // dark page bg
+          950: '#080c16',  // landing hero bg
         },
         // ── Hero: Dark navy for landing sections ──
         hero: {

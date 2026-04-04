@@ -65,21 +65,21 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
               transition-all duration-200 cursor-pointer
               ${isActive
                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30/40 shadow-md shadow-primary-100 dark:shadow-primary-900/30'
-                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-slate-50 dark:hover:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
           >
             <span className="text-3xl">{icon}</span>
             <span className={`text-sm font-semibold leading-tight ${
-              isActive ? 'text-primary-700 dark:text-primary-300' : 'text-slate-800 dark:text-gray-200'
+              isActive ? 'text-primary-700 dark:text-primary-300' : 'text-gray-800 dark:text-gray-200'
             }`}>
               {primaryName}
             </span>
-            <span className="text-xs text-slate-400 dark:text-gray-500">{secondaryName}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500">{secondaryName}</span>
             {ind.availableModels?.length > 0 && (
               <div className="flex gap-1 flex-wrap justify-center mt-1">
                 {ind.availableModels.map(m => (
                   <span key={m}
-                    className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-gray-400">
+                    className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300">
                     {m}
                   </span>
                 ))}

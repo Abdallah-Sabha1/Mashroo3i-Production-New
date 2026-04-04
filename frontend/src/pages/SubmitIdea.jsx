@@ -18,12 +18,12 @@ function ProgressBar({ step }) {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-slate-500 dark:text-gray-400">
+        <span className="text-sm text-gray-500 dark:text-gray-300">
           {t('submitIdea.stepOf', { step: step + 1, total: STEP_NAMES.length })}
         </span>
         <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">{STEP_NAMES[step]}</span>
       </div>
-      <div className="w-full bg-slate-100 dark:bg-gray-800 rounded-full h-2">
+      <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
         <motion.div
           className="bg-gradient-to-r from-primary-600 to-primary-400 h-2 rounded-full"
           initial={false}
@@ -35,7 +35,7 @@ function ProgressBar({ step }) {
         {STEP_NAMES.map((name, i) => (
           <span
             key={name}
-            className={`text-xs ${i <= step ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-slate-400 dark:text-gray-600'}`}
+            className={`text-xs ${i <= step ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-gray-400 dark:text-gray-600'}`}
           >
             {name}
           </span>
@@ -75,7 +75,7 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1.5">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
           {t('submitIdea.step0.titleLabel')} <span className="text-red-500">*</span>
         </label>
         <input
@@ -84,7 +84,7 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
           onChange={e => setTitle(e.target.value)}
           placeholder={t('submitIdea.step0.titlePlaceholder')}
           maxLength={200}
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
         />
         {title.length > 0 && title.length < 5 && (
           <p className="text-xs text-red-500 mt-1">{t('submitIdea.step0.titleMin')}</p>
@@ -93,10 +93,10 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
           {t('submitIdea.step0.descLabel')} <span className="text-red-500">*</span>
         </label>
-        <p className="text-xs text-slate-500 dark:text-gray-500 mb-2">
+        <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
           {t('submitIdea.step0.descHint')}
         </p>
         <textarea
@@ -105,20 +105,20 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
           rows={6}
           placeholder={t('submitIdea.step0.descPlaceholder')}
           maxLength={2000}
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm resize-none"
         />
         <div className="flex items-center justify-between mt-1">
           {descLeft > 0
             ? <p className="text-xs text-orange-500">{t('submitIdea.step0.descMore', { count: descLeft })}</p>
             : <p className="text-xs text-green-600 dark:text-green-400">{t('submitIdea.step0.descGood')}</p>
           }
-          <p className="text-xs text-slate-400">{t('submitIdea.step0.descChars', { count: description.length })}</p>
+          <p className="text-xs text-gray-400">{t('submitIdea.step0.descChars', { count: description.length })}</p>
         </div>
       </div>
 
       {/* Sector */}
       <div>
-        <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
           {t('submitIdea.step0.sectorLabel')} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -130,13 +130,13 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
               className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                 selectedSector === s
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
-                  : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 bg-white dark:bg-gray-800'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 bg-white dark:bg-gray-800'
               }`}
             >
-              <p className={`font-medium text-sm ${selectedSector === s ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
+              <p className={`font-medium text-sm ${selectedSector === s ? 'text-primary-800 dark:text-primary-200' : 'text-gray-800 dark:text-gray-200'}`}>
                 {t(`submitIdea.step0.sectors.${s}.label`)}
               </p>
-              <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t(`submitIdea.step0.sectors.${s}.desc`)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{t(`submitIdea.step0.sectors.${s}.desc`)}</p>
             </button>
           ))}
           {/* "Other" spans full width */}
@@ -146,13 +146,13 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
             className={`col-span-2 text-left p-4 rounded-xl border-2 transition-all duration-200 ${
               selectedSector === 'other'
                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
-                : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 bg-white dark:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 bg-white dark:bg-gray-800'
             }`}
           >
-            <p className={`font-medium text-sm ${selectedSector === 'other' ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
+            <p className={`font-medium text-sm ${selectedSector === 'other' ? 'text-primary-800 dark:text-primary-200' : 'text-gray-800 dark:text-gray-200'}`}>
               {t('submitIdea.step0.sectors.other.label')}
             </p>
-            <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t('submitIdea.step0.sectors.other.desc')}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{t('submitIdea.step0.sectors.other.desc')}</p>
           </button>
         </div>
         {sectorError && (
@@ -217,7 +217,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
-            className="text-lg font-medium text-slate-700 dark:text-gray-300 text-center"
+            className="text-lg font-medium text-gray-700 dark:text-gray-300 text-center"
           >
             {LOADING_MSGS_WITH_IDS[msgIdx]?.text || ''}
           </motion.p>
@@ -225,7 +225,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         <div className="flex gap-1.5">
           {/* ✅ FIX #8: Use unique IDs instead of array index */}
           {LOADING_MSGS_WITH_IDS.map((msg, i) => (
-            <div key={msg.id} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-primary-600 w-4' : 'bg-slate-200 dark:bg-gray-700'}`} />
+            <div key={msg.id} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-primary-600 w-4' : 'bg-gray-200 dark:bg-gray-700'}`} />
           ))}
         </div>
       </motion.div>
@@ -245,17 +245,17 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
       </div>
 
       {/* Insight cards */}
-      <div className="bg-slate-50 dark:bg-gray-900 rounded-2xl border border-slate-200 dark:border-gray-800 p-6 space-y-5">
-        <h3 className="font-bold text-slate-900 dark:text-white">{t('submitIdea.step1.insightsTitle')}</h3>
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-5">
+        <h3 className="font-bold text-gray-900 dark:text-gray-50">{t('submitIdea.step1.insightsTitle')}</h3>
         {cards.map(({ key, label }, i) => (
-          <div key={key} className={i < cards.length - 1 ? 'pb-5 border-b border-slate-200 dark:border-gray-800' : ''}>
+          <div key={key} className={i < cards.length - 1 ? 'pb-5 border-b border-gray-200 dark:border-gray-700' : ''}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">{label}</p>
               {editingField !== key && (
                 <button
                   type="button"
                   onClick={() => startEdit(key)}
-                  className="text-xs text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-2 py-0.5 rounded-md border border-slate-200 dark:border-gray-700 hover:border-primary-300"
+                  className="text-xs text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-2 py-0.5 rounded-md border border-gray-200 dark:border-gray-700 hover:border-primary-300"
                 >
                   {t('submitIdea.step1.editBtn')}
                 </button>
@@ -268,26 +268,26 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                   onChange={e => setEditValue(e.target.value)}
                   rows={3}
                   autoFocus
-                  className="w-full px-3 py-2 rounded-xl border border-primary-300 dark:border-primary-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-primary-300 dark:border-primary-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                 />
                 <button
                   type="button"
                   onClick={doneEdit}
-                  className="mt-2 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors"
+                  className="mt-2 text-xs font-medium text-gray-50 bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   {t('submitIdea.step1.doneBtn')}
                 </button>
               </div>
             ) : (
-              <p className="text-sm text-slate-700 dark:text-gray-300 leading-relaxed">{aiInsights?.[key] || '—'}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{aiInsights?.[key] || '—'}</p>
             )}
           </div>
         ))}
       </div>
 
       {/* Business type confirmation */}
-      <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900">
-        <p className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
+      <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {t('submitIdea.step1.bizTypeIntro')}
           <strong className="text-primary-600 dark:text-primary-400 mx-1">
             {aiInsights?.suggestedBusinessType === 'B2B'
@@ -296,9 +296,9 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
           </strong>
         </p>
         {aiInsights?.businessTypeReason && (
-          <p className="text-xs text-slate-500 dark:text-gray-400">{aiInsights.businessTypeReason}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-300">{aiInsights.businessTypeReason}</p>
         )}
-        <p className="text-xs font-medium text-slate-600 dark:text-gray-300 mt-3 mb-2">
+        <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mt-3 mb-2">
           {t('submitIdea.step1.confirm')}
         </p>
         <div className="flex gap-2">
@@ -307,8 +307,8 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
             onClick={() => setConfirmedBusinessType('B2C')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
               confirmedBusinessType === 'B2C'
-                ? 'bg-primary-600 text-white border-primary-600'
-                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
+                ? 'bg-primary-600 text-gray-50 border-primary-600'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
             }`}
           >
             {t('submitIdea.step1.yesB2C')}
@@ -318,8 +318,8 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
             onClick={() => setConfirmedBusinessType('B2B')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
               confirmedBusinessType === 'B2B'
-                ? 'bg-primary-600 text-white border-primary-600'
-                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
+                ? 'bg-primary-600 text-gray-50 border-primary-600'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
             }`}
           >
             {t('submitIdea.step1.noB2B')}
@@ -334,7 +334,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         <button
           type="button"
           onClick={onBack}
-          className="w-full text-sm text-slate-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 py-2 transition-colors text-center"
+          className="w-full text-sm text-gray-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 py-2 transition-colors text-center"
         >
           {t('submitIdea.step1.editDesc')}
         </button>
@@ -356,7 +356,7 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
 
       {/* Budget */}
       <div>
-        <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-1.5">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
           {t('submitIdea.step2.budgetLabel')} <span className="text-red-500">*</span>
         </label>
         <input
@@ -365,16 +365,16 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
           onChange={e => setEstimatedBudget(e.target.value)}
           placeholder={t('submitIdea.step2.budgetPlaceholder')}
           min="1"
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
         />
         {selectedSector && t(`submitIdea.step0.budgetHints.${selectedSector}`, { defaultValue: '' }) && (
-          <p className="text-xs text-slate-500 mt-1">{t(`submitIdea.step0.budgetHints.${selectedSector}`)}</p>
+          <p className="text-xs text-gray-500 mt-1">{t(`submitIdea.step0.budgetHints.${selectedSector}`)}</p>
         )}
       </div>
 
       {/* Region */}
       <div>
-        <label className="block text-sm font-semibold text-slate-800 dark:text-gray-200 mb-3">
+        <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
           {t('submitIdea.step2.regionLabel')} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-3 gap-2">
@@ -386,13 +386,13 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
               className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
                 ammanRegion === r
                   ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700'
-                  : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
+                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
-              <p className={`font-medium text-xs ${ammanRegion === r ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
+              <p className={`font-medium text-xs ${ammanRegion === r ? 'text-primary-800 dark:text-primary-200' : 'text-gray-800 dark:text-gray-200'}`}>
                 {t(`submitIdea.step2.regions.${r}.label`)}
               </p>
-              <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{t(`submitIdea.step2.regions.${r}.sub`)}</p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{t(`submitIdea.step2.regions.${r}.sub`)}</p>
             </button>
           ))}
         </div>
@@ -402,7 +402,7 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
         <button
           type="button"
           onClick={onBack}
-          className="px-5 py-2.5 text-sm font-medium text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors"
+          className="px-5 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
         >
           {t('submitIdea.step2.back')}
         </button>
@@ -426,36 +426,36 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
     <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
 
       <div>
-        <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{t('submitIdea.step3.title')}</h3>
-        <p className="text-sm text-slate-500 dark:text-gray-500">{t('submitIdea.step3.subtitle')}</p>
+        <h3 className="text-base font-bold text-gray-900 dark:text-gray-50 mb-1">{t('submitIdea.step3.title')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-500">{t('submitIdea.step3.subtitle')}</p>
       </div>
 
       {/* Your Idea */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionIdea')}</p>
-        <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('submitIdea.step3.sectionIdea')}</p>
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{title}</p>
         <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
           {sectorLabel}
         </span>
       </div>
 
       {/* AI Insights */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionAI')}</p>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('submitIdea.step3.sectionAI')}</p>
         <div>
-          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.problem')}</p>
-          <p className="text-sm text-slate-700 dark:text-gray-300">{truncate(aiInsights?.problemStatement, 80)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.problem')}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">{truncate(aiInsights?.problemStatement, 80)}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.different')}</p>
-          <p className="text-sm text-slate-700 dark:text-gray-300">{truncate(aiInsights?.uniqueSellingPoint, 80)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mb-0.5">{t('submitIdea.step3.different')}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">{truncate(aiInsights?.uniqueSellingPoint, 80)}</p>
         </div>
       </div>
 
       {/* Business Type */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500 mb-2">{t('submitIdea.step3.sectionBizType')}</p>
-        <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">{t('submitIdea.step3.sectionBizType')}</p>
+        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
           {confirmedBusinessType === 'B2B'
             ? t('submitIdea.step3.b2b')
             : t('submitIdea.step3.b2c')}
@@ -463,17 +463,17 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
       </div>
 
       {/* Your Details */}
-      <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionDetails')}</p>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">{t('submitIdea.step3.sectionDetails')}</p>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-500 dark:text-gray-500">{t('submitIdea.step3.budget')}</span>
-          <span className="font-medium text-slate-900 dark:text-white">
+          <span className="text-gray-500 dark:text-gray-500">{t('submitIdea.step3.budget')}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-50">
             {parseFloat(estimatedBudget).toLocaleString()} JOD
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-500 dark:text-gray-500">{t('submitIdea.step3.location')}</span>
-          <span className="font-medium text-slate-900 dark:text-white">{regionLabel}</span>
+          <span className="text-gray-500 dark:text-gray-500">{t('submitIdea.step3.location')}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-50">{regionLabel}</span>
         </div>
       </div>
 
@@ -481,7 +481,7 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
         <button
           type="button"
           onClick={onBack}
-          className="px-5 py-2.5 text-sm font-medium text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors"
+          className="px-5 py-2.5 text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
         >
           {t('submitIdea.step3.back')}
         </button>
@@ -567,14 +567,14 @@ const SubmitIdea = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-1">
             {t('submitIdea.title')}
           </h1>
-          <p className="text-slate-500 dark:text-gray-500 mb-8 text-sm">
+          <p className="text-gray-500 dark:text-gray-500 mb-8 text-sm">
             {t('submitIdea.subtitle')}
           </p>
 
@@ -589,7 +589,7 @@ const SubmitIdea = () => {
             </div>
           )}
 
-          <Card className="border border-slate-200 dark:border-gray-800 shadow-lg">
+          <Card className="border border-gray-200 dark:border-gray-700 shadow-lg">
             <AnimatePresence mode="wait">
               {step === 0 && (
                 <Step0
@@ -641,7 +641,7 @@ const SubmitIdea = () => {
             </AnimatePresence>
           </Card>
 
-          <p className="text-center text-xs text-slate-400 dark:text-gray-600 mt-6">
+          <p className="text-center text-xs text-gray-400 dark:text-gray-600 mt-6">
             {t('submitIdea.footer')}
           </p>
         </motion.div>

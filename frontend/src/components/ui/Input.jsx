@@ -4,14 +4,14 @@ const Input = forwardRef(({ label, type = 'text', placeholder, error, required, 
   return (
     <div className={`${className}`}>
       {label && (
-        <label htmlFor={name} className="block text-xs font-medium text-slate-700 dark:text-gray-300 uppercase tracking-wide mb-2">
+        <label htmlFor={name} className="block text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-gray-500">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-emerald-500 dark:text-emerald-400">
             {icon}
           </div>
         )}
@@ -22,12 +22,12 @@ const Input = forwardRef(({ label, type = 'text', placeholder, error, required, 
           type={type}
           placeholder={placeholder}
           className={`
-            w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-sm text-slate-900 dark:text-white
-            placeholder:text-slate-500 dark:placeholder:text-gray-500
+            w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-50
+            placeholder:text-gray-400 dark:placeholder:text-gray-500
             transition-all duration-200
-            focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500
+            focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500
             ${icon ? 'pl-10' : ''}
-            ${error ? 'border-red-300 focus:ring-red-500/10 focus:border-red-500' : 'border-slate-300 dark:border-gray-700 hover:border-slate-400 dark:hover:border-gray-600'}
+            ${error ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
           `}
           {...props}
         />

@@ -71,29 +71,29 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
             className={`text-start p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer
               ${isActive
                 ? `${c.border} border-2 shadow-md`
-                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-200 dark:hover:border-primary-800 hover:bg-slate-50 dark:hover:bg-gray-800'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-200 dark:hover:border-primary-800 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
           >
             <div className="flex items-center gap-2 mb-3">
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                isActive ? c.badge : 'bg-slate-100 text-slate-600 dark:bg-gray-800 dark:text-gray-300'
+                isActive ? c.badge : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
               }`}>
                 {model.title}
               </span>
               <span className={`font-semibold text-sm ${
-                isActive ? c.title : 'text-slate-800 dark:text-gray-200'
+                isActive ? c.title : 'text-gray-800 dark:text-gray-200'
               }`}>
                 {model.subtitle}
               </span>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-gray-400 leading-relaxed mb-3">
+            <p className="text-xs text-gray-500 dark:text-gray-300 leading-relaxed mb-3">
               {model.desc}
             </p>
 
             <div className="flex flex-wrap gap-1 mb-3">
               {model.examples.map(ex => (
-                <span key={ex} className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-gray-400">
+                <span key={ex} className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300">
                   {ex}
                 </span>
               ))}
@@ -101,33 +101,33 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
 
             {/* Benchmark preview */}
             {loadingBm ? (
-              <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-gray-800">
+              <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-700">
                 <Skeleton className="h-3 w-3/4 rounded" />
                 <Skeleton className="h-3 w-1/2 rounded" />
               </div>
             ) : bm ? (
-              <div className="pt-2 border-t border-slate-100 dark:border-gray-800 space-y-1">
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.startupCost')}</span>
-                  <span className="text-slate-700 dark:text-gray-300 font-medium">
+                  <span className="text-gray-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.startupCost')}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">
                     {bm.startupCostLow?.toLocaleString()} – {bm.startupCostHigh?.toLocaleString()} JOD
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.grossMargin')}</span>
-                  <span className="text-slate-700 dark:text-gray-300 font-medium">
+                  <span className="text-gray-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.grossMargin')}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">
                     {bm.grossMarginLow}% – {bm.grossMarginHigh}%
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.breakEven')}</span>
-                  <span className="text-slate-700 dark:text-gray-300 font-medium">
+                  <span className="text-gray-400 dark:text-gray-500">{t('financialWizard.businessModel.benchmark.breakEven')}</span>
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">
                     {bm.breakEvenMonthsLow}–{bm.breakEvenMonthsHigh} {t('financialWizard.businessModel.benchmark.months')}
                   </span>
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-slate-300 dark:text-gray-600 pt-2 border-t border-slate-100 dark:border-gray-800">
+              <p className="text-xs text-gray-300 dark:text-gray-600 pt-2 border-t border-gray-100 dark:border-gray-700">
                 {t('financialWizard.businessModel.benchmark.noData')}
               </p>
             )}

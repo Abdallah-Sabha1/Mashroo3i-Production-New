@@ -43,7 +43,7 @@ const FinancialProjections = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <Spinner />
@@ -55,7 +55,7 @@ const FinancialProjections = () => {
   // ✅ FIX #2: Validate all required props exist before rendering child component
   if (error || !idea) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -75,7 +75,7 @@ const FinancialProjections = () => {
   // ✅ FIX #2: Ensure required fields exist before passing to child
   if (!idea.sector || !idea.businessType) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -98,7 +98,7 @@ const FinancialProjections = () => {
   const stepSubtitle = t('financialWizard.stepSubtitles.projections')
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       <Navbar />
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-8">
@@ -106,7 +106,7 @@ const FinancialProjections = () => {
         {/* Back link */}
         <Link
           to={`/evaluation/${ideaId}`}
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-500
             hover:text-primary-600 dark:hover:text-primary-400 mb-6 transition-colors"
         >
           <ChevronRight className="w-4 h-4 rotate-180" />
@@ -120,8 +120,8 @@ const FinancialProjections = () => {
           transition={{ duration: 0.25 }}
           className="mb-6"
         >
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">{stepTitle}</h1>
-          <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">{stepSubtitle}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">{stepTitle}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{stepSubtitle}</p>
         </motion.div>
 
         {/* Step content */}

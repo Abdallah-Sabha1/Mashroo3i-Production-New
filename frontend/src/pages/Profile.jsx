@@ -53,29 +53,29 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{t('profile.title')}</h1>
-          <p className="text-slate-600 dark:text-gray-400 mb-8">{t('profile.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('profile.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">{t('profile.subtitle')}</p>
 
           {/* Avatar */}
           <Card className="mb-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
-                <span className="text-white text-xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
+                <span className="text-gray-50 text-xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{user?.fullName}</h2>
-                <p className="text-sm text-slate-500 dark:text-gray-500">{user?.email}</p>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{user?.fullName}</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-500">{user?.email}</p>
               </div>
             </div>
           </Card>
 
           {/* Form */}
           <Card className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">{t('profile.personalInfo')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-6">{t('profile.personalInfo')}</h3>
 
             {success && (
               <div className="mb-4 p-3 rounded-xl bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-400">{success}</div>
@@ -94,7 +94,7 @@ const Profile = () => {
 
           {/* Sign Out */}
           <Card className="!border-red-200 dark:!border-red-800">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t('profile.account')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-4">{t('profile.account')}</h3>
             <Button variant="danger" onClick={handleLogout}>{t('profile.signOut')}</Button>
           </Card>
         </motion.div>

@@ -16,7 +16,7 @@ export const Skeleton = ({ className = '' }) => (
 export const DashboardSkeleton = () => (
   <div className="space-y-3">
     {[...Array(3)].map((_, i) => (
-      <div key={i} className="rounded-2xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card p-5">
+      <div key={i} className="rounded-2xl border border-gray-200/70 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-card p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-0 space-y-2">
             <div className="flex items-center gap-3">
@@ -39,8 +39,8 @@ export const DashboardSkeleton = () => (
 export const EvaluationSkeleton = () => (
   <div className="space-y-6">
     {/* Score row */}
-    <div className="rounded-xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card overflow-hidden">
-      <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+    <div className="rounded-xl border border-gray-200/70 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="skeleton h-4 w-32 rounded-md" />
       </div>
       <div className="flex flex-col md:flex-row items-center justify-around gap-8 px-5 py-8">
@@ -54,8 +54,8 @@ export const EvaluationSkeleton = () => (
       </div>
     </div>
     {/* Strategic SWOT split-view */}
-    <div className="rounded-xl border border-slate-200/70 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-card overflow-hidden">
-      <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
+    <div className="rounded-xl border border-gray-200/70 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="skeleton h-4 w-28 rounded-md" />
       </div>
       <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +63,7 @@ export const EvaluationSkeleton = () => (
           <div key={col} className="space-y-4">
             <div className="skeleton h-3 w-24 rounded-md" />
             {[...Array(2)].map((_, card) => (
-              <div key={card} className="border border-slate-200/80 dark:border-gray-800 border-s-4 border-s-slate-200 dark:border-s-gray-700 rounded-xl p-5 space-y-2">
+              <div key={card} className="border border-gray-200/80 dark:border-gray-700 border-s-4 border-s-gray-200 dark:border-s-gray-700 rounded-xl p-5 space-y-2">
                 <div className="skeleton h-3 w-20 rounded-md" />
                 <div className="skeleton h-4 w-full rounded-md" />
                 <div className="skeleton h-4 w-5/6 rounded-md" />
@@ -78,7 +78,7 @@ export const EvaluationSkeleton = () => (
 )
 
 export const PageLoading = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-950">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
     <div className="text-center space-y-4">
       <Spinner size="lg" />
     </div>

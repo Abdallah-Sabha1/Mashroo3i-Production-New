@@ -3,8 +3,8 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Cartesia
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200/60 p-3">
-        <p className="text-sm font-medium text-slate-900 mb-1">{label}</p>
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200/60 p-3">
+        <p className="text-sm font-medium text-gray-900 mb-1">{label}</p>
         {payload.map((item, idx) => (
           <p key={idx} className="text-xs" style={{ color: item.color }}>
             {item.name}: {typeof item.value === 'number' ? item.value.toLocaleString() : item.value} JOD

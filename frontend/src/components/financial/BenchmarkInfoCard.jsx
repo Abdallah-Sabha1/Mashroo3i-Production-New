@@ -26,14 +26,14 @@ const BenchmarkInfoCard = ({ benchmark }) => {
   try { sources = JSON.parse(benchmark.dataSourcesJson || '[]') } catch { sources = [] }
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
       <div className="px-5 py-4 flex items-center gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
               {industryName}
             </h3>
-            <span className="text-xs text-slate-400 dark:text-gray-500">
+            <span className="text-xs text-gray-400 dark:text-gray-500">
               · {benchmark.businessModel === 'B2B'
                 ? t('financialWizard.benchmark.forBusinesses')
                 : t('financialWizard.benchmark.forIndividuals')}
@@ -45,7 +45,7 @@ const BenchmarkInfoCard = ({ benchmark }) => {
             </span>
           </div>
           {benchmark.notesAndContext && (
-            <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5 line-clamp-1">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">
               {benchmark.notesAndContext}
             </p>
           )}
@@ -60,7 +60,7 @@ const BenchmarkInfoCard = ({ benchmark }) => {
       </div>
 
       {open && (
-        <div className="border-t border-slate-100 dark:border-gray-800 px-5 py-4 space-y-4">
+        <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-4 space-y-4">
           {/* Cost ranges */}
           <div className="grid grid-cols-3 gap-3">
             {[
@@ -68,42 +68,42 @@ const BenchmarkInfoCard = ({ benchmark }) => {
               { label: t('financialWizard.benchmark.monthlyCost'), low: benchmark.monthlyCostLow, mid: benchmark.monthlyCostTypical, high: benchmark.monthlyCostHigh },
             ].map(({ label, low, mid, high }) => (
               <div key={label} className="col-span-3 sm:col-span-1">
-                <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{label}</p>
-                <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1">{label}</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                   {Math.round(low).toLocaleString()} – {Math.round(high).toLocaleString()} JOD
-                  <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {Math.round(mid).toLocaleString()})</span>
+                  <span className="text-xs text-gray-400 ms-1">({t('financialWizard.benchmark.typical')}: {Math.round(mid).toLocaleString()})</span>
                 </p>
               </div>
             ))}
             <div className="col-span-3 sm:col-span-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.grossMargin')}</p>
-              <p className="text-sm font-medium text-slate-800 dark:text-gray-200">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1">{t('financialWizard.benchmark.grossMargin')}</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {benchmark.grossMarginLow}% – {benchmark.grossMarginHigh}%
-                <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.grossMarginTypical}%)</span>
+                <span className="text-xs text-gray-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.grossMarginTypical}%)</span>
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.breakEven')}</p>
-              <p className="text-sm text-slate-700 dark:text-gray-300">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1">{t('financialWizard.benchmark.breakEven')}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 {benchmark.breakEvenMonthsLow}–{benchmark.breakEvenMonthsHigh} {t('financialWizard.benchmark.months')}
-                <span className="text-xs text-slate-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.breakEvenMonthsTypical})</span>
+                <span className="text-xs text-gray-400 ms-1">({t('financialWizard.benchmark.typical')}: {benchmark.breakEvenMonthsTypical})</span>
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.monthlyGrowth')}</p>
-              <p className="text-sm text-slate-700 dark:text-gray-300">{benchmark.monthlyGrowthRatePercent}%</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1">{t('financialWizard.benchmark.monthlyGrowth')}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{benchmark.monthlyGrowthRatePercent}%</p>
             </div>
           </div>
 
           {sources.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 mb-1">{t('financialWizard.benchmark.dataSources')}</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1">{t('financialWizard.benchmark.dataSources')}</p>
               <ul className="space-y-0.5">
                 {sources.map((s, i) => (
-                  <li key={i} className="text-xs text-slate-500 dark:text-gray-400 flex items-start gap-1">
+                  <li key={i} className="text-xs text-gray-500 dark:text-gray-300 flex items-start gap-1">
                     <span className="text-primary-400 mt-0.5">•</span> {s}
                   </li>
                 ))}

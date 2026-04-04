@@ -63,7 +63,7 @@ const QuadrantCard = ({ quadrant, swotData }) => {
     <motion.div
       variants={cardVariants}
       className={`
-        ${quadrant.bg} border border-slate-200/80 dark:border-gray-800
+        ${quadrant.bg} border border-gray-200/80 dark:border-gray-700
         border-s-4 ${quadrant.bar} rounded-xl p-5
       `}
     >
@@ -84,12 +84,12 @@ const QuadrantCard = ({ quadrant, swotData }) => {
             className="flex items-start gap-2.5"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${quadrant.dot} mt-2 flex-shrink-0`} />
-            <span className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed text-start">
+            <span className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed text-start">
               {item}
             </span>
           </motion.li>
         )) : (
-          <li className="text-xs text-slate-400 dark:text-gray-600 italic text-start">—</li>
+          <li className="text-xs text-gray-400 dark:text-gray-600 italic text-start">—</li>
         )}
       </motion.ul>
     </motion.div>
@@ -117,7 +117,7 @@ const SwotGrid = ({ swotData = {} }) => {
         animate="visible"
         className="space-y-4"
       >
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-gray-500 text-start ps-1">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 text-start ps-1">
           {t('evaluation.internalFactors')}
         </p>
         {internal.map(q => (
@@ -132,7 +132,7 @@ const SwotGrid = ({ swotData = {} }) => {
         animate="visible"
         className="space-y-4"
       >
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 dark:text-gray-500 text-start ps-1">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 text-start ps-1">
           {t('evaluation.externalFactors')}
         </p>
         {external.map(q => (

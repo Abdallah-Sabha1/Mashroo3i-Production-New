@@ -23,8 +23,8 @@ const ProjectionChart = ({ monthlyData = [], scenarioName }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-700 p-3 text-xs">
-        <p className="font-semibold text-slate-700 dark:text-gray-300 mb-1">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 text-xs">
+        <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
           {t('financialWizard.projections.table.month')} {label}
         </p>
         {payload.map((item, i) => (

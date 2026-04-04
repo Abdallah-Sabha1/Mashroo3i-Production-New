@@ -31,7 +31,7 @@ const Navbar = () => {
     <nav className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
       isLanding
         ? 'bg-transparent border-white/10'
-        : 'bg-white dark:bg-gray-950 border-slate-200 dark:border-gray-800'
+        : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -54,7 +54,7 @@ const Navbar = () => {
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     location.pathname === link.to
                       ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
                   {link.label}
@@ -69,8 +69,8 @@ const Navbar = () => {
               ].map(item => (
                 <a key={item.href} href={item.href} className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isLanding
-                    ? 'text-hero-muted hover:text-white hover:bg-white/10'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800'
+                    ? 'text-hero-muted hover:text-gray-50 hover:bg-white/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-50 dark:hover:bg-gray-800'
                 }`}>
                   {item.label}
                 </a>
@@ -84,8 +84,8 @@ const Navbar = () => {
               onClick={toggleLanguage}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
                 isLanding
-                  ? 'border-white/20 text-white/80 hover:bg-white/10'
-                  : 'border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800'
+                  ? 'border-white/20 text-gray-50/80 hover:bg-white/10'
+                  : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               title={isRtl ? 'Switch to English' : 'التبديل للعربية'}
               dir="ltr"
@@ -98,8 +98,8 @@ const Navbar = () => {
               onClick={toggleDark}
               className={`p-2 rounded-lg transition-colors ${
                 isLanding
-                  ? 'text-white/70 hover:bg-white/10 hover:text-white'
-                  : 'text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                  ? 'text-gray-50/70 hover:bg-white/10 hover:text-gray-50'
+                  : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
               }`}
               aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             >
@@ -110,13 +110,13 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
-                    <span className="text-white text-sm font-semibold">{user?.fullName?.charAt(0) || 'U'}</span>
+                    <span className="text-gray-50 text-sm font-semibold">{user?.fullName?.charAt(0) || 'U'}</span>
                   </div>
-                  <span className="text-sm font-medium text-slate-700 dark:text-gray-300">{user?.fullName?.split(' ')[0]}</span>
-                  <svg className="w-4 h-4 text-slate-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{user?.fullName?.split(' ')[0]}</span>
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -127,19 +127,19 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 5, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute end-0 mt-2 w-56 bg-white dark:bg-gray-950 rounded-xl shadow-xl border border-slate-200 dark:border-gray-800 py-2 z-50"
+                      className="absolute end-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
                     >
-                      <div className="px-4 py-2 border-b border-slate-100 dark:border-gray-800">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.fullName}</p>
-                        <p className="text-xs text-slate-500 dark:text-gray-400">{user?.email}</p>
+                      <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{user?.fullName}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-300">{user?.email}</p>
                       </div>
-                      <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
+                      <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         {t('nav.profile')}
                       </Link>
-                      <Link to="/dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors">
+                      <Link to="/dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         {t('nav.dashboard')}
                       </Link>
-                      <div className="border-t border-slate-100 dark:border-gray-800 mt-1 pt-1">
+                      <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
                         <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 w-full transition-colors">
                           {t('nav.signOut')}
                         </button>
@@ -164,19 +164,19 @@ const Navbar = () => {
             {/* Language toggle (mobile) */}
             <button
               onClick={toggleLanguage}
-              className="px-2 py-1 rounded-lg border border-slate-200 dark:border-gray-700 text-xs font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+              className="px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               dir="ltr"
             >
               {isRtl ? 'EN' : 'AR'}
             </button>
             <button
               onClick={toggleDark}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
               aria-label={isDark ? t('nav.lightMode') : t('nav.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800">
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -195,19 +195,19 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden border-t border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden"
+            className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated ? (
                 <>
-                  <Link to="/dashboard"   onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.dashboard')}</Link>
-                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.newIdea')}</Link>
-                  <Link to="/profile"     onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.profile')}</Link>
+                  <Link to="/dashboard"   onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">{t('nav.dashboard')}</Link>
+                  <Link to="/submit-idea" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">{t('nav.newIdea')}</Link>
+                  <Link to="/profile"     onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">{t('nav.profile')}</Link>
                   <button onClick={() => { handleLogout(); setMobileOpen(false) }} className="block w-full text-start px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">{t('nav.signOut')}</button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800">{t('nav.signIn')}</Link>
+                  <Link to="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">{t('nav.signIn')}</Link>
                   <Link to="/register" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full" size="sm">{t('nav.getStarted')}</Button>
                   </Link>

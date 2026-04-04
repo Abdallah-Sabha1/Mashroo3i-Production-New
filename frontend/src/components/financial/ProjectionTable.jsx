@@ -17,16 +17,16 @@ const ProjectionTable = ({ monthlyData = [] }) => {
   ]
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-gray-700">
+    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
       <table className="w-full text-xs min-w-[640px]">
         <thead>
-          <tr className="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400">
+          <tr className="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-300">
             {headers.map(h => (
               <th key={h} className="px-3 py-2.5 text-start font-semibold">{h}</th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
+        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
           {monthlyData.map((m) => {
             const isProfit = m.profit > 0
             const rowClass = isProfit
@@ -35,8 +35,8 @@ const ProjectionTable = ({ monthlyData = [] }) => {
               ? 'bg-red-50/40 dark:bg-red-950/10'
               : ''
             return (
-              <tr key={m.month} className={`${rowClass} hover:bg-slate-50/80 dark:hover:bg-gray-800/60 transition-colors`}>
-                <td className="px-3 py-2 font-medium text-slate-700 dark:text-gray-300 text-start">
+              <tr key={m.month} className={`${rowClass} hover:bg-gray-50/80 dark:hover:bg-gray-800/60 transition-colors`}>
+                <td className="px-3 py-2 font-medium text-gray-700 dark:text-gray-300 text-start">
                   {m.month}
                 </td>
                 <td className="px-3 py-2 text-primary-600 dark:text-primary-400 text-start tabular-nums">
@@ -51,7 +51,7 @@ const ProjectionTable = ({ monthlyData = [] }) => {
                   {fmt(m.profit)}
                 </td>
                 <td className={`px-3 py-2 text-start tabular-nums ${
-                  m.marginPercent >= 0 ? 'text-slate-600 dark:text-gray-300' : 'text-red-500'
+                  m.marginPercent >= 0 ? 'text-gray-600 dark:text-gray-300' : 'text-red-500'
                 }`}>
                   {m.marginPercent?.toFixed(1)}%
                 </td>

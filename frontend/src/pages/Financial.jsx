@@ -53,8 +53,8 @@ function validatePrice(value) {
 const CustomChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-slate-200 dark:border-gray-700 p-3 text-xs">
-      <p className="font-semibold text-slate-700 dark:text-gray-300 mb-1">{label}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 text-xs">
+      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{label}</p>
       {payload.map((item, i) => (
         <p key={i} style={{ color: item.color }}>
           {item.name}: {Math.round(item.value).toLocaleString()} JOD
@@ -69,14 +69,14 @@ const CustomChartTooltip = ({ active, payload, label }) => {
 function ExpandableSection({ title, children }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900">
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors"
+        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
       >
-        <span className="font-semibold text-slate-900 dark:text-white">{title}</span>
-        <svg className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        <span className="font-semibold text-gray-900 dark:text-gray-50">{title}</span>
+        <svg className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -85,7 +85,7 @@ function ExpandableSection({ title, children }) {
         {open && (
           <motion.div key="body" initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }} className="overflow-hidden">
-            <div className="px-6 pb-6 pt-2 border-t border-slate-100 dark:border-gray-800">
+            <div className="px-6 pb-6 pt-2 border-t border-gray-100 dark:border-gray-700">
               {children}
             </div>
           </motion.div>
@@ -104,29 +104,29 @@ function ScenarioCard({ label, subtitle, data, highlight }) {
     <div className={`flex-1 rounded-2xl border-2 p-5 ${
       highlight
         ? 'border-primary-400 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30'
-        : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900'
+        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
     }`}>
       <p className={`text-xs font-bold uppercase tracking-wider mb-0.5 ${
-        highlight ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-gray-400'
+        highlight ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-300'
       }`}>{label}</p>
-      <p className="text-xs text-slate-400 dark:text-gray-500 mb-4">{subtitle}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{subtitle}</p>
       <div className="space-y-2">
         <div className="flex justify-between items-baseline">
-          <span className="text-xs text-slate-500 dark:text-gray-400">Monthly income</span>
-          <span className="text-sm font-semibold text-slate-800 dark:text-gray-200">{fmtJOD(data.monthlyRevenue)}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-300">Monthly income</span>
+          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{fmtJOD(data.monthlyRevenue)}</span>
         </div>
         <div className="flex justify-between items-baseline">
-          <span className="text-xs text-slate-500 dark:text-gray-400">Monthly expenses</span>
-          <span className="text-sm font-semibold text-slate-800 dark:text-gray-200">{fmtJOD(data.monthlyCosts)}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-300">Monthly expenses</span>
+          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{fmtJOD(data.monthlyCosts)}</span>
         </div>
-        <div className="flex justify-between items-baseline pt-1 border-t border-slate-100 dark:border-gray-800">
-          <span className="text-xs font-medium text-slate-600 dark:text-gray-300">Monthly profit</span>
+        <div className="flex justify-between items-baseline pt-1 border-t border-gray-100 dark:border-gray-700">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Monthly profit</span>
           <span className={`text-sm font-bold ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
             {fmtJOD(profit)}
           </span>
         </div>
         <div className="flex justify-between items-baseline">
-          <span className="text-xs text-slate-500 dark:text-gray-400">Time to break even</span>
+          <span className="text-xs text-gray-500 dark:text-gray-300">Time to break even</span>
           <span className={`text-sm font-semibold ${bepColor(data.breakEvenMonths)}`}>
             {data.breakEvenMonths > 0 && data.breakEvenMonths < 9999 ? `${data.breakEvenMonths} mo` : 'N/A'}
           </span>
@@ -208,7 +208,7 @@ const Financial = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-950">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         <Navbar />
         <div className="flex justify-center py-32"><Spinner size="lg" /></div>
       </div>
@@ -233,7 +233,7 @@ const Financial = () => {
   const gmExample  = gmPct > 0 ? (gmPct / 10).toFixed(1) : null
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
       <Navbar />
 
       <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
@@ -241,15 +241,15 @@ const Financial = () => {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 mb-5 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 mb-5 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{idea?.title}</h1>
-          <p className="text-sm text-slate-500 dark:text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{idea?.title}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
             Financial Analysis · {result?.businessType || 'B2C'}
           </p>
         </motion.div>
@@ -259,8 +259,8 @@ const Financial = () => {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="p-6">
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Build your financial plan</h2>
-                <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-50">Build your financial plan</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   Answer a few questions and we will calculate your revenue, break-even, and more.
                 </p>
               </div>
@@ -270,10 +270,10 @@ const Financial = () => {
                 {/* Product / Service Table */}
                 <div>
                   <div className="mb-3">
-                    <h3 className="text-sm font-semibold text-slate-800 dark:text-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                       What will you sell?
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5">
                       Add your products or services — up to 5 items
                     </p>
                   </div>
@@ -281,16 +281,16 @@ const Financial = () => {
                   <div className="space-y-2">
                     {/* Header row */}
                     <div className="grid grid-cols-12 gap-2 px-1">
-                      <span className="col-span-5 text-xs font-medium text-slate-500 dark:text-gray-400">Name</span>
-                      <span className="col-span-3 text-xs font-medium text-slate-500 dark:text-gray-400">Price (JOD)</span>
-                      <span className="col-span-3 text-xs font-medium text-slate-500 dark:text-gray-400">Cost (JOD)</span>
+                      <span className="col-span-5 text-xs font-medium text-gray-500 dark:text-gray-300">Name</span>
+                      <span className="col-span-3 text-xs font-medium text-gray-500 dark:text-gray-300">Price (JOD)</span>
+                      <span className="col-span-3 text-xs font-medium text-gray-500 dark:text-gray-300">Cost (JOD)</span>
                       <span className="col-span-1" />
                     </div>
 
                     {products.map((product, idx) => (
                       <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                         <input
-                          className="col-span-5 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="col-span-5 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder={idx === 0 ? 'e.g. Coffee' : 'e.g. Sandwich'}
                           value={product.name}
                           onChange={e => {
@@ -301,7 +301,7 @@ const Financial = () => {
                         />
                         <input
                           type="number" min="0" step="0.01"
-                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="e.g. 3"
                           value={product.price}
                           onChange={e => {
@@ -314,7 +314,7 @@ const Financial = () => {
                         />
                         <input
                           type="number" min="0" step="0.01"
-                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="e.g. 1"
                           value={product.cost}
                           onChange={e => {
@@ -328,7 +328,7 @@ const Financial = () => {
                         <button
                           type="button"
                           onClick={() => { if (products.length > 1) setProducts(products.filter((_, i) => i !== idx)) }}
-                          className="col-span-1 flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                          className="col-span-1 flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -360,11 +360,11 @@ const Financial = () => {
                     const margin   = avgPrice > 0 ? Math.round((avgPrice - avgCost) / avgPrice * 100) : 0
                     const keep     = (avgPrice - avgCost).toFixed(2)
                     return (
-                      <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-gray-800/50 border border-slate-200 dark:border-gray-700">
-                        <p className="text-xs text-slate-600 dark:text-gray-300">
+                      <div className="mt-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
                           For every <strong>{avgPrice.toFixed(2)} JOD</strong> average sale, you keep{' '}
                           <strong className="text-emerald-600">{keep} JOD</strong> after costs
-                          <span className="text-slate-400 dark:text-gray-500 ml-1">({margin}% margin)</span>
+                          <span className="text-gray-400 dark:text-gray-500 ml-1">({margin}% margin)</span>
                         </p>
                       </div>
                     )
@@ -374,10 +374,10 @@ const Financial = () => {
                 {/* Customers per day (B2C) or Clients range (B2B) */}
                 {idea?.businessType !== 'B2B' ? (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       How many customers do you expect per day?
                     </label>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 mb-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mb-3">
                       Think about a typical day when you are open and running
                     </p>
                     <div className="grid grid-cols-4 gap-2">
@@ -392,8 +392,8 @@ const Financial = () => {
                           onClick={() => setCustomersPerDay(opt.value)}
                           className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
                             customersPerDay === opt.value
-                              ? 'bg-primary-600 text-white border-primary-600'
-                              : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-primary-300'
+                              ? 'bg-primary-600 text-gray-50 border-primary-600'
+                              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary-300'
                           }`}
                         >
                           {opt.label}
@@ -401,14 +401,14 @@ const Financial = () => {
                       ))}
                     </div>
                     {customersPerDay && (
-                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
                         That is approximately {customersPerDay * 30} customers per month
                       </p>
                     )}
                   </div>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       How many clients are you targeting in year 1?
                     </label>
                     <div className="grid grid-cols-4 gap-2">
@@ -419,8 +419,8 @@ const Financial = () => {
                             onClick={() => setTargetClientsRange(val)}
                             className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
                               targetClientsRange === val
-                                ? 'bg-primary-600 text-white border-primary-600'
-                                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-primary-300'
+                                ? 'bg-primary-600 text-gray-50 border-primary-600'
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary-300'
                             }`}
                           >{label}</button>
                         )
@@ -444,7 +444,7 @@ const Financial = () => {
 
                 {/* Acquisition channel */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     How will you find your first customers?
                   </label>
                   <div className="space-y-2">
@@ -463,11 +463,11 @@ const Financial = () => {
                         className={`w-full text-left px-4 py-2.5 rounded-lg text-sm border transition-all flex items-center gap-3 ${
                           acquisitionChannel === ch.value
                             ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700 text-primary-800 dark:text-primary-200'
-                            : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:border-slate-300'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          acquisitionChannel === ch.value ? 'bg-primary-600' : 'bg-slate-300 dark:bg-gray-600'
+                          acquisitionChannel === ch.value ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'
                         }`} />
                         {ch.label}
                       </button>
@@ -477,7 +477,7 @@ const Financial = () => {
 
                 {/* Amman region */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Where in Amman?
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -492,15 +492,15 @@ const Financial = () => {
                         className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
                           ammanRegion === r.value
                             ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700'
-                            : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300'
                         }`}
                       >
                         <p className={`font-medium text-xs ${
                           ammanRegion === r.value
                             ? 'text-primary-800 dark:text-primary-200'
-                            : 'text-slate-800 dark:text-gray-200'
+                            : 'text-gray-800 dark:text-gray-200'
                         }`}>{r.label}</p>
-                        <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{r.sub}</p>
+                        <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{r.sub}</p>
                       </button>
                     ))}
                   </div>
@@ -516,7 +516,7 @@ const Financial = () => {
                 <button
                   type="submit"
                   disabled={calculating}
-                  className="w-full py-3 rounded-xl bg-primary-600 text-white font-semibold text-sm hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-primary-600 text-gray-50 font-semibold text-sm hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {calculating ? (
                     <>
@@ -539,7 +539,7 @@ const Financial = () => {
             {redFlags.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="rounded-xl border border-amber-200 dark:border-amber-800/50
-                  bg-white dark:bg-gray-900 overflow-hidden">
+                  bg-white dark:bg-gray-800 overflow-hidden">
                   {redFlags.map((flag, i) => (
                     <div key={i} className={`flex items-start gap-3 px-4 py-3 ${
                       i < redFlags.length - 1
@@ -551,7 +551,7 @@ const Financial = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
-                      <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">{flag}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{flag}</p>
                     </div>
                   ))}
                 </div>
@@ -560,8 +560,8 @@ const Financial = () => {
 
             {/* Key metrics — clean row list */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-              <div className="rounded-xl border border-slate-200 dark:border-gray-800
-                bg-white dark:bg-gray-900 overflow-hidden">
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700
+                bg-white dark:bg-gray-800 overflow-hidden">
                 {[
                   {
                     label: 'Monthly income',
@@ -596,13 +596,13 @@ const Financial = () => {
                   <div key={m.label}
                     className={`flex items-center justify-between px-5 py-4 ${
                       i < arr.length - 1
-                        ? 'border-b border-slate-100 dark:border-gray-800'
+                        ? 'border-b border-gray-100 dark:border-gray-700'
                         : ''
                     }`}
                   >
                     <div>
-                      <p className="text-sm font-medium text-slate-800 dark:text-gray-200">{m.label}</p>
-                      <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">{m.sub}</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{m.label}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{m.sub}</p>
                     </div>
                     <p className={`text-base font-semibold tabular-nums ${
                       m.good
@@ -619,15 +619,15 @@ const Financial = () => {
             {/* Gross margin plain language */}
             {gmExample && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <div className="rounded-xl border border-slate-200 dark:border-gray-800
-                  bg-white dark:bg-gray-900 px-5 py-4">
-                  <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700
+                  bg-white dark:bg-gray-800 px-5 py-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                     For every{' '}
-                    <span className="font-semibold text-slate-900 dark:text-white">10 JOD</span>{' '}
+                    <span className="font-semibold text-gray-900 dark:text-gray-50">10 JOD</span>{' '}
                     you earn, approximately{' '}
                     <span className="font-semibold text-emerald-600">{gmExample} JOD</span>{' '}
                     remains after the cost of your products.{' '}
-                    <span className="text-slate-400 dark:text-gray-500 text-xs">
+                    <span className="text-gray-400 dark:text-gray-500 text-xs">
                       (Gross margin: {gmPct.toFixed(1)}%)
                     </span>
                   </p>
@@ -638,25 +638,25 @@ const Financial = () => {
             {/* 3 Scenarios */}
             {result.realistic && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                <div className="rounded-xl border border-slate-200 dark:border-gray-800
-                  bg-white dark:bg-gray-900 overflow-hidden">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700
+                  bg-white dark:bg-gray-800 overflow-hidden">
 
-                  <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                       Three possible outcomes
                     </h3>
-                    <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       The future is uncertain — here are three scenarios.
                     </p>
                   </div>
 
                   {/* Realistic — prominent */}
                   <div className="px-5 py-4 bg-primary-50/40 dark:bg-primary-900/20
-                    border-b border-slate-100 dark:border-gray-800">
+                    border-b border-gray-100 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">As planned</p>
-                        <p className="text-xs text-slate-400 dark:text-gray-500">Based on your inputs</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">As planned</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Based on your inputs</p>
                       </div>
                       <span className="text-xs px-2 py-1 rounded-full
                         bg-primary-100 dark:bg-primary-900
@@ -676,9 +676,9 @@ const Financial = () => {
                         },
                       ].map(item => (
                         <div key={item.label}>
-                          <p className="text-xs text-slate-400 dark:text-gray-500">{item.label}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{item.label}</p>
                           <p className={`text-sm font-semibold mt-0.5 ${
-                            item.good ? 'text-slate-900 dark:text-white' : 'text-red-600 dark:text-red-400'
+                            item.good ? 'text-gray-900 dark:text-gray-50' : 'text-red-600 dark:text-red-400'
                           }`}>{item.value}</p>
                         </div>
                       ))}
@@ -686,7 +686,7 @@ const Financial = () => {
                   </div>
 
                   {/* Conservative + Optimistic */}
-                  <div className="grid grid-cols-2 divide-x divide-slate-100 dark:divide-gray-800">
+                  <div className="grid grid-cols-2 divide-x divide-gray-100 dark:divide-gray-800">
                     {[
                       { key: 'conservative', label: 'If things are slower', sub: 'Fewer customers, higher costs' },
                       { key: 'optimistic',   label: 'If growth is strong',  sub: '40% more customers' },
@@ -695,16 +695,16 @@ const Financial = () => {
                       if (!s) return null
                       return (
                         <div key={key} className="px-5 py-4">
-                          <p className="text-xs font-medium text-slate-700 dark:text-gray-300">{label}</p>
-                          <p className="text-xs text-slate-400 dark:text-gray-500 mb-3">{sub}</p>
-                          <p className="text-xs text-slate-400 dark:text-gray-500">Monthly profit</p>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{label}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">{sub}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">Monthly profit</p>
                           <p className={`text-sm font-semibold mt-0.5 ${
                             s.monthlyProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
                           }`}>
                             {fmtJOD(s.monthlyProfit)}
                           </p>
-                          <p className="text-xs text-slate-400 dark:text-gray-500 mt-2">Break even</p>
-                          <p className="text-xs font-medium text-slate-700 dark:text-gray-300">
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Break even</p>
+                          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
                             {s.breakEvenMonths > 0 && s.breakEvenMonths < 999
                               ? `${s.breakEvenMonths} months` : 'N/A'}
                           </p>
@@ -719,10 +719,10 @@ const Financial = () => {
             {/* Benchmark comparisons */}
             {benchmarks.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <div className="rounded-xl border border-slate-200 dark:border-gray-800
-                  bg-white dark:bg-gray-900 overflow-hidden">
-                  <div className="px-5 py-4 border-b border-slate-100 dark:border-gray-800">
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700
+                  bg-white dark:bg-gray-800 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
                       How you compare to similar businesses in Amman
                     </h3>
                   </div>
@@ -732,16 +732,16 @@ const Financial = () => {
                       <div key={i}
                         className={`flex items-center justify-between px-5 py-3 ${
                           i < benchmarks.length - 1
-                            ? 'border-b border-slate-100 dark:border-gray-800'
+                            ? 'border-b border-gray-100 dark:border-gray-700'
                             : ''
                         }`}
                       >
-                        <p className="text-sm text-slate-600 dark:text-gray-400">{item.metric}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{item.metric}</p>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm font-medium text-slate-900 dark:text-white">
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                             {item.yourValue}
                           </span>
-                          <span className="text-xs text-slate-400 dark:text-gray-500">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
                             vs {item.benchmarkTypical}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sl.cls}`}>
@@ -759,19 +759,19 @@ const Financial = () => {
             {assumptions.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                 <details className="group">
-                  <summary className="cursor-pointer text-xs text-slate-400 dark:text-gray-600
-                    hover:text-slate-600 dark:hover:text-gray-400 flex items-center gap-2 py-1 list-none">
+                  <summary className="cursor-pointer text-xs text-gray-400 dark:text-gray-600
+                    hover:text-gray-600 dark:hover:text-gray-400 flex items-center gap-2 py-1 list-none">
                     <svg className="w-3 h-3 group-open:rotate-90 transition-transform"
                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                     What we assumed in this calculation
                   </summary>
-                  <div className="mt-3 space-y-1.5 pl-5 border-l-2 border-slate-100 dark:border-gray-800">
+                  <div className="mt-3 space-y-1.5 pl-5 border-l-2 border-gray-100 dark:border-gray-700">
                     {assumptions.map((a, i) => (
-                      <p key={i} className="text-xs text-slate-400 dark:text-gray-500 leading-relaxed">{a}</p>
+                      <p key={i} className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed">{a}</p>
                     ))}
-                    <p className="text-xs text-slate-300 dark:text-gray-700 italic mt-2">
+                    <p className="text-xs text-gray-300 dark:text-gray-700 italic mt-2">
                       Based on Amman market research (2025). Results are estimates.
                     </p>
                   </div>
@@ -782,9 +782,9 @@ const Financial = () => {
             {/* Chart */}
             {chartData.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <div className="rounded-xl border border-slate-200 dark:border-gray-800
-                  bg-white dark:bg-gray-900 p-5">
-                  <h3 className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-4">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700
+                  bg-white dark:bg-gray-800 p-5">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                     Revenue vs costs — 12 months
                   </h3>
                   <ResponsiveContainer width="100%" height={280}>

@@ -13,13 +13,13 @@ const Tooltip = ({ children, text }) => {
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         onClick={() => setVisible(v => !v)}
-        className="cursor-help border-b border-dotted border-slate-400 dark:border-gray-500"
+        className="cursor-help border-b border-dotted border-gray-400 dark:border-gray-500"
       >
         {children}
       </span>
       {visible && (
         <span
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 p-2.5 text-xs text-white bg-gray-900 dark:bg-gray-800 rounded-xl shadow-xl pointer-events-none leading-relaxed"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 p-2.5 text-xs text-gray-50 bg-gray-900 dark:bg-gray-800 rounded-xl shadow-xl pointer-events-none leading-relaxed"
           role="tooltip"
         >
           {text}

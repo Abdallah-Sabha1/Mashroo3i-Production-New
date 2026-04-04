@@ -34,7 +34,7 @@ const Landing = () => {
   ]
 
   return (
-    <div className="bg-white dark:bg-gray-950 transition-colors duration-300">
+    <div className="bg-white dark:bg-gray-900 transition-colors duration-300">
 
       {/* ── Hero (dark navy gradient) ── */}
       <div className="section-hero">
@@ -68,7 +68,7 @@ const Landing = () => {
                 </Button>
               </Link>
               <Link to="/register">
-                <Button variant="secondary" size="lg" className="min-w-[200px] !bg-white/10 !border-white/20 !text-white hover:!bg-white/15">
+                <Button variant="secondary" size="lg" className="min-w-[200px] !bg-white/10 !border-white/20 !text-gray-50 hover:!bg-white/15">
                   {t('landing.tryFree')}
                 </Button>
               </Link>
@@ -84,13 +84,13 @@ const Landing = () => {
       </div>
 
       {/* ── Stats ── */}
-      <section className="border-y border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/60">
+      <section className="border-y border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
             {stats.map((stat) => (
-              <motion.div key={stat.label} variants={fadeUp} className="flex flex-col items-center text-center gap-2 p-8 rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 shadow-sm">
-                <p className="text-4xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                <p className="text-sm font-medium text-slate-500 dark:text-gray-400 leading-snug">{stat.label}</p>
+              <motion.div key={stat.label} variants={fadeUp} className="flex flex-col items-center text-center gap-2 p-8 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+                <p className="text-4xl font-bold text-gray-900 dark:text-gray-50">{stat.value}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 leading-snug">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -98,22 +98,22 @@ const Landing = () => {
       </section>
 
       {/* ── Features ── */}
-      <section id="features" className="py-24 bg-white dark:bg-gray-950">
+      <section id="features" className="py-24 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div className="text-center max-w-2xl mx-auto mb-16" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
             <motion.p variants={fadeUp} className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-widest mb-3">{t('landing.features.label')}</motion.p>
-            <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">{t('landing.features.title')}</motion.h2>
-            <motion.p variants={fadeUp} className="mt-4 text-lg text-slate-600 dark:text-gray-400">{t('landing.features.subtitle')}</motion.p>
+            <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-50">{t('landing.features.title')}</motion.h2>
+            <motion.p variants={fadeUp} className="mt-4 text-lg text-gray-600 dark:text-gray-300">{t('landing.features.subtitle')}</motion.p>
           </motion.div>
 
           <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" initial="initial" whileInView="animate" viewport={{ once: true }} variants={stagger}>
             {features.map((f) => (
-              <motion.div key={f.title} variants={fadeUp} className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 hover:shadow-lg hover:shadow-primary-500/10 transition-all duration-300 hover:-translate-y-1">
+              <motion.div key={f.title} variants={fadeUp} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 hover:shadow-lg hover:shadow-primary-500/10 transition-all duration-300 hover:-translate-y-1">
                 <div className="w-12 h-12 rounded-xl feature-icon flex items-center justify-center mb-4">
                   {f.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -121,7 +121,7 @@ const Landing = () => {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-24 bg-slate-50 dark:bg-gray-900">
+      <section className="py-24 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

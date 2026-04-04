@@ -61,7 +61,7 @@ const OnboardingModal = ({ onClose }) => {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl p-8 max-w-sm w-full shadow-2xl"
+        className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm w-full shadow-2xl"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -80,10 +80,10 @@ const OnboardingModal = ({ onClose }) => {
             </div>
 
             {/* Text */}
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 text-center">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2 text-center">
               {step.title}
             </h2>
-            <p className="text-sm text-slate-500 dark:text-gray-400 leading-relaxed mb-6 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-300 leading-relaxed mb-6 text-center">
               {step.body}
             </p>
           </motion.div>
@@ -97,7 +97,7 @@ const OnboardingModal = ({ onClose }) => {
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === currentStep
                   ? 'w-5 bg-primary-600'
-                  : 'w-2 bg-slate-200 dark:bg-gray-700'
+                  : 'w-2 bg-gray-200 dark:bg-gray-700'
               }`}
             />
           ))}
@@ -107,14 +107,14 @@ const OnboardingModal = ({ onClose }) => {
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={skip}
-            className="text-sm text-slate-400 dark:text-gray-500
-              hover:text-slate-600 dark:hover:text-gray-300 transition-colors px-2 py-2"
+            className="text-sm text-gray-400 dark:text-gray-500
+              hover:text-gray-600 dark:hover:text-gray-300 transition-colors px-2 py-2"
           >
             {t('onboarding.skip')}
           </button>
           <button
             onClick={next}
-            className="flex-1 py-2.5 rounded-xl bg-primary-600 text-white
+            className="flex-1 py-2.5 rounded-xl bg-primary-600 text-gray-50
               text-sm font-semibold hover:bg-primary-700 transition-colors"
           >
             {isLast ? t('onboarding.startNow') : t('onboarding.next')}

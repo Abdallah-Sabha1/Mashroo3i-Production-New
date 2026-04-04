@@ -65,7 +65,6 @@ const Dashboard = () => {
     setDeletingId(ideaId)
     try {
       await ideasApi.delete(ideaId)
-      // ✅ FIX #6: Use functional update to avoid stale state closure
       setIdeas(prevIdeas => prevIdeas.filter(i => i.ideaId !== ideaId))
     } catch (err) {
       console.error('Failed to delete idea:', err)
@@ -87,15 +86,15 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">
             {t('dashboard.welcome')} {user?.fullName?.split(' ')[0] || t('nav.dashboard')}
           </h1>
-          <p className="text-slate-600 dark:text-gray-400">{t('dashboard.subtitle')}</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('dashboard.subtitle')}</p>
         </motion.div>
 
         {/* Stats */}
@@ -113,20 +112,20 @@ const Dashboard = () => {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <div className="rounded-xl border border-primary-200 dark:border-primary-800
-            bg-primary-50 dark:bg-primary-900/30 px-6 py-5
+          <div className="rounded-xl border border-emerald-200 dark:border-emerald-800
+            bg-emerald-50 dark:bg-emerald-900/20 px-6 py-5
             flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-sm font-semibold text-primary-900 dark:text-primary-200">
+              <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
                 {t('dashboard.quickAction.title')}
               </h2>
-              <p className="text-xs text-primary-700/70 dark:text-primary-400/70 mt-1">
+              <p className="text-xs text-emerald-700/70 dark:text-emerald-400/70 mt-1">
                 {t('dashboard.quickAction.subtitle')}
               </p>
             </div>
             <Link to="/submit-idea" className="flex-shrink-0">
-              <button className="px-5 py-2 rounded-lg bg-primary-600 text-white
-                text-sm font-medium hover:bg-primary-700 transition-colors
+              <button className="px-5 py-2 rounded-lg bg-emerald-600 text-gray-50
+                text-sm font-medium hover:bg-emerald-700 transition-colors
                 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -139,7 +138,7 @@ const Dashboard = () => {
 
         {/* Ideas List */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">{t('dashboard.ideas.title')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50 mb-6">{t('dashboard.ideas.title')}</h2>
 
           {loading ? (
             <DashboardSkeleton />
@@ -150,13 +149,13 @@ const Dashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('dashboard.ideas.empty')}</h3>
-              <p className="text-slate-500 dark:text-gray-400 mb-8 text-sm max-w-sm mx-auto leading-relaxed">{t('dashboard.ideas.emptySub')}</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50 mb-2">{t('dashboard.ideas.empty')}</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm max-w-sm mx-auto leading-relaxed">{t('dashboard.ideas.emptySub')}</p>
               <Link to="/submit-idea"><Button size="lg">{t('dashboard.ideas.submitFirst')}</Button></Link>
               <div className="mt-4">
                 <button
                   onClick={() => setShowOnboarding(true)}
-                  className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                  className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
                 >
                   {t('dashboard.ideas.howItWorks')}
                 </button>
@@ -169,25 +168,25 @@ const Dashboard = () => {
                   <Card hover className="!p-0">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-semibold text-slate-900 dark:text-white truncate">{idea.title}</h3>
+                        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-50 truncate">{idea.title}</h3>
                           <Badge color="purple" size="sm">{getSectorLabel(idea.sector)}</Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-gray-500">
-                          <span>{formatDate(idea.createdAt)}</span>
                           {idea.evaluation && (
-                            <span className="flex items-center gap-1.5">
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                                idea.evaluation.overallScore >= 65 ? 'bg-emerald-500' :
-                                idea.evaluation.overallScore >= 40 ? 'bg-amber-500' :
-                                                                     'bg-red-500'
-                              }`} />
-                              <span className={`text-sm font-semibold ${
-                                getScoreColor(idea.evaluation.overallScore)
-                              }`}>
-                                {idea.evaluation.overallScore}
-                              </span>
-                            </span>
+                            <Badge
+                              color={
+                                idea.evaluation.overallScore >= 65 ? 'green' :
+                                idea.evaluation.overallScore >= 40 ? 'amber' : 'red'
+                              }
+                              size="sm"
+                            >
+                              {idea.evaluation.overallScore}/100
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <span>{formatDate(idea.createdAt)}</span>
+                          {!idea.evaluation && (
+                            <span className="text-xs text-gray-400 dark:text-gray-500 italic">{t('dashboard.ideas.notEvaluated', 'Not evaluated yet')}</span>
                           )}
                         </div>
                       </div>
@@ -206,7 +205,7 @@ const Dashboard = () => {
                         )}
                         <button
                           onClick={() => setConfirmDeleteId(idea.ideaId)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                           title="Delete idea"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,9 +227,9 @@ const Dashboard = () => {
       {/* Delete confirmation modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('dashboard.delete.title')}</h3>
-            <p className="text-sm text-slate-500 dark:text-gray-500 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">{t('dashboard.delete.title')}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               {t('dashboard.delete.body')}
             </p>
             <div className="flex gap-3">
