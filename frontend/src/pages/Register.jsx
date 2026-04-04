@@ -32,7 +32,7 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen section-hero flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -41,11 +41,11 @@ const Register = () => {
       >
         <div className="text-center mb-8">
           <Link to="/">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold text-gradient-primary mb-2">
               Mashroo3i
             </h1>
           </Link>
-          <p className="text-slate-600 dark:text-gray-400">{t('auth.register.subtitle')}</p>
+          <p className="text-hero-muted">{t('auth.register.subtitle')}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
@@ -104,9 +104,9 @@ const Register = () => {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-600 dark:text-gray-400">
+          <p className="mt-6 text-center text-sm text-slate-500 dark:text-gray-400">
             {t('auth.register.hasAccount')}{' '}
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
+            <Link to="/login" className="font-medium text-primary-400 hover:text-primary-300">
               {t('auth.register.signIn')}
             </Link>
           </p>

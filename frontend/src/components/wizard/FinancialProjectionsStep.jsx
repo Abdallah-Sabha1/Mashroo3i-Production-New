@@ -11,7 +11,7 @@ import { Skeleton } from '../ui/Loading'
 
 const tabStyle = {
   green:  { active: 'bg-green-600  text-white', inactive: 'text-green-600  dark:text-green-400  hover:bg-green-50  dark:hover:bg-green-950/20'  },
-  indigo: { active: 'bg-indigo-600 text-white', inactive: 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20' },
+  indigo: { active: 'bg-primary-600 text-white', inactive: 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20' },
   red:    { active: 'bg-red-500    text-white', inactive: 'text-red-500    dark:text-red-400    hover:bg-red-50    dark:hover:bg-red-950/20'    },
 }
 
@@ -189,7 +189,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
       <p className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</p>
       <button
         onClick={() => window.location.reload()}
-        className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+        className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
       >
         {t('financialWizard.projections.retry')}
       </button>
@@ -256,7 +256,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
           </div>
           <button
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             {t('financialWizard.projections.reset')}
@@ -281,7 +281,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
                     {value !== 0 && (
                       <>
                         {' → '}
-                        <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+                        <span className="text-primary-600 dark:text-primary-400 font-semibold">
                           {adjusted.toLocaleString()}{isPercent ? '%' : ' JOD'}
                         </span>
                       </>
@@ -299,8 +299,8 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
                     onChange={e => set(parseInt(e.target.value))}
                     className="flex-1 h-2 bg-slate-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer
                       [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-                      [&::-webkit-slider-thumb]:bg-indigo-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
-                      [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-indigo-600
+                      [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
+                      [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-primary-600
                       [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
                   />
                   <span className="text-sm font-medium text-slate-700 dark:text-gray-300 min-w-[3.5rem] text-right">
@@ -317,7 +317,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
             onClick={handleRecalculate}
             disabled={recalculating}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl
-              bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed
+              bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed
               text-white text-sm font-semibold transition-colors"
           >
             {recalculating
@@ -402,7 +402,7 @@ const FinancialProjectionsStep = ({ ideaId, industryType, businessModel }) => {
               <div>
                 <button
                   onClick={() => setShowTable(s => !s)}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mb-2"
+                  className="text-xs text-primary-600 dark:text-primary-400 hover:underline mb-2"
                 >
                   {showTable
                     ? t('financialWizard.projections.table.hideMonthly')

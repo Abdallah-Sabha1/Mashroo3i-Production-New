@@ -32,7 +32,7 @@ export default function IdeaCard({ idea, delay = 0 }) {
           {/* Header with title and status */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-indigo-400 transition line-clamp-2">
+              <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-2">
                 {idea.title}
               </h3>
               <p className="text-sm text-slate-500 dark:text-gray-400 mt-1">{idea.sector}</p>

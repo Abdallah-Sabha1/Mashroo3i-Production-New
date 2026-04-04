@@ -62,7 +62,7 @@ const FinancialProjections = () => {
             <p className="text-sm text-red-600 dark:text-red-400 mb-4">{error}</p>
             <Link
               to={`/evaluation/${ideaId}`}
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
             >
               {t('financialWizard.backToAnalysis')}
             </Link>
@@ -84,7 +84,7 @@ const FinancialProjections = () => {
             </p>
             <Link
               to={`/evaluation/${ideaId}`}
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
             >
               {t('financialWizard.backToAnalysis')}
             </Link>
@@ -107,7 +107,7 @@ const FinancialProjections = () => {
         <Link
           to={`/evaluation/${ideaId}`}
           className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500
-            hover:text-indigo-600 dark:hover:text-indigo-400 mb-6 transition-colors"
+            hover:text-primary-600 dark:hover:text-primary-400 mb-6 transition-colors"
         >
           <ChevronRight className="w-4 h-4 rotate-180" />
           {t('financialWizard.backToAnalysis')}

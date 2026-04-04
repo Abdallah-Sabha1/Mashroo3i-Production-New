@@ -257,7 +257,7 @@ const Evaluation = () => {
               <p className="text-sm text-slate-700 dark:text-gray-300">{pageError}</p>
               <button
                 onClick={loadData}
-                className="text-sm text-indigo-600 dark:text-indigo-400 mt-2 font-medium hover:underline"
+                className="text-sm text-primary-600 dark:text-primary-400 mt-2 font-medium hover:underline"
               >
                 {t('evaluation.tryAgain')}
               </button>
@@ -289,7 +289,7 @@ const Evaluation = () => {
                 </div>
                 <button
                   onClick={handleReEvaluate}
-                  className="ms-8 text-sm font-medium text-indigo-600 dark:text-indigo-400
+                  className="ms-8 text-sm font-medium text-primary-600 dark:text-primary-400
                     hover:underline"
                 >
                   {t('evaluation.evalFailed.retry')}

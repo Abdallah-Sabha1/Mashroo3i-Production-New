@@ -73,8 +73,8 @@ const OnboardingModal = ({ onClose }) => {
           >
             {/* Icon */}
             <div className="flex justify-center mb-5">
-              <div className="w-14 h-14 rounded-full bg-indigo-50 dark:bg-indigo-950
-                flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <div className="w-14 h-14 rounded-full bg-primary-50 dark:bg-primary-900/30
+                flex items-center justify-center text-primary-600 dark:text-primary-400">
                 {ICONS[currentStep]}
               </div>
             </div>
@@ -96,7 +96,7 @@ const OnboardingModal = ({ onClose }) => {
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === currentStep
-                  ? 'w-5 bg-indigo-600'
+                  ? 'w-5 bg-primary-600'
                   : 'w-2 bg-slate-200 dark:bg-gray-700'
               }`}
             />
@@ -114,8 +114,8 @@ const OnboardingModal = ({ onClose }) => {
           </button>
           <button
             onClick={next}
-            className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white
-              text-sm font-semibold hover:bg-indigo-700 transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-primary-600 text-white
+              text-sm font-semibold hover:bg-primary-700 transition-colors"
           >
             {isLast ? t('onboarding.startNow') : t('onboarding.next')}
           </button>

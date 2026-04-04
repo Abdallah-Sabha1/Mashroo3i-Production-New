@@ -63,7 +63,7 @@ const Profile = () => {
           {/* Avatar */}
           <Card className="mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                 <span className="text-white text-xl font-bold">{user?.fullName?.charAt(0) || 'U'}</span>
               </div>
               <div>

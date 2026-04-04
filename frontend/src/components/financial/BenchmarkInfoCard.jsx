@@ -52,7 +52,7 @@ const BenchmarkInfoCard = ({ benchmark }) => {
         </div>
         <button
           onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex-shrink-0"
+          className="flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:underline flex-shrink-0"
         >
           {t('financialWizard.benchmark.details')}
           <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -104,7 +104,7 @@ const BenchmarkInfoCard = ({ benchmark }) => {
               <ul className="space-y-0.5">
                 {sources.map((s, i) => (
                   <li key={i} className="text-xs text-slate-500 dark:text-gray-400 flex items-start gap-1">
-                    <span className="text-indigo-400 mt-0.5">•</span> {s}
+                    <span className="text-primary-400 mt-0.5">•</span> {s}
                   </li>
                 ))}
               </ul>

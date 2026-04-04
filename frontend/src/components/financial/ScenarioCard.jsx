@@ -1,6 +1,6 @@
 const ScenarioCard = ({ title, value, unit = '', color = 'indigo', icon, subtitle }) => {
   const colorMap = {
-    indigo: { bg: 'bg-indigo-50 dark:bg-indigo-950/30', text: 'text-indigo-700 dark:text-indigo-300', icon: 'text-indigo-500' },
+    indigo: { bg: 'bg-primary-50 dark:bg-primary-900/30/30', text: 'text-primary-700 dark:text-primary-300', icon: 'text-primary-500' },
     green:  { bg: 'bg-green-50  dark:bg-green-950/30',  text: 'text-green-700  dark:text-green-300',  icon: 'text-green-500'  },
     amber:  { bg: 'bg-amber-50  dark:bg-amber-950/30',  text: 'text-amber-700  dark:text-amber-300',  icon: 'text-amber-500'  },
     red:    { bg: 'bg-red-50    dark:bg-red-950/30',    text: 'text-red-700    dark:text-red-300',    icon: 'text-red-500'    },

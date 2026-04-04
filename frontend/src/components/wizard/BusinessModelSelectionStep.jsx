@@ -5,7 +5,7 @@ import { Skeleton } from '../ui/Loading'
 import financialProjectionService from '../../services/financialProjectionService'
 
 const colorMap = {
-  indigo:  { border: 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 shadow-indigo-100 dark:shadow-indigo-950/30', badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300', title: 'text-indigo-700 dark:text-indigo-300' },
+  indigo:  { border: 'border-primary-500 bg-primary-50 dark:bg-primary-900/30/40 shadow-primary-100 dark:shadow-primary-900/30', badge: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300', title: 'text-primary-700 dark:text-primary-300' },
   emerald: { border: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 shadow-emerald-100 dark:shadow-emerald-950/30', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300', title: 'text-emerald-700 dark:text-emerald-300' },
 }
 
@@ -71,7 +71,7 @@ const BusinessModelSelectionStep = ({ industryType, selected, onSelect }) => {
             className={`text-start p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer
               ${isActive
                 ? `${c.border} border-2 shadow-md`
-                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-indigo-200 dark:hover:border-indigo-800 hover:bg-slate-50 dark:hover:bg-gray-800'
+                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-200 dark:hover:border-primary-800 hover:bg-slate-50 dark:hover:bg-gray-800'
               }`}
           >
             <div className="flex items-center gap-2 mb-3">

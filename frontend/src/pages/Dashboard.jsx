@@ -113,20 +113,20 @@ const Dashboard = () => {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <div className="rounded-xl border border-indigo-200 dark:border-indigo-800
-            bg-indigo-50 dark:bg-indigo-950/50 px-6 py-5
+          <div className="rounded-xl border border-primary-200 dark:border-primary-800
+            bg-primary-50 dark:bg-primary-900/30 px-6 py-5
             flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+              <h2 className="text-sm font-semibold text-primary-900 dark:text-primary-200">
                 {t('dashboard.quickAction.title')}
               </h2>
-              <p className="text-xs text-indigo-700/70 dark:text-indigo-400/70 mt-1">
+              <p className="text-xs text-primary-700/70 dark:text-primary-400/70 mt-1">
                 {t('dashboard.quickAction.subtitle')}
               </p>
             </div>
             <Link to="/submit-idea" className="flex-shrink-0">
-              <button className="px-5 py-2 rounded-lg bg-indigo-600 text-white
-                text-sm font-medium hover:bg-indigo-700 transition-colors
+              <button className="px-5 py-2 rounded-lg bg-primary-600 text-white
+                text-sm font-medium hover:bg-primary-700 transition-colors
                 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -144,14 +144,19 @@ const Dashboard = () => {
           {loading ? (
             <DashboardSkeleton />
           ) : ideas.length === 0 ? (
-            <Card className="text-center py-16">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('dashboard.ideas.empty')}</h3>
-              <p className="text-slate-500 dark:text-gray-500 mb-6 text-sm">{t('dashboard.ideas.emptySub')}</p>
-              <Link to="/submit-idea"><Button>{t('dashboard.ideas.submitFirst')}</Button></Link>
-              <div className="mt-3">
+            <Card className="text-center py-20">
+              <div className="w-20 h-20 rounded-2xl feature-icon flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('dashboard.ideas.empty')}</h3>
+              <p className="text-slate-500 dark:text-gray-400 mb-8 text-sm max-w-sm mx-auto leading-relaxed">{t('dashboard.ideas.emptySub')}</p>
+              <Link to="/submit-idea"><Button size="lg">{t('dashboard.ideas.submitFirst')}</Button></Link>
+              <div className="mt-4">
                 <button
                   onClick={() => setShowOnboarding(true)}
-                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
                 >
                   {t('dashboard.ideas.howItWorks')}
                 </button>

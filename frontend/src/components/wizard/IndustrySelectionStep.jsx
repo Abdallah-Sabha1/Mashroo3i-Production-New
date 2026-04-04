@@ -64,13 +64,13 @@ const IndustrySelectionStep = ({ selected, onSelect }) => {
             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center
               transition-all duration-200 cursor-pointer
               ${isActive
-                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 shadow-md shadow-indigo-100 dark:shadow-indigo-950/30'
-                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-gray-800'
+                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30/40 shadow-md shadow-primary-100 dark:shadow-primary-900/30'
+                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-slate-50 dark:hover:bg-gray-800'
               }`}
           >
             <span className="text-3xl">{icon}</span>
             <span className={`text-sm font-semibold leading-tight ${
-              isActive ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-gray-200'
+              isActive ? 'text-primary-700 dark:text-primary-300' : 'text-slate-800 dark:text-gray-200'
             }`}>
               {primaryName}
             </span>

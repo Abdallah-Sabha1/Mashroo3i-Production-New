@@ -39,7 +39,7 @@ const ProjectionTable = ({ monthlyData = [] }) => {
                 <td className="px-3 py-2 font-medium text-slate-700 dark:text-gray-300 text-start">
                   {m.month}
                 </td>
-                <td className="px-3 py-2 text-indigo-600 dark:text-indigo-400 text-start tabular-nums">
+                <td className="px-3 py-2 text-primary-600 dark:text-primary-400 text-start tabular-nums">
                   {fmt(m.revenue)}
                 </td>
                 <td className="px-3 py-2 text-red-600 dark:text-red-400 text-start tabular-nums">

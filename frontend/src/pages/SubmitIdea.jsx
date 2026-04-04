@@ -21,11 +21,11 @@ function ProgressBar({ step }) {
         <span className="text-sm text-slate-500 dark:text-gray-400">
           {t('submitIdea.stepOf', { step: step + 1, total: STEP_NAMES.length })}
         </span>
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{STEP_NAMES[step]}</span>
+        <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">{STEP_NAMES[step]}</span>
       </div>
       <div className="w-full bg-slate-100 dark:bg-gray-800 rounded-full h-2">
         <motion.div
-          className="bg-gradient-to-r from-indigo-600 to-blue-600 h-2 rounded-full"
+          className="bg-gradient-to-r from-primary-600 to-primary-400 h-2 rounded-full"
           initial={false}
           animate={{ width: `${((step + 1) / STEP_NAMES.length) * 100}%` }}
           transition={{ duration: 0.4, ease: 'easeInOut' }}
@@ -35,7 +35,7 @@ function ProgressBar({ step }) {
         {STEP_NAMES.map((name, i) => (
           <span
             key={name}
-            className={`text-xs ${i <= step ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-slate-400 dark:text-gray-600'}`}
+            className={`text-xs ${i <= step ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-slate-400 dark:text-gray-600'}`}
           >
             {name}
           </span>
@@ -84,7 +84,7 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
           onChange={e => setTitle(e.target.value)}
           placeholder={t('submitIdea.step0.titlePlaceholder')}
           maxLength={200}
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
         />
         {title.length > 0 && title.length < 5 && (
           <p className="text-xs text-red-500 mt-1">{t('submitIdea.step0.titleMin')}</p>
@@ -105,7 +105,7 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
           rows={6}
           placeholder={t('submitIdea.step0.descPlaceholder')}
           maxLength={2000}
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm resize-none"
         />
         <div className="flex items-center justify-between mt-1">
           {descLeft > 0
@@ -129,11 +129,11 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
               onClick={() => { setSelectedSector(s); setSectorError(false) }}
               className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                 selectedSector === s
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
                   : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 bg-white dark:bg-gray-800'
               }`}
             >
-              <p className={`font-medium text-sm ${selectedSector === s ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
+              <p className={`font-medium text-sm ${selectedSector === s ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
                 {t(`submitIdea.step0.sectors.${s}.label`)}
               </p>
               <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t(`submitIdea.step0.sectors.${s}.desc`)}</p>
@@ -145,11 +145,11 @@ function Step0({ title, setTitle, description, setDescription, selectedSector, s
             onClick={() => { setSelectedSector('other'); setSectorError(false) }}
             className={`col-span-2 text-left p-4 rounded-xl border-2 transition-all duration-200 ${
               selectedSector === 'other'
-                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/50'
+                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
                 : 'border-slate-200 dark:border-gray-700 hover:border-slate-300 bg-white dark:bg-gray-800'
             }`}
           >
-            <p className={`font-medium text-sm ${selectedSector === 'other' ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
+            <p className={`font-medium text-sm ${selectedSector === 'other' ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
               {t('submitIdea.step0.sectors.other.label')}
             </p>
             <p className="text-xs text-slate-500 dark:text-gray-500 mt-1">{t('submitIdea.step0.sectors.other.desc')}</p>
@@ -204,8 +204,8 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
   if (aiLoading) {
     return (
       <motion.div key="s1-load" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-20 flex flex-col items-center gap-6">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center">
-          <svg className="w-8 h-8 text-indigo-600 animate-spin" fill="none" viewBox="0 0 24 24">
+        <div className="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
+          <svg className="w-8 h-8 text-primary-600 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
@@ -225,7 +225,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         <div className="flex gap-1.5">
           {/* ✅ FIX #8: Use unique IDs instead of array index */}
           {LOADING_MSGS_WITH_IDS.map((msg, i) => (
-            <div key={msg.id} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-indigo-600 w-4' : 'bg-slate-200 dark:bg-gray-700'}`} />
+            <div key={msg.id} className={`w-2 h-2 rounded-full transition-all duration-500 ${i === msgIdx ? 'bg-primary-600 w-4' : 'bg-slate-200 dark:bg-gray-700'}`} />
           ))}
         </div>
       </motion.div>
@@ -250,12 +250,12 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         {cards.map(({ key, label }, i) => (
           <div key={key} className={i < cards.length - 1 ? 'pb-5 border-b border-slate-200 dark:border-gray-800' : ''}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{label}</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">{label}</p>
               {editingField !== key && (
                 <button
                   type="button"
                   onClick={() => startEdit(key)}
-                  className="text-xs text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors px-2 py-0.5 rounded-md border border-slate-200 dark:border-gray-700 hover:border-indigo-300"
+                  className="text-xs text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-2 py-0.5 rounded-md border border-slate-200 dark:border-gray-700 hover:border-primary-300"
                 >
                   {t('submitIdea.step1.editBtn')}
                 </button>
@@ -268,12 +268,12 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
                   onChange={e => setEditValue(e.target.value)}
                   rows={3}
                   autoFocus
-                  className="w-full px-3 py-2 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-primary-300 dark:border-primary-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                 />
                 <button
                   type="button"
                   onClick={doneEdit}
-                  className="mt-2 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors"
+                  className="mt-2 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   {t('submitIdea.step1.doneBtn')}
                 </button>
@@ -289,7 +289,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
       <div className="p-4 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900">
         <p className="text-sm font-medium text-slate-700 dark:text-gray-300 mb-1">
           {t('submitIdea.step1.bizTypeIntro')}
-          <strong className="text-indigo-600 dark:text-indigo-400 mx-1">
+          <strong className="text-primary-600 dark:text-primary-400 mx-1">
             {aiInsights?.suggestedBusinessType === 'B2B'
               ? t('submitIdea.step1.b2bLabel')
               : t('submitIdea.step1.b2cLabel')}
@@ -307,7 +307,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
             onClick={() => setConfirmedBusinessType('B2C')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
               confirmedBusinessType === 'B2C'
-                ? 'bg-indigo-600 text-white border-indigo-600'
+                ? 'bg-primary-600 text-white border-primary-600'
                 : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
             }`}
           >
@@ -318,7 +318,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
             onClick={() => setConfirmedBusinessType('B2B')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
               confirmedBusinessType === 'B2B'
-                ? 'bg-indigo-600 text-white border-indigo-600'
+                ? 'bg-primary-600 text-white border-primary-600'
                 : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700'
             }`}
           >
@@ -334,7 +334,7 @@ function Step1({ aiInsights, setAiInsights, aiLoading, confirmedBusinessType, se
         <button
           type="button"
           onClick={onBack}
-          className="w-full text-sm text-slate-500 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 transition-colors text-center"
+          className="w-full text-sm text-slate-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 py-2 transition-colors text-center"
         >
           {t('submitIdea.step1.editDesc')}
         </button>
@@ -365,7 +365,7 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
           onChange={e => setEstimatedBudget(e.target.value)}
           placeholder={t('submitIdea.step2.budgetPlaceholder')}
           min="1"
-          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
         />
         {selectedSector && t(`submitIdea.step0.budgetHints.${selectedSector}`, { defaultValue: '' }) && (
           <p className="text-xs text-slate-500 mt-1">{t(`submitIdea.step0.budgetHints.${selectedSector}`)}</p>
@@ -385,11 +385,11 @@ function Step2({ selectedSector, estimatedBudget, setEstimatedBudget, ammanRegio
               onClick={() => setAmmanRegion(r)}
               className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
                 ammanRegion === r
-                  ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700'
+                  ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700'
                   : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
               }`}
             >
-              <p className={`font-medium text-xs ${ammanRegion === r ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-200'}`}>
+              <p className={`font-medium text-xs ${ammanRegion === r ? 'text-primary-800 dark:text-primary-200' : 'text-slate-800 dark:text-gray-200'}`}>
                 {t(`submitIdea.step2.regions.${r}.label`)}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{t(`submitIdea.step2.regions.${r}.sub`)}</p>
@@ -434,7 +434,7 @@ function Step3({ title, selectedSector, aiInsights, confirmedBusinessType, estim
       <div className="rounded-xl border border-slate-200 dark:border-gray-700 p-4 space-y-2">
         <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">{t('submitIdea.step3.sectionIdea')}</p>
         <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
-        <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+        <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
           {sectorLabel}
         </span>
       </div>

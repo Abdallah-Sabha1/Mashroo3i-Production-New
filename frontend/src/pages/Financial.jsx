@@ -103,11 +103,11 @@ function ScenarioCard({ label, subtitle, data, highlight }) {
   return (
     <div className={`flex-1 rounded-2xl border-2 p-5 ${
       highlight
-        ? 'border-indigo-400 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-950/50'
+        ? 'border-primary-400 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/30'
         : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900'
     }`}>
       <p className={`text-xs font-bold uppercase tracking-wider mb-0.5 ${
-        highlight ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-gray-400'
+        highlight ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-gray-400'
       }`}>{label}</p>
       <p className="text-xs text-slate-400 dark:text-gray-500 mb-4">{subtitle}</p>
       <div className="space-y-2">
@@ -241,7 +241,7 @@ const Financial = () => {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 mb-5 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 mb-5 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -290,7 +290,7 @@ const Financial = () => {
                     {products.map((product, idx) => (
                       <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                         <input
-                          className="col-span-5 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="col-span-5 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder={idx === 0 ? 'e.g. Coffee' : 'e.g. Sandwich'}
                           value={product.name}
                           onChange={e => {
@@ -301,7 +301,7 @@ const Financial = () => {
                         />
                         <input
                           type="number" min="0" step="0.01"
-                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="e.g. 3"
                           value={product.price}
                           onChange={e => {
@@ -314,7 +314,7 @@ const Financial = () => {
                         />
                         <input
                           type="number" min="0" step="0.01"
-                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="col-span-3 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           placeholder="e.g. 1"
                           value={product.cost}
                           onChange={e => {
@@ -342,7 +342,7 @@ const Financial = () => {
                     <button
                       type="button"
                       onClick={() => setProducts([...products, { name: '', price: '', cost: '' }])}
-                      className="mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-medium flex items-center gap-1"
+                      className="mt-3 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium flex items-center gap-1"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -392,8 +392,8 @@ const Financial = () => {
                           onClick={() => setCustomersPerDay(opt.value)}
                           className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
                             customersPerDay === opt.value
-                              ? 'bg-indigo-600 text-white border-indigo-600'
-                              : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-indigo-300'
+                              ? 'bg-primary-600 text-white border-primary-600'
+                              : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-primary-300'
                           }`}
                         >
                           {opt.label}
@@ -419,8 +419,8 @@ const Financial = () => {
                             onClick={() => setTargetClientsRange(val)}
                             className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${
                               targetClientsRange === val
-                                ? 'bg-indigo-600 text-white border-indigo-600'
-                                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-indigo-300'
+                                ? 'bg-primary-600 text-white border-primary-600'
+                                : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-700 hover:border-primary-300'
                             }`}
                           >{label}</button>
                         )
@@ -462,12 +462,12 @@ const Financial = () => {
                         onClick={() => setAcquisitionChannel(ch.value)}
                         className={`w-full text-left px-4 py-2.5 rounded-lg text-sm border transition-all flex items-center gap-3 ${
                           acquisitionChannel === ch.value
-                            ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700 text-indigo-800 dark:text-indigo-200'
+                            ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700 text-primary-800 dark:text-primary-200'
                             : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 hover:border-slate-300'
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          acquisitionChannel === ch.value ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-gray-600'
+                          acquisitionChannel === ch.value ? 'bg-primary-600' : 'bg-slate-300 dark:bg-gray-600'
                         }`} />
                         {ch.label}
                       </button>
@@ -491,13 +491,13 @@ const Financial = () => {
                         onClick={() => setAmmanRegion(r.value)}
                         className={`py-3 px-3 rounded-lg text-sm border transition-all text-left ${
                           ammanRegion === r.value
-                            ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 dark:border-indigo-700'
+                            ? 'bg-primary-50 dark:bg-primary-900/30 border-primary-300 dark:border-primary-700'
                             : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 hover:border-slate-300'
                         }`}
                       >
                         <p className={`font-medium text-xs ${
                           ammanRegion === r.value
-                            ? 'text-indigo-800 dark:text-indigo-200'
+                            ? 'text-primary-800 dark:text-primary-200'
                             : 'text-slate-800 dark:text-gray-200'
                         }`}>{r.label}</p>
                         <p className="text-[11px] text-slate-400 dark:text-gray-500 mt-0.5">{r.sub}</p>
@@ -516,7 +516,7 @@ const Financial = () => {
                 <button
                   type="submit"
                   disabled={calculating}
-                  className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-primary-600 text-white font-semibold text-sm hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {calculating ? (
                     <>
@@ -651,7 +651,7 @@ const Financial = () => {
                   </div>
 
                   {/* Realistic — prominent */}
-                  <div className="px-5 py-4 bg-indigo-50/40 dark:bg-indigo-950/20
+                  <div className="px-5 py-4 bg-primary-50/40 dark:bg-primary-900/20
                     border-b border-slate-100 dark:border-gray-800">
                     <div className="flex items-center justify-between mb-3">
                       <div>
@@ -659,8 +659,8 @@ const Financial = () => {
                         <p className="text-xs text-slate-400 dark:text-gray-500">Based on your inputs</p>
                       </div>
                       <span className="text-xs px-2 py-1 rounded-full
-                        bg-indigo-100 dark:bg-indigo-900
-                        text-indigo-700 dark:text-indigo-300 font-medium">
+                        bg-primary-100 dark:bg-primary-900
+                        text-primary-700 dark:text-primary-300 font-medium">
                         Most likely
                       </span>
                     </div>

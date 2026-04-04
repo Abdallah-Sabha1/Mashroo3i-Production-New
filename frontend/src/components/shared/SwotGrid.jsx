@@ -25,9 +25,9 @@ const quadrants = [
     i18nKey:    'evaluation.opportunities',
     column:     'external',
     bar:        'border-s-blue-500',
-    dot:        'bg-blue-500',
-    label:      'text-blue-700 dark:text-blue-400',
-    bg:         'bg-blue-50/40 dark:bg-blue-950/20',
+    dot:        'bg-primary-500',
+    label:      'text-primary-700 dark:text-primary-400',
+    bg:         'bg-primary-50/40 dark:bg-primary-900/20',
   },
   {
     key:        'threats',

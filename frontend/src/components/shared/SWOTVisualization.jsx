@@ -33,10 +33,10 @@ export default function SWOTVisualization({ swotData }) {
       iconPath: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9',
       items: swotData.opportunities || [],
       color: 'blue',
-      bg: 'bg-blue-50',
+      bg: 'bg-primary-50',
       border: 'border-l-4 border-blue-500',
-      textBold: 'text-blue-900',
-      textLight: 'text-blue-800',
+      textBold: 'text-primary-900',
+      textLight: 'text-primary-800',
     },
     {
       key: 'threats',

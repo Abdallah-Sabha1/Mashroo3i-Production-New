@@ -202,7 +202,7 @@ const BusinessPlan = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: t('businessPlan.sections.howOriginal'),        val: evalData.noveltyScore,        unit: '/10', color: 'text-purple-600 dark:text-purple-400' },
-                  { label: t('businessPlan.sections.marketOpportunity'),  val: evalData.marketPotentialScore, unit: '/10', color: 'text-blue-600 dark:text-blue-400' },
+                  { label: t('businessPlan.sections.marketOpportunity'),  val: evalData.marketPotentialScore, unit: '/10', color: 'text-primary-600 dark:text-primary-400' },
                   { label: t('businessPlan.sections.overallScore'),       val: evalData.overallScore,         unit: '/10', color: 'text-primary-600 dark:text-primary-400' },
                   { label: t('businessPlan.sections.riskAssessment'),     val: translatedRisk,                unit: '',    color: 'text-slate-900 dark:text-white' },
                 ].map(({ label, val, unit, color }) => (
@@ -273,12 +273,12 @@ const BusinessPlan = () => {
 
           {/* 6. Recommendations */}
           {evalData?.recommendations && (
-            <Card className="!bg-blue-50 dark:!bg-blue-950/40 !border-blue-200 dark:!border-blue-800">
+            <Card className="!bg-primary-50 dark:!bg-primary-900/30 !border-primary-200 dark:!border-primary-800">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2 text-start">
-                <SectionNumber n={sn()} color="bg-blue-600" />
+                <SectionNumber n={sn()} color="bg-primary-600" />
                 {t('businessPlan.sections.whatNext')}
               </h2>
-              <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{evalData.recommendations}</p>
+              <p className="text-sm text-primary-800 dark:text-primary-300 leading-relaxed">{evalData.recommendations}</p>
             </Card>
           )}
 
